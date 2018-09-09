@@ -14,9 +14,9 @@ import java.util.ArrayList;
 public class Navigation{
     /*
     //-----REFERENCE------//
-        x+ is front (north)(audience side)
+        x+ is front (north)(back side)
         z+ is right (west)(red side)
-        x- is back (south)(backside)
+        x- is back (south)(audience side)
         z- is left (east)(blue side)
      */
 
