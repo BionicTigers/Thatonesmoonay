@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Debug Autonomous", group ="debug")
+@Autonomous(name="Debug Autonomous", group ="test")
 public class DebugAuto extends LinearOpMode {
 
     @Override public void runOpMode() {
