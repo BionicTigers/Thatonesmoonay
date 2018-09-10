@@ -18,6 +18,7 @@ public class Navigation{
         z+ is right (west)(red side)
         x- is back (south)(audience side)
         z- is left (east)(blue side)
+        rotation is in degrees, going from 0 @ z+ to 360 @ z+
      */
 
     //------game element locations-----//
@@ -27,7 +28,7 @@ public class Navigation{
     public static final Location cargoRedSilver = new Location(8.31f,27f,-8.31f,0f);
 
     //-----team enum-----//
-    public enum Team {UNKNOWN, REDNORTH, REDSOUTH, BLUENORTH, BLUESOUTH};
+    public enum Team {UNKNOWN, REDNORTH, REDSOUTH, BLUENORTH, BLUESOUTH}
     public Team team = Team.UNKNOWN;
 
     //-----public robot elements-----//
@@ -38,11 +39,10 @@ public class Navigation{
     public DcMotor motorRightB;
 
     //-----robot position and dimensions-----//
-    private Location pos = new Location(); //location of robot as [x,y,z,rot] (inches)
-    private boolean posHasBeenUpdated = false;
+    public Location pos = new Location(); //location of robot as [x,y,z,rot] (inches)
+    public boolean posHasBeenUpdated = false;
     private float wheelDistance = 6; //distance from center of robot to center of wheel (inches)
     private float wheelDiameter = 4; //diameter of wheel (inches)
-    private float killDistance = 80; //kills program if robot farther than distance in x or z from origin (inches)
     private Location[] camLocations = new Location[1];
 
 
@@ -54,10 +54,12 @@ public class Navigation{
     //-----tweak values-----//
     private float minimumSlowdownDistance = 10f; //when executing a goToLocation function, robot will begin slowing this far from destination (inches)
     private float maximumMotorPower = 0.9f; //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
+    private float killDistance = 0; //kills program if robot farther than distance in x or z from origin (inches) (0 means no kill)
+    public String tele = "";
 
     /** Constructor class for hardware init. Requires local LinearOpMode for phone cameras in Vuforia.
      *
-     * @param hardwareGetter
+     * @param hardwareGetter LinearOpMode class that has direct access to Hardware components. Call from LinearOpMode as 'new Navigation(this)'
      */
     public Navigation(com.qualcomm.robotcore.eventloop.opmode.LinearOpMode hardwareGetter) {
         motorLeftA = hardwareGetter.hardwareMap.dcMotor.get("motorLeftA");
@@ -72,15 +74,17 @@ public class Navigation{
 
         vuforia = ClassFactory.createVuforiaLocalizer(parameters);
         vumarks = vuforia.loadTrackablesFromAsset("18-19_rover_ruckus");
-        vumarkLocations[0] = new Location(71.5f,5.75f,0f,0f); //west
-        vumarkLocations[1] = new Location(0f,5.75f,71.5f,0f); //north
+        vumarkLocations[0] = new Location(71.5f,5.75f,0f,180f); //west
+        vumarkLocations[1] = new Location(0f,5.75f,71.5f,270f); //north
         vumarkLocations[2] = new Location(-71.5f,5.75f,0f,0f); //east
-        vumarkLocations[3] = new Location(0f,5.75f,-71.5f,0f); //south
+        vumarkLocations[3] = new Location(0f,5.75f,-71.5f,90f); //south
 
         //private static final Location camRight = new Location();
         camLocations[0] = new Location(0f,6f,6f,0f);
         //private static final Location camLeft = new Location();
         //private static final Location camBack = new Location();
+
+        vumarks.activate();
     }
 
     /** Updates position using vuforia.
@@ -99,20 +103,20 @@ public class Navigation{
     public boolean updatePos(boolean averageResults) {
 
         ArrayList<Location> validPositions = new ArrayList<>();
-        vumarks.activate();
-        for (int c = 0; c < camLocations.length; c++) {
+
+       // for (int c = 0; c < camLocations.length; c++) {
             for (int i = 0; i < vumarks.size(); i++) {
                 OpenGLMatrix testLocation = ((VuforiaTrackableDefaultListener) vumarks.get(i).getListener()).getPose();
                 if (testLocation != null) {
-                    Location markLocation = new Location(vumarkLocations[i].getLocation(0), vumarkLocations[i].getLocation(1), vumarkLocations[i].getLocation(2), ((i * 90f) - pos.getLocation(3) + 180) % 360f);
-                    markLocation.translateLocal(-testLocation.getTranslation().get(0), -testLocation.getTranslation().get(1), -testLocation.getTranslation().get(2)); //<- test
+                    tele = "" + testLocation.get(1,2);
+                    Location markLocation = new Location(vumarkLocations[i].getLocation(0), vumarkLocations[i].getLocation(1), vumarkLocations[i].getLocation(2), vumarkLocations[i].getLocation(3) + (float)Math.toDegrees(testLocation.get(1,2)));
+                    markLocation.translateLocal(-testLocation.getTranslation().get(1), -testLocation.getTranslation().get(0), -testLocation.getTranslation().get(2));
                     markLocation.setRotation((markLocation.getLocation(3) + 180f) % 360);
-                    markLocation.translateLocal(-camLocations[c].getLocation(0),-camLocations[c].getLocation(1),-camLocations[c].getLocation(2));
+                    //markLocation.translateLocal(-camLocations[c].getLocation(0),-camLocations[c].getLocation(1),-camLocations[c].getLocation(2));
                     validPositions.add(markLocation);
                 }
             }
-         }
-        vumarks.deactivate();
+       // }
 
         if(validPositions.size() == 0) return false;
         Location result = validPositions.get(0);
@@ -136,7 +140,7 @@ public class Navigation{
         }
         pos = result;
         posHasBeenUpdated = true;
-        if(Math.abs(pos.getLocation(0)) >  killDistance || Math.abs(pos.getLocation(2)) >  killDistance) throw new IllegalStateException("Robot outside of killDistance at pos: " + pos);
+        if( killDistance!= 0 && (Math.abs(pos.getLocation(0)) >  killDistance || Math.abs(pos.getLocation(2)) >  killDistance)) throw new IllegalStateException("Robot outside of killDistance at pos: " + pos);
         return true;
     }
 
@@ -186,25 +190,25 @@ public class Navigation{
         float elapsedDistance = 0f;
         if(distance > 0) {
             while(distance-elapsedDistance > (0+precision)) {
-                float encoderMovement = 0f;
+                float encoderMovement = motorRightA.getCurrentPosition();
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower*(elapsedDistance-distance/distance));
                 motorLeftA.setPower(-motorPower);
                 motorLeftB.setPower(-motorPower);
                 motorRightA.setPower(motorPower);
                 motorRightB.setPower(motorPower);
-                //encoder goes here (right side)
+                encoderMovement = motorRightA.getCurrentPosition() - encoderMovement;
                 elapsedDistance += encoderMovement * (wheelDiameter/2f);
             }
         }
         else {
             while(distance-elapsedDistance < (0-precision)) {
-                float encoderMovement = 0f;
+                float encoderMovement = motorRightA.getCurrentPosition();
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower*(elapsedDistance-distance/distance));
                 motorLeftA.setPower(motorPower);
                 motorLeftB.setPower(motorPower);
                 motorRightA.setPower(-motorPower);
                 motorRightB.setPower(-motorPower);
-                //encoder goes here (right side)
+                encoderMovement = motorRightA.getCurrentPosition() - encoderMovement;
                 elapsedDistance += encoderMovement * (wheelDiameter/2f);
             }
         }
@@ -230,25 +234,25 @@ public class Navigation{
         float elapsedDistance = 0f;
         if(distance > 0) {
             while (distance - elapsedDistance > (0 + precision)) {
-                float encoderMovement = 0f;
+                float encoderMovement = motorRightA.getCurrentPosition();
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower * (elapsedDistance - distance / distance));
                 motorLeftA.setPower(motorPower);
                 motorLeftB.setPower(motorPower);
                 motorRightA.setPower(motorPower);
                 motorRightB.setPower(motorPower);
-                //encoder goes here
+                encoderMovement = motorRightA.getCurrentPosition() - encoderMovement;
                 elapsedDistance += encoderMovement * (wheelDiameter / 2f);
             }
         }
         else {
             while (distance - elapsedDistance < (0 - precision)) {
-                float encoderMovement = 0f;
+                float encoderMovement = motorRightA.getCurrentPosition();
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower * (elapsedDistance - distance / distance));
                 motorLeftA.setPower(-motorPower);
                 motorLeftB.setPower(-motorPower);
                 motorRightA.setPower(-motorPower);
                 motorRightB.setPower(-motorPower);
-                //encoder goes here
+                encoderMovement = motorRightA.getCurrentPosition() - encoderMovement;
                 elapsedDistance += encoderMovement * (wheelDiameter / 2f);
             }
         }

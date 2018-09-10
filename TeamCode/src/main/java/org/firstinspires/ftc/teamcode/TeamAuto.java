@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Vuforia Distance Tracker", group ="summerProjects")
+@Autonomous(name="Team Autonomous")
 public class TeamAuto extends LinearOpMode {
 
     @Override public void runOpMode() {
@@ -14,6 +14,17 @@ public class TeamAuto extends LinearOpMode {
         waitForStart();
         while (opModeIsActive()) {
 
+            //landing
+
+            //identify cube
+
+            //collect/knock cube while avoiding other items
+
+            //nav to marker deploy
+
+            //deploy marker
+
+            //enter crater
 
         }
     }
