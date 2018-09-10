@@ -87,6 +87,32 @@ public class Navigation{
         vumarks.activate();
     }
 
+    /** Set power value of drive motors to given percentage.
+     *
+     * @param power Power percentage to supply motor. 0 = 0%, 1 = 100%
+     */
+    public void setMotors(float power) {
+        setMotors(power,power);
+    }
+
+    /** Set power values of left and right drive motors to given percentage.
+     *
+     * @param powerL Power percentage to supply left motors. 0 = 0%, 1 = 100%
+     * @param powerR Power percentage to supply right motors. 0 = 0%, 1 = 100%
+     */
+    public void setMotors(float powerL, float powerR) {
+        motorLeftA.setPower(powerL);
+        motorLeftB.setPower(powerL);
+        motorRightA.setPower(powerR);
+        motorRightB.setPower(powerR);
+    }
+
+    /** Stops drive motors.
+     */
+    public void stopMotors() {
+        setMotors(0f,0f);
+    }
+
     /** Updates position using vuforia.
      *
      * @return True if position was changed, false otherwise.
@@ -192,10 +218,7 @@ public class Navigation{
             while(distance-elapsedDistance > (0+precision)) {
                 float encoderMovement = motorRightA.getCurrentPosition();
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower*(elapsedDistance-distance/distance));
-                motorLeftA.setPower(-motorPower);
-                motorLeftB.setPower(-motorPower);
-                motorRightA.setPower(motorPower);
-                motorRightB.setPower(motorPower);
+                setMotors(-motorPower,motorPower);
                 encoderMovement = motorRightA.getCurrentPosition() - encoderMovement;
                 elapsedDistance += encoderMovement * (wheelDiameter/2f);
             }
@@ -204,14 +227,12 @@ public class Navigation{
             while(distance-elapsedDistance < (0-precision)) {
                 float encoderMovement = motorRightA.getCurrentPosition();
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower*(elapsedDistance-distance/distance));
-                motorLeftA.setPower(motorPower);
-                motorLeftB.setPower(motorPower);
-                motorRightA.setPower(-motorPower);
-                motorRightB.setPower(-motorPower);
+                setMotors(motorPower,-motorPower);
                 encoderMovement = motorRightA.getCurrentPosition() - encoderMovement;
                 elapsedDistance += encoderMovement * (wheelDiameter/2f);
             }
         }
+        stopMotors();
         pos.setRotation(rot);
         updatePos();
     }
@@ -236,10 +257,7 @@ public class Navigation{
             while (distance - elapsedDistance > (0 + precision)) {
                 float encoderMovement = motorRightA.getCurrentPosition();
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower * (elapsedDistance - distance / distance));
-                motorLeftA.setPower(motorPower);
-                motorLeftB.setPower(motorPower);
-                motorRightA.setPower(motorPower);
-                motorRightB.setPower(motorPower);
+                setMotors(motorPower);
                 encoderMovement = motorRightA.getCurrentPosition() - encoderMovement;
                 elapsedDistance += encoderMovement * (wheelDiameter / 2f);
             }
@@ -248,14 +266,12 @@ public class Navigation{
             while (distance - elapsedDistance < (0 - precision)) {
                 float encoderMovement = motorRightA.getCurrentPosition();
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower * (elapsedDistance - distance / distance));
-                motorLeftA.setPower(-motorPower);
-                motorLeftB.setPower(-motorPower);
-                motorRightA.setPower(-motorPower);
-                motorRightB.setPower(-motorPower);
+                setMotors(-motorPower);
                 encoderMovement = motorRightA.getCurrentPosition() - encoderMovement;
                 elapsedDistance += encoderMovement * (wheelDiameter / 2f);
             }
         }
+        stopMotors();
         pos.translateLocal(distance);
         updatePos();
     }
