@@ -104,9 +104,9 @@ public class Location {
      * @param up Translates position given units up.
      */
     public void translateLocal(float forward, float up, float right) {
-        pos[0] = (float)(forward*Math.cos(Math.toRadians(pos[3])) + right*Math.cos(Math.toRadians(pos[3]-90)));
+        pos[0] += (float)(forward*Math.cos(Math.toRadians(pos[3])) + right*Math.cos(Math.toRadians(pos[3]-90)));
         pos[1] += up;
-        pos[2] = (float)(forward*Math.sin(Math.toRadians(pos[3])) + right*Math.sin(Math.toRadians(pos[3]-90)));
+        pos[2] += (float)(forward*Math.sin(Math.toRadians(pos[3])) + right*Math.sin(Math.toRadians(pos[3]-90)));
     }
 
     /** Translates object x and z in world coordinates.

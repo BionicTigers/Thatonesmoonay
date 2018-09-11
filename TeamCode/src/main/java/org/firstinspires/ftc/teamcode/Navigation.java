@@ -15,9 +15,9 @@ public class Navigation{
     /*
     //-----REFERENCE------//
         x+ is front (north)(back side)
-        z+ is right (west)(red side)
+        z+ is right (east)(red side)
         x- is back (south)(audience side)
-        z- is left (east)(blue side)
+        z- is left (west)(blue side)
         rotation is in degrees, going from 0 @ z+ to 360 @ z+
      */
 
@@ -137,7 +137,7 @@ public class Navigation{
                     Location markLocation = new Location(vumarkLocations[i].getLocation(0), vumarkLocations[i].getLocation(1), vumarkLocations[i].getLocation(2), vumarkLocations[i].getLocation(3) + (float)Math.toDegrees(testLocation.get(1,2)));
                     tele = "["+markLocation+"],["+(testLocation.getTranslation().get(1))+","+(-testLocation.getTranslation().get(0))+","+(-testLocation.getTranslation().get(2));
                     markLocation.translateLocal(testLocation.getTranslation().get(1), -testLocation.getTranslation().get(0), testLocation.getTranslation().get(2));
-                    markLocation.setRotation((markLocation.getLocation(3) + 180f) % 360);
+                    markLocation.setRotation(markLocation.getLocation(3) + 180f);
                     //markLocation.translateLocal(-camLocations[c].getLocation(0),-camLocations[c].getLocation(1),-camLocations[c].getLocation(2));
                     validPositions.add(markLocation);
                 }
