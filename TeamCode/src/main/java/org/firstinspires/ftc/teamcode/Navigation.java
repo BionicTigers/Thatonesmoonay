@@ -213,23 +213,20 @@ public class Navigation{
         float rotb = (rot-360) - pos.getLocation(3);
         float optimalRotation = Math.abs(rota)<Math.abs(rotb) ? rota : rotb; //selects shorter rotation
         float distance = 360 * (float)(Math.toRadians(optimalRotation) * wheelDistance / (wheelDiameter*Math.PI)); //arc length of turn / circumference of wheel * 360
-        float elapsedDistance = 0f;
+        float initDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f);
+        float elapsedDistance = initDistance;
         if(distance > 0) {
             while(distance-elapsedDistance > (0+precision)) {
-                float encoderMovement = motorRightA.getCurrentPosition();
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower*(elapsedDistance-distance/distance));
                 setMotors(-motorPower,motorPower);
-                encoderMovement = motorRightA.getCurrentPosition() - encoderMovement;
-                elapsedDistance += encoderMovement * (wheelDiameter/2f);
+                elapsedDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f) - initDistance;
             }
         }
         else {
             while(distance-elapsedDistance < (0-precision)) {
-                float encoderMovement = motorRightA.getCurrentPosition();
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower*(elapsedDistance-distance/distance));
                 setMotors(motorPower,-motorPower);
-                encoderMovement = motorRightA.getCurrentPosition() - encoderMovement;
-                elapsedDistance += encoderMovement * (wheelDiameter/2f);
+                elapsedDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f) + initDistance;
             }
         }
         stopMotors();
@@ -252,23 +249,20 @@ public class Navigation{
      * @param precision distance behind goal to cut power (inches). 0 will stop bot at point, but may take much longer due to slowdown.
      */
     public void goDistance(float distance, float precision) {
-        float elapsedDistance = 0f;
+        float initDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f);
+        float elapsedDistance = initDistance;
         if(distance > 0) {
             while (distance - elapsedDistance > (0 + precision)) {
-                float encoderMovement = motorRightA.getCurrentPosition();
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower * (elapsedDistance - distance / distance));
                 setMotors(motorPower);
-                encoderMovement = motorRightA.getCurrentPosition() - encoderMovement;
-                elapsedDistance += encoderMovement * (wheelDiameter / 2f);
+                elapsedDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f) - initDistance;
             }
         }
         else {
             while (distance - elapsedDistance < (0 - precision)) {
-                float encoderMovement = motorRightA.getCurrentPosition();
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower * (elapsedDistance - distance / distance));
                 setMotors(-motorPower);
-                encoderMovement = motorRightA.getCurrentPosition() - encoderMovement;
-                elapsedDistance += encoderMovement * (wheelDiameter / 2f);
+                elapsedDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f) + initDistance;
             }
         }
         stopMotors();
