@@ -55,7 +55,7 @@ public class Navigation{
     private float minimumSlowdownDistance = 10f; //when executing a goToLocation function, robot will begin slowing this far from destination (inches)
     private float maximumMotorPower = 0.9f; //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
     private float killDistance = 0; //kills program if robot farther than distance in x or z from origin (inches) (0 means no kill)
-    public String tele = "";
+    public String tele = ""; //used to output to telemetry. Put data here.
 
     /** Constructor class for hardware init. Requires local LinearOpMode for phone cameras in Vuforia.
      *
@@ -74,10 +74,10 @@ public class Navigation{
 
         vuforia = ClassFactory.createVuforiaLocalizer(parameters);
         vumarks = vuforia.loadTrackablesFromAsset("18-19_rover_ruckus");
-        vumarkLocations[0] = new Location(71.5f,5.75f,0f,180f); //west
-        vumarkLocations[1] = new Location(0f,5.75f,71.5f,270f); //north
-        vumarkLocations[2] = new Location(-71.5f,5.75f,0f,0f); //east
-        vumarkLocations[3] = new Location(0f,5.75f,-71.5f,90f); //south
+        vumarkLocations[0] = new Location(0f,5.75f,71.5f,180f); //west
+        vumarkLocations[1] = new Location(71.5f,5.75f,0f,270f); //north
+        vumarkLocations[2] = new Location(0f,5.75f,-71.5f,0f); //east
+        vumarkLocations[3] = new Location(-71.5f,5.75f,0f,90f); //south
 
         //private static final Location camRight = new Location();
         camLocations[0] = new Location(0f,6f,6f,0f);
@@ -134,9 +134,9 @@ public class Navigation{
             for (int i = 0; i < vumarks.size(); i++) {
                 OpenGLMatrix testLocation = ((VuforiaTrackableDefaultListener) vumarks.get(i).getListener()).getPose();
                 if (testLocation != null) {
-                    tele = "" + testLocation.get(1,2);
                     Location markLocation = new Location(vumarkLocations[i].getLocation(0), vumarkLocations[i].getLocation(1), vumarkLocations[i].getLocation(2), vumarkLocations[i].getLocation(3) + (float)Math.toDegrees(testLocation.get(1,2)));
-                    markLocation.translateLocal(-testLocation.getTranslation().get(1), -testLocation.getTranslation().get(0), -testLocation.getTranslation().get(2));
+                    tele = "["+markLocation+"],["+(testLocation.getTranslation().get(1))+","+(-testLocation.getTranslation().get(0))+","+(-testLocation.getTranslation().get(2));
+                    markLocation.translateLocal(testLocation.getTranslation().get(1), -testLocation.getTranslation().get(0), testLocation.getTranslation().get(2));
                     markLocation.setRotation((markLocation.getLocation(3) + 180f) % 360);
                     //markLocation.translateLocal(-camLocations[c].getLocation(0),-camLocations[c].getLocation(1),-camLocations[c].getLocation(2));
                     validPositions.add(markLocation);
