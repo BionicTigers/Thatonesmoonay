@@ -9,7 +9,7 @@ public class TeamAuto extends LinearOpMode {
 
     @Override public void runOpMode() {
         //initialization
-        Navigation nav = new Navigation(this);
+        Navigation nav = new Navigation(this,telemetry);
 
         waitForStart();
         while (opModeIsActive()) {

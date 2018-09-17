@@ -14,9 +14,9 @@ import java.util.ArrayList;
 public class Navigation{
     /*
     //-----REFERENCE------//
-        x+ is front (north)(back side)
+        x+ is back (south)(audience side)
         z+ is right (east)(red side)
-        x- is back (south)(audience side)
+        x- is back (north)(back side)
         z- is left (west)(blue side)
         rotation is in degrees, going from 0 @ z+ to 360 @ z+
      */
@@ -55,13 +55,14 @@ public class Navigation{
     private float minimumSlowdownDistance = 10f; //when executing a goToLocation function, robot will begin slowing this far from destination (inches)
     private float maximumMotorPower = 0.9f; //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
     private float killDistance = 0; //kills program if robot farther than distance in x or z from origin (inches) (0 means no kill)
-    public String tele = ""; //used to output to telemetry. Put data here.
+    private org.firstinspires.ftc.robotcore.external.Telemetry telemetry;
+    public String telemetryString = "";
 
     /** Constructor class for hardware init. Requires local LinearOpMode for phone cameras in Vuforia.
      *
      * @param hardwareGetter LinearOpMode class that has direct access to Hardware components. Call from LinearOpMode as 'new Navigation(this)'
      */
-    public Navigation(com.qualcomm.robotcore.eventloop.opmode.LinearOpMode hardwareGetter) {
+    public Navigation(com.qualcomm.robotcore.eventloop.opmode.LinearOpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry tele) {
         motorLeftA = hardwareGetter.hardwareMap.dcMotor.get("motorLeftA");
         motorLeftB = hardwareGetter.hardwareMap.dcMotor.get("motorLeftB");
         motorRightA = hardwareGetter.hardwareMap.dcMotor.get("motorRightA");
@@ -74,10 +75,10 @@ public class Navigation{
 
         vuforia = ClassFactory.createVuforiaLocalizer(parameters);
         vumarks = vuforia.loadTrackablesFromAsset("18-19_rover_ruckus");
-        vumarkLocations[0] = new Location(0f,5.75f,71.5f,180f); //west
-        vumarkLocations[1] = new Location(71.5f,5.75f,0f,270f); //north
-        vumarkLocations[2] = new Location(0f,5.75f,-71.5f,0f); //east
-        vumarkLocations[3] = new Location(-71.5f,5.75f,0f,90f); //south
+        vumarkLocations[0] = new Location(0f,5.75f,71.5f,180f); //east
+        vumarkLocations[1] = new Location(-71.5f,5.75f,0f,270f); //north
+        vumarkLocations[2] = new Location(0f,5.75f,-71.5f,0f); //west
+        vumarkLocations[3] = new Location(71.5f,5.75f,0f,90f); //south
 
         //private static final Location camRight = new Location();
         camLocations[0] = new Location(0f,6f,6f,0f);
@@ -85,6 +86,8 @@ public class Navigation{
         //private static final Location camBack = new Location();
 
         vumarks.activate();
+
+        telemetry = tele;
     }
 
     /** Set power value of drive motors to given percentage.
@@ -130,19 +133,16 @@ public class Navigation{
 
         ArrayList<Location> validPositions = new ArrayList<>();
 
-       // for (int c = 0; c < camLocations.length; c++) {
-            for (int i = 0; i < vumarks.size(); i++) {
-                OpenGLMatrix testLocation = ((VuforiaTrackableDefaultListener) vumarks.get(i).getListener()).getPose();
-                if (testLocation != null) {
-                    Location markLocation = new Location(vumarkLocations[i].getLocation(0), vumarkLocations[i].getLocation(1), vumarkLocations[i].getLocation(2), vumarkLocations[i].getLocation(3) + (float)Math.toDegrees(testLocation.get(1,2)));
-                    tele = "["+markLocation+"],["+(testLocation.getTranslation().get(1))+","+(-testLocation.getTranslation().get(0))+","+(-testLocation.getTranslation().get(2));
-                    markLocation.translateLocal(testLocation.getTranslation().get(1), -testLocation.getTranslation().get(0), testLocation.getTranslation().get(2));
-                    markLocation.setRotation(markLocation.getLocation(3) + 180f);
-                    //markLocation.translateLocal(-camLocations[c].getLocation(0),-camLocations[c].getLocation(1),-camLocations[c].getLocation(2));
-                    validPositions.add(markLocation);
-                }
+        for (int i = 0; i < vumarks.size(); i++) {
+            OpenGLMatrix testLocation = ((VuforiaTrackableDefaultListener) vumarks.get(i).getListener()).getPose();
+            if (testLocation != null) {
+                telemetryString = ""+testLocation.get(1,2);
+                Location markLocation = new Location(vumarkLocations[i].getLocation(0), vumarkLocations[i].getLocation(1), vumarkLocations[i].getLocation(2), vumarkLocations[i].getLocation(3) - (float)Math.toDegrees(testLocation.get(1,2)));
+                markLocation.translateLocal(testLocation.getTranslation().get(1), -testLocation.getTranslation().get(0), testLocation.getTranslation().get(2));
+                markLocation.setRotation(markLocation.getLocation(3) + 180f);
+                validPositions.add(markLocation);
             }
-       // }
+        }
 
         if(validPositions.size() == 0) return false;
         Location result = validPositions.get(0);
@@ -220,6 +220,8 @@ public class Navigation{
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower*(elapsedDistance-distance/distance));
                 setMotors(-motorPower,motorPower);
                 elapsedDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f) - initDistance;
+                telemetry.addData("distance",elapsedDistance);
+                telemetry.update();
             }
         }
         else {

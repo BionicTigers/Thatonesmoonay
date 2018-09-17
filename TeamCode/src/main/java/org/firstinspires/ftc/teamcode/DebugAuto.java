@@ -9,17 +9,16 @@ public class DebugAuto extends LinearOpMode {
 
     @Override public void runOpMode() {
         //initialization
-        Navigation nav = new Navigation(this);
+        Navigation nav = new Navigation(this,telemetry);
 
         waitForStart();
-        while (opModeIsActive()) {
-            nav.updatePos(false);
-            telemetry.addData("x:",""+nav.pos.getLocation(0));
-            telemetry.addData("y:",""+nav.pos.getLocation(1));
-            telemetry.addData("z:",""+nav.pos.getLocation(2));
-            telemetry.addData("rot:",""+nav.pos.getLocation(3));
-            telemetry.addData("Misc Debug",nav.tele);
+
+        while(opModeIsActive()) {
+            nav.updatePos();
+            telemetry.addData("pos",nav.pos);
+            telemetry.addData("debug",nav.telemetryString);
             telemetry.update();
+
         }
     }
 }
