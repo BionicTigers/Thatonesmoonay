@@ -14,10 +14,8 @@ public class DebugAuto extends LinearOpMode {
         waitForStart();
 
         while(opModeIsActive()) {
-            nav.updatePos();
-            telemetry.addData("pos",nav.pos);
-            telemetry.addData("debug",nav.telemetryString);
-            telemetry.update();
+
+
 
         }
     }

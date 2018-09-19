@@ -56,7 +56,6 @@ public class Navigation{
     private float maximumMotorPower = 0.9f; //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
     private float killDistance = 0; //kills program if robot farther than distance in x or z from origin (inches) (0 means no kill)
     private org.firstinspires.ftc.robotcore.external.Telemetry telemetry;
-    public String telemetryString = "";
 
     /** Constructor class for hardware init. Requires local LinearOpMode for phone cameras in Vuforia.
      *
@@ -136,7 +135,6 @@ public class Navigation{
         for (int i = 0; i < vumarks.size(); i++) {
             OpenGLMatrix testLocation = ((VuforiaTrackableDefaultListener) vumarks.get(i).getListener()).getPose();
             if (testLocation != null) {
-                telemetryString = ""+testLocation.get(1,2);
                 Location markLocation = new Location(vumarkLocations[i].getLocation(0), vumarkLocations[i].getLocation(1), vumarkLocations[i].getLocation(2), vumarkLocations[i].getLocation(3) - (float)Math.toDegrees(testLocation.get(1,2)));
                 markLocation.translateLocal(testLocation.getTranslation().get(1), -testLocation.getTranslation().get(0), testLocation.getTranslation().get(2));
                 markLocation.setRotation(markLocation.getLocation(3) + 180f);
