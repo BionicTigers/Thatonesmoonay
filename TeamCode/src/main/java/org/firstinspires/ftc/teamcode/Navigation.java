@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 //EXIST
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -52,7 +53,7 @@ public class Navigation{
 
     //-----tweak values-----//
     private float minimumSlowdownDistance = 10f; //when executing a goToLocation function, robot will begin slowing this far from destination (inches)
-    private float maximumMotorPower = 0.9f; //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
+    private float maximumMotorPower = 0.5f; //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
     private float killDistance = 0; //kills program if robot farther than distance in x or z from origin (inches) (0 means no kill)
     private org.firstinspires.ftc.robotcore.external.Telemetry telemetry;
 
@@ -65,6 +66,14 @@ public class Navigation{
         motorLeftB = hardwareGetter.hardwareMap.dcMotor.get("motorLeftB");
         motorRightA = hardwareGetter.hardwareMap.dcMotor.get("motorRightA");
         motorRightB = hardwareGetter.hardwareMap.dcMotor.get("motorRightB");
+
+        motorRightA.setDirection(DcMotor.Direction.REVERSE);
+        motorRightB.setDirection(DcMotor.Direction.REVERSE);
+
+        motorLeftA.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorLeftB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorRightA.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorRightB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
@@ -255,6 +264,9 @@ public class Navigation{
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower * (elapsedDistance - distance / distance));
                 setMotors(motorPower);
                 elapsedDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f) - initDistance;
+                telemetry.addData("Encoder",motorRightA.getCurrentPosition());
+                telemetry.addData("Power",motorRightA.getPower());
+                telemetry.update();
             }
         }
         else {

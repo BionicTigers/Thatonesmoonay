@@ -12,10 +12,6 @@ public class DebugAuto extends LinearOpMode {
 
         waitForStart();
 
-        while(opModeIsActive()) {
-
-
-
-        }
+        nav.goDistance(12,1);
     }
 }
