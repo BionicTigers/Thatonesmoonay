@@ -12,6 +12,12 @@ public class DebugAuto extends LinearOpMode {
 
         waitForStart();
 
-        nav.goDistance(12,1);
+        while(opModeIsActive()) {
+            telemetry.addData("ra",nav.motorRightA.getCurrentPosition());
+            telemetry.addData("rb",nav.motorRightB.getCurrentPosition());
+            telemetry.addData("la",nav.motorLeftA.getCurrentPosition());
+            telemetry.addData("lb",nav.motorLeftB.getCurrentPosition());
+            telemetry.update();
+        }
     }
 }

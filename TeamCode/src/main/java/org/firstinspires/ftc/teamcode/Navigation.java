@@ -56,6 +56,7 @@ public class Navigation{
     private float maximumMotorPower = 0.5f; //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
     private float killDistance = 0; //kills program if robot farther than distance in x or z from origin (inches) (0 means no kill)
     private org.firstinspires.ftc.robotcore.external.Telemetry telemetry;
+    private float encoderCountsPerRev = 537.6f;
 
     /** Constructor class for hardware init. Requires local LinearOpMode for phone cameras in Vuforia.
      *
