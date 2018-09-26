@@ -7,10 +7,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 // PID - Proportional Integral Derivative
 
-
 // Setpoint - value you are wishing to achieve - Ex. 300 RPM
 // Process Value - value motor is running at - Ex. 298/307 RPM
 // Error - difference of setpoint and process value - Ex. -2/7
+
+// Search every hundredth of a second
+// Use addition, if the process value is too low, add power and vice versa
+// What should the tolerance be?
 
 @TeleOp(name="CruiseTest", group ="summerProjects")
 
