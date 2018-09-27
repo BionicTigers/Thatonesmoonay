@@ -21,23 +21,26 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public abstract class CruiseControl extends OpMode{
 
-    private DcMotor leftMotor; //left motor back
+    private DcMotor frontLeft; //left motor back
 
     public ElapsedTime runtime = new ElapsedTime();
     double i;
+    double w;
 
     public double currentDesiredDistance;
 
     public void init() {
-        leftMotor = hardwareMap.dcMotor.get("motorFrontLeft"); //Left Back
+        frontLeft = hardwareMap.dcMotor.get("frontLeft"); //Left Back
 
+        w = 0;
         i = 0;
 
         currentDesiredDistance = 0;
     }
 
     public void loop(){
-        cruiseOneMotor(75, 100, leftMotor);
+        cruiseOneMotor(75, 100, frontLeft);
+        w = runtime.seconds() + 100;
     }
 
     public void cruiseOneMotor(int speed, int distance, DcMotor motor) { //Distance should be in full wheel rotations
@@ -56,8 +59,7 @@ public abstract class CruiseControl extends OpMode{
         while (distance != motor.getCurrentPosition()) {
             i = runtime.seconds() + 0.01;
 
-            while (runtime.seconds() != i) {
-            }
+            while (runtime.seconds() != i)
 
             currentDesiredDistance = currentDesiredDistance + DESIRED_SPEED_PER_CSECOND; // CSECOND = CentiSecond
 
