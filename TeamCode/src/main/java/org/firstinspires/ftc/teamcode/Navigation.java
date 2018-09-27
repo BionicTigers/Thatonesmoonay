@@ -9,6 +9,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import java.util.ArrayList;
 
 public class Navigation{
@@ -258,28 +260,53 @@ public class Navigation{
      * @param precision distance behind goal to cut power (inches). 0 will stop bot at point, but may take much longer due to slowdown.
      */
     public void goDistance(float distance, float precision) {
-        float initDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f);
-        float elapsedDistance = initDistance;
-        if(distance > 0) {
-            while (distance - elapsedDistance > (0 + precision)) {
-                float motorPower = Math.min(maximumMotorPower, maximumMotorPower * (elapsedDistance - distance / distance));
-                setMotors(motorPower);
-                elapsedDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f) - initDistance;
-                telemetry.addData("Encoder",motorRightA.getCurrentPosition());
-                telemetry.addData("Power",motorRightA.getPower());
-                telemetry.update();
-            }
+        motorLeftA.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorLeftA.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorLeftB.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorLeftB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorRightA.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorRightA.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorRightB.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorRightB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        ElapsedTime timekeeper = new ElapsedTime();
+        int setpoint = (int)(encoderCountsPerRev * (distance/(wheelDiameter*Math.PI)));
+
+        float kp = 0.001f;
+        float ki = 0.00001f;
+        float kd = 0.0f;
+
+        double time = timekeeper.milliseconds();
+        double deltaTime = 0;
+
+        int errorSum = 0;
+        int error = 0;
+        int errorPrev = 0;
+
+        while(Math.abs(setpoint - motorLeftB.getCurrentPosition()) > precision) {
+            deltaTime = timekeeper.milliseconds() - time;
+            time = timekeeper.milliseconds();
+
+            errorPrev = error;
+
+            error = setpoint - motorLeftB.getCurrentPosition();
+            errorSum += error * deltaTime;
+
+            float output = (kp * error) + (ki * errorSum) + (kd * (error - errorPrev));
+            float clampedOutput = Math.max(-maximumMotorPower,Math.min(maximumMotorPower,output));
+
+            setMotors(clampedOutput);
+
+            telemetry.addData("DeltaT",deltaTime);
+            telemetry.addData("Error",error);
+            telemetry.addData("Power",output);
+            telemetry.update();
         }
-        else {
-            while (distance - elapsedDistance < (0 - precision)) {
-                float motorPower = Math.min(maximumMotorPower, maximumMotorPower * (elapsedDistance - distance / distance));
-                setMotors(-motorPower);
-                elapsedDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f) + initDistance;
-            }
-        }
-        stopMotors();
-        pos.translateLocal(distance);
-        updatePos();
+
+
+
+
+
     }
 
     /** Rotates front of robot to face point, either positive or negative, and sets new rotation in position,
