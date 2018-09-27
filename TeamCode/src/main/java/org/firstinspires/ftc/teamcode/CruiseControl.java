@@ -11,13 +11,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 // Search every hundredth of a second
 // Use addition, if the process value is too low, add power and vice versa
-// What should the tolerance be?
+// What should the tolerance be? 100? maybe it should depend on the motor.
 // Make 4 methods, 1 for each number of motors to run, such as cruiseOneMotor, cruiseTwoMotor, etc.
+// How do we accomodate for all the different motors there are?
 
 public abstract class CruiseControl {
 
     public ElapsedTime runtime = new ElapsedTime();
-    int i;
+    double i;
 
     public double currentDesiredDistance = 0;
 
@@ -33,6 +34,8 @@ public abstract class CruiseControl {
         motor.setTargetPosition(distance);
 
         motor.setPower(speed);
+
+        i = runtime.seconds() + 0.01;
 
         while (runtime.seconds() != i) {}
 
