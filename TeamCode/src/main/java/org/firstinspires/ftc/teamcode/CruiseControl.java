@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -15,7 +16,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 // Make 4 methods, 1 for each number of motors to run, such as cruiseOneMotor, cruiseTwoMotor, etc.
 // How do we accomodate for all the different motors there are?
 
-public abstract class CruiseControl {
+public abstract class CruiseControl extends OpMode{
 
     public ElapsedTime runtime = new ElapsedTime();
     double i;
@@ -35,18 +36,24 @@ public abstract class CruiseControl {
 
         motor.setPower(speed);
 
-        i = runtime.seconds() + 0.01;
+        while (motor.isBusy()) {
+            i = runtime.seconds() + 0.01;
 
-        while (runtime.seconds() != i) {}
-
-        currentDesiredDistance = currentDesiredDistance + DESIRED_SPEED_PER_CSECOND; // CSECOND = CentiSecond
-
-        if(Math.abs(motor.getCurrentPosition() - currentDesiredDistance) > 100) { // Encoder tolerance is set at 100 ticks
-            if(motor.getCurrentPosition() < currentDesiredDistance) {
-                motor.setPower(motor.getPower() + 1);
-            } else if(motor.getCurrentPosition() > currentDesiredDistance) {
-                motor.setPower(motor.getPower() - 1);
+            while (runtime.seconds() != i) {
             }
+
+            currentDesiredDistance = currentDesiredDistance + DESIRED_SPEED_PER_CSECOND; // CSECOND = CentiSecond
+
+            if (Math.abs(motor.getCurrentPosition() - currentDesiredDistance) > 100) { // Encoder tolerance is set at 100 ticks
+                if (motor.getCurrentPosition() < currentDesiredDistance) {
+                    motor.setPower(motor.getPower() + 1);
+                } else if (motor.getCurrentPosition() > currentDesiredDistance) {
+                    motor.setPower(motor.getPower() - 1);
+                }
+            }
+
+            telemetry.addData(motor + "Power", motor.getPower());
+            telemetry.update();
         }
 
         motor.setPower(0);
