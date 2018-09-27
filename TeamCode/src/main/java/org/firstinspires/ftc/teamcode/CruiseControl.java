@@ -36,7 +36,7 @@ public abstract class CruiseControl {
 
         while (runtime.seconds() != i) {}
 
-        currentDesiredDistance = currentDesiredDistance + DESIRED_SPEED_PER_MSECOND; // CSECOND = CentiSecond
+        currentDesiredDistance = currentDesiredDistance + DESIRED_SPEED_PER_CSECOND; // CSECOND = CentiSecond
 
         if(Math.abs(motor.getCurrentPosition() - currentDesiredDistance) > 100) { // Encoder tolerance is set at 100 ticks
             if(motor.getCurrentPosition() < currentDesiredDistance) {
