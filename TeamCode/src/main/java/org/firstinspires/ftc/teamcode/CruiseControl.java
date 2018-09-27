@@ -38,10 +38,12 @@ public abstract class CruiseControl {
 
         currentDesiredDistance = currentDesiredDistance + DESIRED_SPEED_PER_MSECOND;
 
-        if(motor.getCurrentPosition() < currentDesiredDistance) {
-            motor.setPower(motor.getPower() + 1);
-        } else if(motor.getCurrentPosition() > currentDesiredDistance) {
-            motor.setPower(motor.getPower() - 1);
+        if(Math.abs(motor.getCurrentPosition() - currentDesiredDistance) > 100) { // Encoder tolerance is set at 100 ticks
+            if(motor.getCurrentPosition() < currentDesiredDistance) {
+                motor.setPower(motor.getPower() + 1);
+            } else if(motor.getCurrentPosition() > currentDesiredDistance) {
+                motor.setPower(motor.getPower() - 1);
+            }
         }
 
         motor.setPower(0);
