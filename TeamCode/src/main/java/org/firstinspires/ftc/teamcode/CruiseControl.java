@@ -28,7 +28,7 @@ public abstract class CruiseControl {
 
         distance = distance * 1120; //1120 encoder ticks per revolution of Classic NeveRest 40s
 
-        final double DESIRED_SPEED_PER_MSECOND = (((125 / 60) / 1000) * speed); //125 is the reasonable RPM of a loaded NeveRest 40
+        final double DESIRED_SPEED_PER_CSECOND = (((125 / 60) / 100) * speed); //125 is the reasonable RPM of a loaded NeveRest 40
 
         motor.setTargetPosition(distance);
 
@@ -36,7 +36,7 @@ public abstract class CruiseControl {
 
         while (runtime.seconds() != i) {}
 
-        currentDesiredDistance = currentDesiredDistance + DESIRED_SPEED_PER_MSECOND;
+        currentDesiredDistance = currentDesiredDistance + DESIRED_SPEED_PER_MSECOND; // CSECOND = CentiSecond
 
         if(Math.abs(motor.getCurrentPosition() - currentDesiredDistance) > 100) { // Encoder tolerance is set at 100 ticks
             if(motor.getCurrentPosition() < currentDesiredDistance) {
