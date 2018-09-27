@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -16,12 +17,28 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 // Make 4 methods, 1 for each number of motors to run, such as cruiseOneMotor, cruiseTwoMotor, etc.
 // How do we accomodate for all the different motors there are?
 
+@Autonomous(name="CruiseControl", group="Cruisin")
+
 public abstract class CruiseControl extends OpMode{
+
+    private DcMotor leftMotor; //left motor back
 
     public ElapsedTime runtime = new ElapsedTime();
     double i;
 
-    public double currentDesiredDistance = 0;
+    public double currentDesiredDistance;
+
+    public void init() {
+        leftMotor = hardwareMap.dcMotor.get("motorFrontLeft"); //Left Back
+
+        i = 0;
+
+        currentDesiredDistance = 0;
+    }
+
+    public void loop(){
+        cruiseOneMotor(75, 100, leftMotor);
+    }
 
     public void cruiseOneMotor(int speed, int distance, DcMotor motor) { //Distance should be in full wheel rotations
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
