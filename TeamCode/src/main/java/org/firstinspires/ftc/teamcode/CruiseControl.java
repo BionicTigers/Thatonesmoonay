@@ -53,7 +53,7 @@ public abstract class CruiseControl extends OpMode{
 
         motor.setPower(speed);
 
-        while (motor.isBusy()) {
+        while (distance != motor.getCurrentPosition()) {
             i = runtime.seconds() + 0.01;
 
             while (runtime.seconds() != i) {
