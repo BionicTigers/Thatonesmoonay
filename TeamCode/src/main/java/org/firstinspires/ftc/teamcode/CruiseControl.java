@@ -19,17 +19,18 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="CruiseControl", group="Cruisin")
 
-public abstract class CruiseControl extends OpMode{
+public class CruiseControl extends OpMode{
 
-    private DcMotor leftMotor; //left motor back
+    public DcMotor frontLeft; //left motor back
 
     public ElapsedTime runtime = new ElapsedTime();
     double i;
+    double w;
 
     public double currentDesiredDistance;
 
     public void init() {
-        leftMotor = hardwareMap.dcMotor.get("motorFrontLeft"); //Left Back
+        frontLeft = hardwareMap.dcMotor.get("frontLeft"); //Left Back
 
         i = 0;
 
@@ -37,7 +38,9 @@ public abstract class CruiseControl extends OpMode{
     }
 
     public void loop(){
-        cruiseOneMotor(75, 100, leftMotor);
+        cruiseOneMotor(75, 100, frontLeft);
+        w = runtime.seconds() + 100;
+        while(w != runtime.seconds());
     }
 
     public void cruiseOneMotor(int speed, int distance, DcMotor motor) { //Distance should be in full wheel rotations
@@ -45,7 +48,7 @@ public abstract class CruiseControl extends OpMode{
 
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        distance = distance * 1120; //1120 encoder ticks per revolution of Classic NeveRest 40s
+        int futureDistance = distance * 1120; //1120 encoder ticks per revolution of Classic NeveRest 40s
 
         final double DESIRED_SPEED_PER_CSECOND = (((125 / 60) / 100) * speed); //125 is the reasonable RPM of a loaded NeveRest 40
 
@@ -53,11 +56,10 @@ public abstract class CruiseControl extends OpMode{
 
         motor.setPower(speed);
 
-        while (distance != motor.getCurrentPosition()) {
+        while (motor.getCurrentPosition() != futureDistance) {
             i = runtime.seconds() + 0.01;
 
-            while (runtime.seconds() != i) {
-            }
+            while (runtime.seconds() != i);
 
             currentDesiredDistance = currentDesiredDistance + DESIRED_SPEED_PER_CSECOND; // CSECOND = CentiSecond
 
