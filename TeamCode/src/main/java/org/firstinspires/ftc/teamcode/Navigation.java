@@ -174,7 +174,7 @@ public class Navigation{
         int setpoint = (int) (encoderCountsPerRev * (distance / (wheelDiameter * Math.PI)));
 
         final float kp = 0.001f;
-        final float ki = 0.00001f;
+        final float ki = 0.00000f;
         final float kd = 0.0f;
 
         double time = timekeeper.milliseconds();
