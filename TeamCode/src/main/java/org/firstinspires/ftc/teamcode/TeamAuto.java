@@ -15,28 +15,28 @@ public class TeamAuto extends LinearOpMode {
         waitForStart();
 
         if(nav.updatePos()) {
-            nav.determineTeam();
+            nav.updateTeam();
             teamAndLocationDetermined = true;
         }
 
         //landing motor
 
         if(nav.updatePos() && !teamAndLocationDetermined) {
-            nav.determineTeam();
+            nav.updateTeam();
             teamAndLocationDetermined = true;
         }
 
         //locate cube
 
         if(nav.updatePos() && !teamAndLocationDetermined) {
-            nav.determineTeam();
+            nav.updateTeam();
             teamAndLocationDetermined = true;
         }
 
         //goto cube
 
         if(nav.updatePos() && !teamAndLocationDetermined) {
-            nav.determineTeam();
+            nav.updateTeam();
             teamAndLocationDetermined = true;
         }
 

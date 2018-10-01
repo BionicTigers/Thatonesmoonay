@@ -9,6 +9,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import java.util.ArrayList;
 
 public class Navigation{
@@ -33,10 +35,10 @@ public class Navigation{
 
     //-----public robot elements-----//
     //if you guys rename these I will cry - Quinn
-    public DcMotor motorLeftA;
-    public DcMotor motorLeftB;
-    public DcMotor motorRightA;
-    public DcMotor motorRightB;
+    public DcMotor frontLeft;
+    public DcMotor backLeft;
+    public DcMotor frontRight;
+    public DcMotor backRight;
 
     //-----robot position and dimensions-----//
     public Location pos = new Location(); //location of robot as [x,y,z,rot] (inches)
@@ -63,18 +65,18 @@ public class Navigation{
      * @param hardwareGetter LinearOpMode class that has direct access to Hardware components. Call from LinearOpMode as 'new Navigation(this)'
      */
     public Navigation(com.qualcomm.robotcore.eventloop.opmode.LinearOpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry tele) {
-        motorLeftA = hardwareGetter.hardwareMap.dcMotor.get("motorLeftA");
-        motorLeftB = hardwareGetter.hardwareMap.dcMotor.get("motorLeftB");
-        motorRightA = hardwareGetter.hardwareMap.dcMotor.get("motorRightA");
-        motorRightB = hardwareGetter.hardwareMap.dcMotor.get("motorRightB");
+        frontLeft = hardwareGetter.hardwareMap.dcMotor.get("frontLeft");
+        backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
+        frontRight = hardwareGetter.hardwareMap.dcMotor.get("frontRight");
+        backRight = hardwareGetter.hardwareMap.dcMotor.get("backRight");
 
-        motorRightA.setDirection(DcMotor.Direction.REVERSE);
-        motorRightB.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
 
-        motorLeftA.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorLeftB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorRightA.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorRightB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
@@ -88,40 +90,23 @@ public class Navigation{
         vumarkLocations[2] = new Location(0f,5.75f,-71.5f,0f); //west
         vumarkLocations[3] = new Location(71.5f,5.75f,0f,90f); //south
 
-        //private static final Location camRight = new Location();
         camLocations[0] = new Location(0f,6f,6f,0f);
-        //private static final Location camLeft = new Location();
-        //private static final Location camBack = new Location();
 
         vumarks.activate();
 
         telemetry = tele;
     }
 
-    /** Set power value of drive motors to given percentage.
-     *
-     * @param power Power percentage to supply motor. 0 = 0%, 1 = 100%
-     */
-    public void setMotors(float power) {
-        setMotors(power,power);
-    }
-
     /** Set power values of left and right drive motors to given percentage.
      *
-     * @param powerL Power percentage to supply left motors. 0 = 0%, 1 = 100%
-     * @param powerR Power percentage to supply right motors. 0 = 0%, 1 = 100%
+     * @param left Power percentage to supply left motors. 0 = 0%, 1 = 100%
+     * @param right Power percentage to supply right motors. 0 = 0%, 1 = 100%
      */
-    public void setMotors(float powerL, float powerR) {
-        motorLeftA.setPower(powerL);
-        motorLeftB.setPower(powerL);
-        motorRightA.setPower(powerR);
-        motorRightB.setPower(powerR);
-    }
-
-    /** Stops drive motors.
-     */
-    public void stopMotors() {
-        setMotors(0f,0f);
+    public void setDrivePower(float left, float right) {
+        frontLeft.setPower(left);
+        backLeft.setPower(left);
+        frontRight.setPower(right);
+        backRight.setPower(right);
     }
 
     /** Updates position using vuforia.
@@ -129,15 +114,6 @@ public class Navigation{
      * @return True if position was changed, false otherwise.
      */
     public boolean updatePos() {
-        return updatePos(true);
-    }
-
-    /** Updates position using vuforia.
-     *
-     * @param averageResults If true averages all viewed vumarks, if false, bases off of reading one (slightly faster).
-     * @return True if position was changed, false otherwise.
-     */
-    public boolean updatePos(boolean averageResults) {
 
         ArrayList<Location> validPositions = new ArrayList<>();
 
@@ -147,41 +123,21 @@ public class Navigation{
                 Location markLocation = new Location(vumarkLocations[i].getLocation(0), vumarkLocations[i].getLocation(1), vumarkLocations[i].getLocation(2), vumarkLocations[i].getLocation(3) - (float)Math.toDegrees(testLocation.get(1,2)));
                 markLocation.translateLocal(testLocation.getTranslation().get(1), -testLocation.getTranslation().get(0), testLocation.getTranslation().get(2));
                 markLocation.setRotation(markLocation.getLocation(3) + 180f);
-                validPositions.add(markLocation);
+                pos = markLocation;
+                posHasBeenUpdated = true;
+                if( killDistance!= 0 && (Math.abs(pos.getLocation(0)) >  killDistance || Math.abs(pos.getLocation(2)) >  killDistance)) throw new IllegalStateException("Robot outside of killDistance at pos: " + pos);
+                return true;
             }
         }
 
-        if(validPositions.size() == 0) return false;
-        Location result = validPositions.get(0);
-        if(averageResults) {
-            float x = 0f;
-            float y = 0f;
-            float z = 0f;
-            float rot = 0f;
-            for(Location l : validPositions) {
-                x += l.getLocation(0);
-                y += l.getLocation(1);
-                z += l.getLocation(2);
-                rot += l.getLocation(3);
-                rot %= 360f;
-            }
-            x /= validPositions.size();
-            y /= validPositions.size();
-            z /= validPositions.size();
-            rot /= validPositions.size();
-            result = new Location(x,y,z,rot);
-        }
-        pos = result;
-        posHasBeenUpdated = true;
-        if( killDistance!= 0 && (Math.abs(pos.getLocation(0)) >  killDistance || Math.abs(pos.getLocation(2)) >  killDistance)) throw new IllegalStateException("Robot outside of killDistance at pos: " + pos);
-        return true;
+        return false;
     }
 
     /** Sets team value to correct quadrant based on Vuforia position.
      *
      * @return Returns false if unsuccessful, true otherwise.
      */
-    public boolean determineTeam() {
+    public boolean updateTeam() {
         if(!posHasBeenUpdated) {
             updatePos();
             if(!posHasBeenUpdated) return false;
@@ -199,16 +155,56 @@ public class Navigation{
         return true;
     }
 
-    /* REQUIRES OPEN CV TO LOCATE GOLD CUBE :(
-        SOUNDS LIKE A CHRIS PROBLEM
-    /** Using Open CV, locates gold mineral in front of the robot.
-      *
-      * @return Returns location of gold cube in world coordinates.
-      */
-    /*public Location goldMineralLocation() {
+    /** Traverse given distance in a straight line, slows down approaching point.
+     *
+     * @param distance distance to travel (inches). Use negatives for backwards.
+     * @param precision distance behind goal to cut power (inches). 0 will stop bot at point, but may take much longer due to slowdown.
+     */
+    public void goDistance(float distance, float precision) {
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        ElapsedTime timekeeper = new ElapsedTime();
+        int setpoint = (int) (encoderCountsPerRev * (distance / (wheelDiameter * Math.PI)));
+
+        final float kp = 0.001f;
+        final float ki = 0.00000f;
+        final float kd = 0.0f;
+
+        double time = timekeeper.milliseconds();
+        float deltaTime = 0;
+
+        long errorSum = 0;
+        int error = 0;
+        int errorPrev = 0;
+
+        while (Math.abs(setpoint - backLeft.getCurrentPosition()) > precision) {
+            deltaTime = (float) (timekeeper.milliseconds() - time);
+            time = timekeeper.milliseconds();
+
+            errorPrev = error;
+
+            error = setpoint - backLeft.getCurrentPosition();
+            errorSum += (error * deltaTime);
+
+            float output = (kp * error) + (ki * errorSum) + (kd * ((error - errorPrev) / deltaTime));
+            float clampedOutput = Math.max(-maximumMotorPower, Math.min(maximumMotorPower, output));
+
+            setDrivePower(clampedOutput,clampedOutput);
+
+            telemetry.addData("DeltaT", deltaTime);
+            telemetry.addData("Error", error);
+            telemetry.addData("ErrorSum", errorSum);
+            telemetry.addData("Power", output);
+            telemetry.update();
+        }
     }
-    */
 
     /** Rotates front of robot to rotation rot, either positive or negative, and sets new rotation in position.
      *
@@ -220,13 +216,13 @@ public class Navigation{
         float rotb = (rot-360) - pos.getLocation(3);
         float optimalRotation = Math.abs(rota)<Math.abs(rotb) ? rota : rotb; //selects shorter rotation
         float distance = 360 * (float)(Math.toRadians(optimalRotation) * wheelDistance / (wheelDiameter*Math.PI)); //arc length of turn / circumference of wheel * 360
-        float initDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f);
+        float initDistance = frontRight.getCurrentPosition() * (wheelDiameter / 2f);
         float elapsedDistance = initDistance;
         if(distance > 0) {
             while(distance-elapsedDistance > (0+precision)) {
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower*(elapsedDistance-distance/distance));
-                setMotors(-motorPower,motorPower);
-                elapsedDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f) - initDistance;
+                setDrivePower(-motorPower,motorPower);
+                elapsedDistance = frontRight.getCurrentPosition() * (wheelDiameter / 2f) - initDistance;
                 telemetry.addData("distance",elapsedDistance);
                 telemetry.update();
             }
@@ -234,11 +230,11 @@ public class Navigation{
         else {
             while(distance-elapsedDistance < (0-precision)) {
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower*(elapsedDistance-distance/distance));
-                setMotors(motorPower,-motorPower);
-                elapsedDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f) + initDistance;
+                setDrivePower(motorPower,-motorPower);
+                elapsedDistance = frontRight.getCurrentPosition() * (wheelDiameter / 2f) + initDistance;
             }
         }
-        stopMotors();
+        setDrivePower(0f,0f);
         pos.setRotation(rot);
         updatePos();
     }
@@ -249,47 +245,6 @@ public class Navigation{
      * @param precision distance behind goal to stop (inches). 0 will stop bot at point, but may take much longer due to slowdown.
      */
     public void rotateToFace(Location loc, float precision) {
-        rotateTo((float)Math.toDegrees(Math.atan2(loc.getLocation(2)-pos.getLocation(2),loc.getLocation(0)-pos.getLocation(0))),precision);
-    }
-
-    /** Traverse given distance in a straight line, slows down approaching point.
-     *
-     * @param distance distance to travel (inches). Use negatives for backwards.
-     * @param precision distance behind goal to cut power (inches). 0 will stop bot at point, but may take much longer due to slowdown.
-     */
-    public void goDistance(float distance, float precision) {
-        float initDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f);
-        float elapsedDistance = initDistance;
-        if(distance > 0) {
-            while (distance - elapsedDistance > (0 + precision)) {
-                float motorPower = Math.min(maximumMotorPower, maximumMotorPower * (elapsedDistance - distance / distance));
-                setMotors(motorPower);
-                elapsedDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f) - initDistance;
-                telemetry.addData("Encoder",motorRightA.getCurrentPosition());
-                telemetry.addData("Power",motorRightA.getPower());
-                telemetry.update();
-            }
-        }
-        else {
-            while (distance - elapsedDistance < (0 - precision)) {
-                float motorPower = Math.min(maximumMotorPower, maximumMotorPower * (elapsedDistance - distance / distance));
-                setMotors(-motorPower);
-                elapsedDistance = motorRightA.getCurrentPosition() * (wheelDiameter / 2f) + initDistance;
-            }
-        }
-        stopMotors();
-        pos.translateLocal(distance);
-        updatePos();
-    }
-
-    /** Rotates front of robot to face point, either positive or negative, and sets new rotation in position,
-     *  then travels in straight line to reach destination.
-     *
-     * @param loc Destination point in world space
-     * @param precision distance behind goal to cut power (inches). 0 will stop bot at point, but may take much longer due to slowdown.
-     */
-    public void goToLocation(Location loc, float precision) {
-        rotateToFace(loc, precision);
-        goDistance((float)Math.sqrt(Math.pow(loc.getLocation(0)-pos.getLocation(0),2)+Math.pow(loc.getLocation(2)-pos.getLocation(2),2)), precision);
+        rotateTo((float) Math.toDegrees(Math.atan2(loc.getLocation(2) - pos.getLocation(2), loc.getLocation(0) - pos.getLocation(0))), precision);
     }
 }
