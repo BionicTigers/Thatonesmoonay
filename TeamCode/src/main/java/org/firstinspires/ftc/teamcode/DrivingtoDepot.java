@@ -32,16 +32,18 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="DrivingtoDepot", group="Pushbot")
 public class DrivingtoDepot extends LinearOpMode {
 
     //Drivetrain Motors//
-    private DcMotor motorLeone; //left motor back
-    private DcMotor motorLannay; //left motor front (Ladies first)ot
-    private DcMotor motorRigetony; //right motor back
-    private DcMotor motorRachella; //right motor front (Ladies first)
+    private DcMotor backLeft; //left motor back
+    private DcMotor frontLeft; //left motor front (Ladies first)ot
+    private DcMotor backRight; //right motor back
+    private DcMotor frontRight; //right motor front (Ladies first)
+    private Servo teamMarker;
 
     private ElapsedTime     runtime = new ElapsedTime();
 
@@ -50,12 +52,13 @@ public class DrivingtoDepot extends LinearOpMode {
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Status", "Ready to run");    //
         telemetry.update();
-        motorLeone = hardwareMap.dcMotor.get("motorLeone"); //Left Back
-        motorLannay = hardwareMap.dcMotor.get("motorLannay"); //Left Front
-        motorRigetony = hardwareMap.dcMotor.get("motorRigetony"); //Right Back
-        motorRachella = hardwareMap.dcMotor.get("motorRachella"); //Right Front
-        motorRigetony.setDirection(DcMotor.Direction.REVERSE);
-        motorRachella.setDirection(DcMotor.Direction.REVERSE);
+        backLeft = hardwareMap.dcMotor.get("backLeft"); //Left Back
+        frontLeft = hardwareMap.dcMotor.get("frontLeft"); //Left Front
+        backRight = hardwareMap.dcMotor.get("backRight"); //Right Back
+        frontRight = hardwareMap.dcMotor.get("frontRight"); //Right Front
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        teamMarker = hardwareMap.servo.get("teamMarker");
 
 
         // Wait for the game to start (driver presses PLAY)
@@ -64,61 +67,63 @@ public class DrivingtoDepot extends LinearOpMode {
         // Step through each leg of the path, ensuring that the Auto mode has not been stopped along the way
 
         // Step 1:  Drive forward for 3 seconds
-        motorLeone.setPower(.5);
-        motorLannay.setPower(.5);
-        motorRigetony.setPower(.5);
-        motorRachella.setPower(.5);
+        backLeft.setPower(-.5);
+        frontLeft.setPower(-.5);
+        backRight.setPower(-.5);
+        frontRight.setPower(-.5);
         runtime.reset();
         while (opModeIsActive() && (runtime.seconds() < 1)) {
             telemetry.addData("Path", "Forward", runtime.seconds());
             telemetry.update();
         }
-        motorLeone.setPower(0);
-        motorRigetony.setPower(0);
-        motorRachella.setPower(0);
-        motorLannay.setPower(0.0);
+        teamMarker.setPosition(0.5);
 
-        motorLeone.setPower(-.25);
-        motorRigetony.setPower(-.25);
-        motorRachella.setPower(-.25);
-        motorLannay.setPower(-.25);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+        frontRight.setPower(0);
+        frontLeft.setPower(0.0);
+
+        backLeft.setPower(.25);
+        backRight.setPower(.25);
+        frontRight.setPower(.25);
+        frontLeft.setPower(.25);
         runtime.reset();
         while (opModeIsActive() && (runtime.seconds() < 1)) {
             telemetry.addData("Path", "Backward", runtime.seconds());
             telemetry.update();
         }
-        motorLeone.setPower(0);
-        motorRigetony.setPower(0);
-        motorRachella.setPower(0);
-        motorLannay.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+        frontRight.setPower(0);
+        frontLeft.setPower(0);
 
-        motorLeone.setPower(.5);
-        motorRigetony.setPower(-.5);
-        motorRachella.setPower(.5);
-        motorLannay.setPower(-.5);
+        backLeft.setPower(.5);
+        backRight.setPower(-.5);
+        frontRight.setPower(.5);
+        frontLeft.setPower(-.5);
         runtime.reset();
         while (opModeIsActive() && (runtime.seconds() < 1.5)) {
             telemetry.addData("Path", "Turn", runtime.seconds());
             telemetry.update();
         }
-        motorLeone.setPower(0);
-        motorRigetony.setPower(0);
-        motorRachella.setPower(0);
-        motorLannay.setPower(0.0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+        frontRight.setPower(0);
+        frontLeft.setPower(0.0);
 
-        motorLeone.setPower(.75);
-        motorRigetony.setPower(.75);
-        motorRachella.setPower(.75);
-        motorLannay.setPower(.75);
+        backLeft.setPower(.75);
+        backRight.setPower(.75);
+        frontRight.setPower(.75);
+        frontLeft.setPower(.75);
         runtime.reset();
         while (opModeIsActive() && (runtime.seconds() < 5.0)) {
             telemetry.addData("Path", "Forward", runtime.seconds());
             telemetry.update();
         }
-        motorLeone.setPower(0);
-        motorRigetony.setPower(0);
-        motorRachella.setPower(0);
-        motorLannay.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+        frontRight.setPower(0);
+        frontLeft.setPower(0);
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
