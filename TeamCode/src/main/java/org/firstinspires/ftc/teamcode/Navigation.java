@@ -45,7 +45,7 @@ public class Navigation{
     public boolean posHasBeenUpdated = false;
     private float wheelDistance = 6; //distance from center of robot to center of wheel (inches)
     private float wheelDiameter = 4; //diameter of wheel (inches)
-    private Location[] camLocations = new Location[1];
+    private Location camLocation = new Location(0f,6f,6f,0f);
 
 
     //-----vuforia init------//
@@ -59,12 +59,13 @@ public class Navigation{
     private float killDistance = 0; //kills program if robot farther than distance in x or z from origin (inches) (0 means no kill)
     private org.firstinspires.ftc.robotcore.external.Telemetry telemetry;
     private float encoderCountsPerRev = 537.6f;
+    private float precisionRatio = 0.2f; //percentage of maximum motor power to use in precision ops
 
     /** Constructor class for hardware init. Requires local LinearOpMode for phone cameras in Vuforia.
      *
      * @param hardwareGetter LinearOpMode class that has direct access to Hardware components. Call from LinearOpMode as 'new Navigation(this)'
      */
-    public Navigation(com.qualcomm.robotcore.eventloop.opmode.LinearOpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry tele) {
+    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry tele) {
         frontLeft = hardwareGetter.hardwareMap.dcMotor.get("frontLeft");
         backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
         frontRight = hardwareGetter.hardwareMap.dcMotor.get("frontRight");
@@ -72,11 +73,6 @@ public class Navigation{
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
-
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
@@ -90,23 +86,9 @@ public class Navigation{
         vumarkLocations[2] = new Location(0f,5.75f,-71.5f,0f); //west
         vumarkLocations[3] = new Location(71.5f,5.75f,0f,90f); //south
 
-        camLocations[0] = new Location(0f,6f,6f,0f);
-
         vumarks.activate();
 
         telemetry = tele;
-    }
-
-    /** Set power values of left and right drive motors to given percentage.
-     *
-     * @param left Power percentage to supply left motors. 0 = 0%, 1 = 100%
-     * @param right Power percentage to supply right motors. 0 = 0%, 1 = 100%
-     */
-    public void setDrivePower(float left, float right) {
-        frontLeft.setPower(left);
-        backLeft.setPower(left);
-        frontRight.setPower(right);
-        backRight.setPower(right);
     }
 
     /** Updates position using vuforia.
@@ -114,14 +96,13 @@ public class Navigation{
      * @return True if position was changed, false otherwise.
      */
     public boolean updatePos() {
-
         ArrayList<Location> validPositions = new ArrayList<>();
-
         for (int i = 0; i < vumarks.size(); i++) {
             OpenGLMatrix testLocation = ((VuforiaTrackableDefaultListener) vumarks.get(i).getListener()).getPose();
             if (testLocation != null) {
                 Location markLocation = new Location(vumarkLocations[i].getLocation(0), vumarkLocations[i].getLocation(1), vumarkLocations[i].getLocation(2), vumarkLocations[i].getLocation(3) - (float)Math.toDegrees(testLocation.get(1,2)));
                 markLocation.translateLocal(testLocation.getTranslation().get(1), -testLocation.getTranslation().get(0), testLocation.getTranslation().get(2));
+                markLocation.translateLocal(camLocation.getLocation(0),camLocation.getLocation(1),camLocation.getLocation(2));
                 markLocation.setRotation(markLocation.getLocation(3) + 180f);
                 pos = markLocation;
                 posHasBeenUpdated = true;
@@ -129,7 +110,6 @@ public class Navigation{
                 return true;
             }
         }
-
         return false;
     }
 
@@ -138,10 +118,8 @@ public class Navigation{
      * @return Returns false if unsuccessful, true otherwise.
      */
     public boolean updateTeam() {
-        if(!posHasBeenUpdated) {
-            updatePos();
-            if(!posHasBeenUpdated) return false;
-        }
+        updatePos();
+        if(!posHasBeenUpdated) return false;
         float x = pos.getLocation(0);
         float z = pos.getLocation(2);
         if(x <= 0) {
@@ -155,55 +133,62 @@ public class Navigation{
         return true;
     }
 
+    public void drivePower(float left, float right) {
+        driveMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setPower(left);
+        backLeft.setPower(left);
+        frontRight.setPower(right);
+        backRight.setPower(right);
+    }
+
+    public void drivePosition(int left, int right) {
+        frontLeft.setTargetPosition(left);
+        backLeft.setTargetPosition(left);
+        frontRight.setTargetPosition(right);
+        backRight.setTargetPosition(right);
+    }
+
+    public void driveMode(DcMotor.RunMode r) {
+        frontLeft.setMode(r);
+        backLeft.setMode(r);
+        frontRight.setMode(r);
+        backRight.setMode(r);
+    }
+
+    public void driveEncoderReset() {
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
     /** Traverse given distance in a straight line, slows down approaching point.
      *
      * @param distance distance to travel (inches). Use negatives for backwards.
-     * @param precision distance behind goal to cut power (inches). 0 will stop bot at point, but may take much longer due to slowdown.
+     * @param precision distance behind goal to reduce power (inches)
      */
     public void goDistance(float distance, float precision) {
-        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        int initEncoder = frontRight.getCurrentPosition();
+        int targetEncoder = (int)(distance / (wheelDiameter * Math.PI) * encoderCountsPerRev) + initEncoder;
+        int precisionEncoder = (int)(precision / (wheelDiameter * Math.PI) * encoderCountsPerRev);
 
-        ElapsedTime timekeeper = new ElapsedTime();
-        int setpoint = (int) (encoderCountsPerRev * (distance / (wheelDiameter * Math.PI)));
-
-        final float kp = 0.001f;
-        final float ki = 0.00000f;
-        final float kd = 0.0f;
-
-        double time = timekeeper.milliseconds();
-        float deltaTime = 0;
-
-        long errorSum = 0;
-        int error = 0;
-        int errorPrev = 0;
-
-        while (Math.abs(setpoint - backLeft.getCurrentPosition()) > precision) {
-            deltaTime = (float) (timekeeper.milliseconds() - time);
-            time = timekeeper.milliseconds();
-
-            errorPrev = error;
-
-            error = setpoint - backLeft.getCurrentPosition();
-            errorSum += (error * deltaTime);
-
-            float output = (kp * error) + (ki * errorSum) + (kd * ((error - errorPrev) / deltaTime));
-            float clampedOutput = Math.max(-maximumMotorPower, Math.min(maximumMotorPower, output));
-
-            setDrivePower(clampedOutput,clampedOutput);
-
-            telemetry.addData("DeltaT", deltaTime);
-            telemetry.addData("Error", error);
-            telemetry.addData("ErrorSum", errorSum);
-            telemetry.addData("Power", output);
+        driveMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        while ((targetEncoder - backLeft.getCurrentPosition()) / (float)precisionEncoder > 0) {
+            float uncappedPower = (targetEncoder - backLeft.getCurrentPosition()) / (float)precisionEncoder;
+            float power = Math.min(maximumMotorPower, Math.max(-maximumMotorPower, uncappedPower));
+            drivePower(power, power);
+            telemetry.addData("Left Front", frontLeft.getCurrentPosition());
+            telemetry.addData("Left Back", backLeft.getCurrentPosition());
+            telemetry.addData("Right Front", frontRight.getCurrentPosition());
+            telemetry.addData("Right Back", backRight.getCurrentPosition());
+            telemetry.addData("PowerUncapped", uncappedPower);
+            telemetry.addData("Power", power);
             telemetry.update();
         }
+
+        driveEncoderReset();
+        pos.translateLocal(distance);
+        updatePos();
     }
 
     /** Rotates front of robot to rotation rot, either positive or negative, and sets new rotation in position.
@@ -221,7 +206,7 @@ public class Navigation{
         if(distance > 0) {
             while(distance-elapsedDistance > (0+precision)) {
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower*(elapsedDistance-distance/distance));
-                setDrivePower(-motorPower,motorPower);
+                drivePower(-motorPower,motorPower);
                 elapsedDistance = frontRight.getCurrentPosition() * (wheelDiameter / 2f) - initDistance;
                 telemetry.addData("distance",elapsedDistance);
                 telemetry.update();
@@ -230,11 +215,11 @@ public class Navigation{
         else {
             while(distance-elapsedDistance < (0-precision)) {
                 float motorPower = Math.min(maximumMotorPower, maximumMotorPower*(elapsedDistance-distance/distance));
-                setDrivePower(motorPower,-motorPower);
+                drivePower(motorPower,-motorPower);
                 elapsedDistance = frontRight.getCurrentPosition() * (wheelDiameter / 2f) + initDistance;
             }
         }
-        setDrivePower(0f,0f);
+        drivePower(0f,0f);
         pos.setRotation(rot);
         updatePos();
     }
