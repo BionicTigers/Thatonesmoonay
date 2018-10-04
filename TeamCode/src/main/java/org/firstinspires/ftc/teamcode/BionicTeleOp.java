@@ -1,19 +1,24 @@
 package org.firstinspires.ftc.teamcode;
 //EXIST
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="TeleOp", group="BTBT")
 
 public class BionicTeleOp extends OpMode {
     //Drivetrain Motors//
-    private DcMotor motorLeone; //left motor back
-    private DcMotor motorLannay; //left motor front (Ladies first)ot
-    private DcMotor motorRigetony; //right motor back
-    private DcMotor motorRachella; //right motor front (Ladies first)
+    private DcMotor backLeft; //left motor back
+    private DcMotor frontLeft; //left motor front (Ladies first)ot
+    private DcMotor backRight; //right motor back
+    private DcMotor frontRight; //right motor front (Ladies first)
+    private DcMotor collector;
     private DcMotor evangelino;
+    private Servo teamMarker;
 
     //Variables//
     private double yValue;
@@ -21,57 +26,100 @@ public class BionicTeleOp extends OpMode {
     private double leftPower;
     private double rightPower;
     public int calibToggle;
+    public int target;
+    private double speed;
+
+    //HardwareCatBot robot;
+
 
     public void init() {
         //Motors//
-        motorLeone = hardwareMap.dcMotor.get("motorLeone"); //Left Back
-        motorLannay = hardwareMap.dcMotor.get("motorLannay"); //Left Front
-        motorRigetony = hardwareMap.dcMotor.get("motorRigetony"); //Right Back
-        motorRachella = hardwareMap.dcMotor.get("motorRachella"); //Right Front
-        evangelino = hardwareMap.dcMotor.get("evangelino");
-
-        motorRigetony.setDirection(DcMotor.Direction.REVERSE);
-        motorRachella.setDirection(DcMotor.Direction.REVERSE);
+        backLeft = hardwareMap.dcMotor.get("backLeft"); //Left Back
+        frontLeft = hardwareMap.dcMotor.get("frontLeft"); //Left Front
+        backRight = hardwareMap.dcMotor.get("backRight"); //Right Back
+        frontRight = hardwareMap.dcMotor.get("frontRight"); //Right Front
+        evangelino = hardwareMap.dcMotor.get("lift");
+        collector = hardwareMap.dcMotor.get("collector");
+        teamMarker = hardwareMap.servo.get("teamMarker");
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
 
         //Variables//
-        calibToggle = 0; }
+        calibToggle = 0;
+        int target = 0;
+        double speed = 0;}
 
     public void loop() {
 
+        //robot = new Hardware_Pushbot();
         if (gamepad1.a) {
-            calibToggle = 1; //Tank
-        } else if (gamepad1.b){
-            calibToggle = 0; } //JoyStick
+            calibToggle = 1; //One stick
+        } else if (gamepad1.b) {
+            calibToggle = 0;
+        } //JoyStick
 
-        if (calibToggle == 1)  { //A
-            motorLeone.setPower(gamepad1.left_stick_y/2);    //Tank Drive
-            motorLannay.setPower(gamepad1.left_stick_y/2);
-            motorRigetony.setPower(gamepad1.right_stick_y/2);
-            motorRachella.setPower(gamepad1.right_stick_y/2);
-        } else if(calibToggle == 0) { //B
-                yValue = gamepad1.left_stick_y;
-                xValue = gamepad1.right_stick_x;
+        if (calibToggle == 0) { //A
+            yValue = gamepad1.left_stick_y;
+            xValue = gamepad1.left_stick_x;
 
-                leftPower =  yValue - xValue;
-                rightPower = yValue + xValue;
+            leftPower = yValue - xValue;
+            rightPower = yValue + xValue;
 
-                motorLeone.setPower(Range.clip(leftPower, -0.5, 0.5));
-                motorRigetony.setPower(Range.clip(rightPower, -0.5, 0.5));
-                motorLannay.setPower(Range.clip(leftPower, -0.5, 0.5));
-                motorRachella.setPower(Range.clip(rightPower, -0.5, 0.5));
+            backLeft.setPower(Range.clip(leftPower, -0.6, 0.6));
+            backRight.setPower(Range.clip(rightPower, -0.6, 0.6));
+            frontLeft.setPower(Range.clip(leftPower, -0.6, 0.6));
+            frontRight.setPower(Range.clip(rightPower, -0.6, 0.6));
 
-                telemetry.addData("Mode", "running");
-                telemetry.addData("stick", "  y=" + yValue + "  x=" + xValue);
-                telemetry.addData("power", "  left=" + leftPower + "  right=" + rightPower);
-                telemetry.update();
+            telemetry.addData("Mode", "running");
+            telemetry.addData("stick", "  y=" + yValue + "  x=" + xValue);
+            telemetry.addData("power", "  left=" + leftPower + "  right=" + rightPower);
+            telemetry.update();
+//            backLeft.setPower(gamepad1.left_stick_y / 2);    //Tank Drive
+//            frontLeft.setPower(gamepad1.left_stick_y / 2);
+//            backRight.setPower(gamepad1.right_stick_y / 2);
+//            frontRight.setPower(gamepad1.right_stick_y / 2);
+        } else if (calibToggle == 1) { //B
+            yValue = gamepad1.left_stick_y;
+            xValue = gamepad1.right_stick_x;
+
+            leftPower = yValue - xValue;
+            rightPower = yValue + xValue;
+
+            backLeft.setPower(Range.clip(leftPower, -0.6, 0.6));
+            backRight.setPower(Range.clip(rightPower, -0.6, 0.6));
+            frontLeft.setPower(Range.clip(leftPower, -0.6, 0.6));
+            frontRight.setPower(Range.clip(rightPower, -0.6, 0.6));
+
+            telemetry.addData("Mode", "running");
+            telemetry.addData("stick", "  y=" + yValue + "  x=" + xValue);
+            telemetry.addData("power", "  left=" + leftPower + "  right=" + rightPower);
+            telemetry.update();
+        }
+        //
+        if (gamepad2.x) {
+            evangelino.setPower(-0.60);
+        } else if (gamepad2.y) {
+            evangelino.setPower(0.60);
+        } else {
+            evangelino.setPower(0.00);
         }
 
-        if (gamepad2.x) {
-            evangelino.setPower(0.50);
-        } else if (gamepad2.y) {
-            evangelino.setPower(-0.50);
+        if (gamepad2.dpad_up) {
+            collector.setPower(0.60);
+        } else if (gamepad2.dpad_down) {
+            collector.setPower(-0.60);
         } else {
-            evangelino.setPower(0.00); }
+            collector.setPower(0.00);
+        }
+
+
+        if (gamepad2.a) {
+            teamMarker.setPosition(0.1);
+        }
+        else if (gamepad2.b) {
+            teamMarker.setPosition(0.9);
+        }
+
+        }
 
     }
-}
