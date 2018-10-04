@@ -55,7 +55,8 @@ public class Navigation{
 
     //-----tweak values-----//
     private float minimumSlowdownDistance = 10f; //when executing a goToLocation function, robot will begin slowing this far from destination (inches)
-    private float maximumMotorPower = 0.5f; //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
+    private float maximumMotorPower = 1f; //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
+    private float minimumMotorPower = 0.2f;
     private float killDistance = 0; //kills program if robot farther than distance in x or z from origin (inches) (0 means no kill)
     private org.firstinspires.ftc.robotcore.external.Telemetry telemetry;
     private float encoderCountsPerRev = 537.6f;
@@ -172,10 +173,10 @@ public class Navigation{
         int targetEncoder = (int)(distance / (wheelDiameter * Math.PI) * encoderCountsPerRev) + initEncoder;
         int precisionEncoder = (int)(precision / (wheelDiameter * Math.PI) * encoderCountsPerRev);
 
-        driveMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        driveMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         while ((targetEncoder - backLeft.getCurrentPosition()) / (float)precisionEncoder > 0) {
             float uncappedPower = (targetEncoder - backLeft.getCurrentPosition()) / (float)precisionEncoder;
-            float power = Math.min(maximumMotorPower, Math.max(-maximumMotorPower, uncappedPower));
+            float power = (uncappedPower < 0 ? -1:1) * Math.min(maximumMotorPower, Math.max(minimumMotorPower, Math.abs(uncappedPower)));
             drivePower(power, power);
             telemetry.addData("Left Front", frontLeft.getCurrentPosition());
             telemetry.addData("Left Back", backLeft.getCurrentPosition());
