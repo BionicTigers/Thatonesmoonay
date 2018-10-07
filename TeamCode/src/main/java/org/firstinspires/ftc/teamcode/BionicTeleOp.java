@@ -13,12 +13,13 @@ import com.qualcomm.robotcore.util.Range;
 public class BionicTeleOp extends OpMode {
     //Drivetrain Motors//
     private DcMotor backLeft; //left motor back
-    private DcMotor frontLeft; //left motor front (Ladies first)ot
+    //private DcMotor frontLeft; //left motor front (Ladies first)ot
     private DcMotor backRight; //right motor back
-    private DcMotor frontRight; //right motor front (Ladies first)
+    //private DcMotor frontRight; //right motor front (Ladies first)
     private DcMotor collector;
     private DcMotor evangelino;
     private Servo teamMarker;
+    private Servo flickyWrist;
 
     //Variables//
     private double yValue;
@@ -28,6 +29,7 @@ public class BionicTeleOp extends OpMode {
     public int calibToggle;
     public int target;
     private double speed;
+    private Servo liftrawrh;
 
     //HardwareCatBot robot;
 
@@ -35,14 +37,17 @@ public class BionicTeleOp extends OpMode {
     public void init() {
         //Motors//
         backLeft = hardwareMap.dcMotor.get("backLeft"); //Left Back
-        frontLeft = hardwareMap.dcMotor.get("frontLeft"); //Left Front
+        //frontLeft = hardwareMap.dcMotor.get("frontLeft"); //Left Front
         backRight = hardwareMap.dcMotor.get("backRight"); //Right Back
-        frontRight = hardwareMap.dcMotor.get("frontRight"); //Right Front
+        //frontRight = hardwareMap.dcMotor.get("frontRight"); //Right Front
         evangelino = hardwareMap.dcMotor.get("lift");
-        collector = hardwareMap.dcMotor.get("collector");
+        //collector = hardwareMap.dcMotor.get("collector");
         teamMarker = hardwareMap.servo.get("teamMarker");
         backRight.setDirection(DcMotor.Direction.REVERSE);
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        liftrawrh = hardwareMap.servo.get("liftrawrh");
+        //frontRight.setDirection(DcMotor.Direction.REVERSE);
+        flickyWrist = hardwareMap.servo.get("flicky");
+        collector = hardwareMap.dcMotor.get("collector");
 
         //Variables//
         calibToggle = 0;
@@ -60,15 +65,15 @@ public class BionicTeleOp extends OpMode {
 
         if (calibToggle == 0) { //A
             yValue = gamepad1.left_stick_y;
-            xValue = gamepad1.left_stick_x;
+            xValue = gamepad1.right_stick_x;
 
             leftPower = yValue - xValue;
             rightPower = yValue + xValue;
 
-            backLeft.setPower(Range.clip(leftPower, -0.6, 0.6));
-            backRight.setPower(Range.clip(rightPower, -0.6, 0.6));
-            frontLeft.setPower(Range.clip(leftPower, -0.6, 0.6));
-            frontRight.setPower(Range.clip(rightPower, -0.6, 0.6));
+            backLeft.setPower(Range.clip(leftPower, -0.5, 0.5));
+            backRight.setPower(Range.clip(rightPower, -0.5, 0.5));
+            //frontLeft.setPower(Range.clip(leftPower, -0.6, 0.6));
+            //frontRight.setPower(Range.clip(rightPower, -0.6, 0.6));
 
             telemetry.addData("Mode", "running");
             telemetry.addData("stick", "  y=" + yValue + "  x=" + xValue);
@@ -87,8 +92,8 @@ public class BionicTeleOp extends OpMode {
 
             backLeft.setPower(Range.clip(leftPower, -0.6, 0.6));
             backRight.setPower(Range.clip(rightPower, -0.6, 0.6));
-            frontLeft.setPower(Range.clip(leftPower, -0.6, 0.6));
-            frontRight.setPower(Range.clip(rightPower, -0.6, 0.6));
+            //frontLeft.setPower(Range.clip(leftPower, -0.6, 0.6));
+            //frontRight.setPower(Range.clip(rightPower, -0.6, 0.6));
 
             telemetry.addData("Mode", "running");
             telemetry.addData("stick", "  y=" + yValue + "  x=" + xValue);
@@ -96,13 +101,7 @@ public class BionicTeleOp extends OpMode {
             telemetry.update();
         }
         //
-        if (gamepad2.x) {
-            evangelino.setPower(-0.60);
-        } else if (gamepad2.y) {
-            evangelino.setPower(0.60);
-        } else {
-            evangelino.setPower(0.00);
-        }
+        evangelino.setPower(-gamepad2.right_stick_y/2);
 
         if (gamepad2.dpad_up) {
             collector.setPower(0.60);
@@ -113,13 +112,22 @@ public class BionicTeleOp extends OpMode {
         }
 
 
-        if (gamepad2.a) {
-            teamMarker.setPosition(0.1);
-        }
-        else if (gamepad2.b) {
-            teamMarker.setPosition(0.9);
+        if (gamepad2.right_bumper) { //rightb - up righttrigger down
+            liftrawrh.setPosition(0.3);
+        } else if (gamepad2.right_trigger > 0.7) {
+            liftrawrh.setPosition(1.0);
         }
 
+        //y-up b- a-
+        if (gamepad2.y) { //rightb - up righttrigger down
+            flickyWrist.setPosition(0.3);
+        } else if (gamepad2.b) {
+            flickyWrist.setPosition(0.62);
+        }
+            else if (gamepad2.a) {
+            flickyWrist.setPosition(0.65);
+
+        }
         }
 
     }
