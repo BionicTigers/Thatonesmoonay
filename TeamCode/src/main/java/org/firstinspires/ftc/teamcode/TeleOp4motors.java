@@ -20,10 +20,7 @@ public class TeleOp4motors extends OpMode {
         private Servo teamMarker;
 
         //Variables//
-        private double yValue;
-        private double xValue;
-        private double leftPower;
-        private double rightPower;
+        private double xValue, yValue, lValue, rValue, leftPower, rightPower;
         public int calibToggle;
         public int target;
         private double speed;
@@ -60,27 +57,49 @@ public class TeleOp4motors extends OpMode {
             }
 
             if (calibToggle == 0) { //A
-                yValue = gamepad1.left_stick_y;
-                xValue = gamepad1.right_stick_x;
+                yValue = (gamepad1.left_stick_y);
+                xValue = (gamepad1.left_stick_x * .75);
 
-                leftPower = yValue - xValue;
-                rightPower = yValue + xValue;
+                leftPower = Math.pow(yValue - xValue, 3);
+                rightPower = Math.pow(yValue + xValue, 3);
 
-                backLeft.setPower(Range.clip(leftPower, -0.5, 0.5));
-                backRight.setPower(Range.clip(rightPower, -0.5, 0.5));
-                frontLeft.setPower(Range.clip(leftPower, -0.5, 0.5));
-                frontRight.setPower(Range.clip(rightPower, -0.5, 0.5));
+                backLeft.setPower(Range.clip(leftPower, -0.6, 0.6));
+                backRight.setPower(Range.clip(rightPower, -0.6, 0.6));
+                frontLeft.setPower(Range.clip(leftPower, -0.6, 0.6));
+                frontRight.setPower(Range.clip(rightPower, -0.6, 0.6));
 
-                telemetry.addData("Mode", "running");
-                telemetry.addData("stick", "  y=" + yValue + "  x=" + xValue);
-                telemetry.addData("power", "  left=" + leftPower + "  right=" + rightPower);
+                telemetry.addData("Mode: ", "Coarse");
+                telemetry.addData("Stick: ", "Y = " + yValue + ", X = " + xValue / .75);
+                telemetry.addData("Power: ", "L = " + leftPower + ", R = " + rightPower);
                 telemetry.update();
 
             } else if (calibToggle == 1) { //B
-            backLeft.setPower(gamepad1.left_stick_y / 2);    //Tank Drive
-            frontLeft.setPower(gamepad1.left_stick_y / 2);
-            backRight.setPower(gamepad1.right_stick_y / 2);
-            frontRight.setPower(gamepad1.right_stick_y / 2);
+                yValue = (gamepad1.left_stick_y);
+                xValue = (gamepad1.left_stick_x * .75);
+
+                leftPower = Math.pow(yValue - xValue, 3) * .75;
+                rightPower = Math.pow(yValue + xValue, 3) * .75;
+
+                backLeft.setPower(Range.clip(leftPower, -0.3, 0.3));
+                backRight.setPower(Range.clip(rightPower, -0.3, 0.3));
+                frontLeft.setPower(Range.clip(leftPower, -0.3, 0.3));
+                frontRight.setPower(Range.clip(rightPower, -0.3, 0.3));
+
+                telemetry.addData("Mode: ", "Fine");
+                telemetry.addData("Stick: ", "Y = " + yValue + ", X = " + xValue / .75);
+                telemetry.addData("Power: ", "L = " + leftPower / .75 + ", R = " + rightPower / .75);
+                telemetry.update();
+//                lValue = Math.pow((gamepad1.left_stick_y * .6), 3);
+//                rValue = Math.pow((gamepad1.right_stick_y * .6), 3);
+//
+//                backLeft.setPower(lValue);    //Tank Drive
+//                frontLeft.setPower(lValue);
+//                backRight.setPower(rValue);
+//                frontRight.setPower(rValue);
+//
+//                telemetry.addData("Mode: ", "Fine");
+//                telemetry.addData("Power: ", "L = " + leftPower + ", R = " + rightPower);
+//                telemetry.update();
             }
 
         }}
