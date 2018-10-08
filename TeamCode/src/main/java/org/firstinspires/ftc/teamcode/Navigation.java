@@ -62,10 +62,6 @@ public class Navigation{
     private float encoderCountsPerRev = 537.6f;
     private float precisionRatio = 0.2f; //percentage of maximum motor power to use in precision ops
 
-    /** Constructor class for hardware init. Requires local LinearOpMode for phone cameras in Vuforia.
-     *
-     * @param hardwareGetter LinearOpMode class that has direct access to Hardware components. Call from LinearOpMode as 'new Navigation(this)'
-     */
     public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry tele) {
         frontLeft = hardwareGetter.hardwareMap.dcMotor.get("frontLeft");
         backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
@@ -92,10 +88,6 @@ public class Navigation{
         telemetry = tele;
     }
 
-    /** Updates position using vuforia.
-     *
-     * @return True if position was changed, false otherwise.
-     */
     public boolean updatePos() {
         ArrayList<Location> validPositions = new ArrayList<>();
         for (int i = 0; i < vumarks.size(); i++) {
@@ -114,10 +106,6 @@ public class Navigation{
         return false;
     }
 
-    /** Sets team value to correct quadrant based on Vuforia position.
-     *
-     * @return Returns false if unsuccessful, true otherwise.
-     */
     public boolean updateTeam() {
         updatePos();
         if(!posHasBeenUpdated) return false;
@@ -163,74 +151,51 @@ public class Navigation{
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    /** Traverse given distance in a straight line, slows down approaching point.
-     *
-     * @param distance distance to travel (inches). Use negatives for backwards.
-     * @param precision distance behind goal to reduce power (inches)
-     */
-    public void goDistance(float distance, float precision) {
-        int initEncoder = frontRight.getCurrentPosition();
-        int targetEncoder = (int)(distance / (wheelDiameter * Math.PI) * encoderCountsPerRev) + initEncoder;
-        int precisionEncoder = (int)(precision / (wheelDiameter * Math.PI) * encoderCountsPerRev);
+    public void goDistance(float distance, float slowdown) {
+        driveMethodComplex(distance, slowdown, 0f, backLeft, 1f, 1f, false);
 
-        driveMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        while ((targetEncoder - backLeft.getCurrentPosition()) / (float)precisionEncoder > 0) {
-            float uncappedPower = (targetEncoder - backLeft.getCurrentPosition()) / (float)precisionEncoder;
-            float power = (uncappedPower < 0 ? -1:1) * Math.min(maximumMotorPower, Math.max(minimumMotorPower, Math.abs(uncappedPower)));
-            drivePower(power, power);
-            telemetry.addData("Left Front", frontLeft.getCurrentPosition());
-            telemetry.addData("Left Back", backLeft.getCurrentPosition());
-            telemetry.addData("Right Front", frontRight.getCurrentPosition());
-            telemetry.addData("Right Back", backRight.getCurrentPosition());
-            telemetry.addData("PowerUncapped", uncappedPower);
-            telemetry.addData("Power", power);
-            telemetry.update();
-        }
-
-        driveEncoderReset();
         pos.translateLocal(distance);
         updatePos();
     }
 
-    /** Rotates front of robot to rotation rot, either positive or negative, and sets new rotation in position.
-     *
-     * @param rot Heading to rotate robot towards.
-     * @param precision distance behind goal to cut power (inches). 0 will stop bot at point, but may take much longer due to slowdown.
-     */
-    public void rotateTo(float rot, float precision) {
+    public void rotateTo(float rot, float slowdown, float precision) {
         float rota = rot - pos.getLocation(3);
         float rotb = (rot-360) - pos.getLocation(3);
         float optimalRotation = Math.abs(rota)<Math.abs(rotb) ? rota : rotb; //selects shorter rotation
-        float distance = 360 * (float)(Math.toRadians(optimalRotation) * wheelDistance / (wheelDiameter*Math.PI)); //arc length of turn / circumference of wheel * 360
-        float initDistance = frontRight.getCurrentPosition() * (wheelDiameter / 2f);
-        float elapsedDistance = initDistance;
-        if(distance > 0) {
-            while(distance-elapsedDistance > (0+precision)) {
-                float motorPower = Math.min(maximumMotorPower, maximumMotorPower*(elapsedDistance-distance/distance));
-                drivePower(-motorPower,motorPower);
-                elapsedDistance = frontRight.getCurrentPosition() * (wheelDiameter / 2f) - initDistance;
-                telemetry.addData("distance",elapsedDistance);
-                telemetry.update();
-            }
-        }
-        else {
-            while(distance-elapsedDistance < (0-precision)) {
-                float motorPower = Math.min(maximumMotorPower, maximumMotorPower*(elapsedDistance-distance/distance));
-                drivePower(motorPower,-motorPower);
-                elapsedDistance = frontRight.getCurrentPosition() * (wheelDiameter / 2f) + initDistance;
-            }
-        }
-        drivePower(0f,0f);
+        float distance = (float)(Math.toRadians(optimalRotation) * wheelDistance); //arc length of turn (radians * radius)
+        slowdown = (float)(Math.toRadians(slowdown) * wheelDistance);
+
+        driveMethodComplex(distance, slowdown, precision, backLeft, 1f, -1f, true);
+
         pos.setRotation(rot);
         updatePos();
     }
 
-    /** Rotates front of robot to face point, either positive or negative, and sets new rotation in position.
-     *
-     * @param loc Point to rotate robot towards.
-     * @param precision distance behind goal to stop (inches). 0 will stop bot at point, but may take much longer due to slowdown.
-     */
-    public void rotateToFace(Location loc, float precision) {
-        rotateTo((float) Math.toDegrees(Math.atan2(loc.getLocation(2) - pos.getLocation(2), loc.getLocation(0) - pos.getLocation(0))), precision);
+    public void rotateTo(Location loc, float slowdown, float precision) {
+        rotateTo((float) Math.toDegrees(Math.atan2(loc.getLocation(2) - pos.getLocation(2), loc.getLocation(0) - pos.getLocation(0))), slowdown, precision);
+    }
+
+    private void driveMethodComplex(float distance, float slowdown, float precision, DcMotor encoderMotor, float lModifier, float rModifier, boolean doubleBack) {
+        distance *= lModifier;
+
+        int initEncoder = encoderMotor.getCurrentPosition();
+        int targetEncoder = (int)(distance / (wheelDiameter * Math.PI) * encoderCountsPerRev) + initEncoder;
+        int slowdownEncoder = (int)(slowdown / (wheelDiameter * Math.PI) * encoderCountsPerRev);
+
+        driveMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        while ((targetEncoder - encoderMotor.getCurrentPosition()) / (float)slowdownEncoder > 0 || (doubleBack && (targetEncoder - encoderMotor.getCurrentPosition()) / (float)slowdownEncoder < precision)) {
+            float uncappedPower = (targetEncoder - encoderMotor.getCurrentPosition()) / (float)slowdownEncoder;
+            float power = (uncappedPower < 0 ? -1:1) * Math.min(maximumMotorPower, Math.max(minimumMotorPower, Math.abs(uncappedPower)));
+            drivePower(power*lModifier, power*rModifier);
+            telemetry.addData("PowerUncapped", uncappedPower);
+            telemetry.addData("LeftPower", power * lModifier);
+            telemetry.addData("RightPower", power * rModifier);
+            telemetry.addData("Left Front", frontLeft.getCurrentPosition());
+            telemetry.addData("Left Back", backLeft.getCurrentPosition());
+            telemetry.addData("Right Front", frontRight.getCurrentPosition());
+            telemetry.addData("Right Back", backRight.getCurrentPosition());
+            telemetry.update();
+        }
+        driveEncoderReset();
     }
 }

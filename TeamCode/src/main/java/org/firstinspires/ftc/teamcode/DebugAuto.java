@@ -18,7 +18,7 @@ public class DebugAuto extends LinearOpMode {
 
         waitForStart();
 
-        nav.goDistance(100f,50f);
+        nav.rotateTo(100f, 100f, 1f);
 
     }
 }
