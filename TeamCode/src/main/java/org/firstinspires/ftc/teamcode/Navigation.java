@@ -123,7 +123,6 @@ public class Navigation{
     }
 
     public void drivePower(float left, float right) {
-        driveMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontLeft.setPower(left);
         backLeft.setPower(left);
         frontRight.setPower(right);
@@ -152,7 +151,7 @@ public class Navigation{
     }
 
     public void goDistance(float distance, float slowdown) {
-        driveMethodComplex(distance, slowdown, 0f, backLeft, 1f, 1f, false);
+        driveMethodComplex(distance, slowdown, 0f, frontLeft, 1f, 1f, false, minimumMotorPower, maximumMotorPower);
 
         pos.translateLocal(distance);
         updatePos();
@@ -165,7 +164,7 @@ public class Navigation{
         float distance = (float)(Math.toRadians(optimalRotation) * wheelDistance); //arc length of turn (radians * radius)
         slowdown = (float)(Math.toRadians(slowdown) * wheelDistance);
 
-        driveMethodComplex(distance, slowdown, precision, backLeft, 1f, -1f, true);
+        driveMethodComplex(distance, slowdown, precision, frontLeft, 1f, -1f, true, 0f, maximumMotorPower);
 
         pos.setRotation(rot);
         updatePos();
@@ -175,17 +174,17 @@ public class Navigation{
         rotateTo((float) Math.toDegrees(Math.atan2(loc.getLocation(2) - pos.getLocation(2), loc.getLocation(0) - pos.getLocation(0))), slowdown, precision);
     }
 
-    private void driveMethodComplex(float distance, float slowdown, float precision, DcMotor encoderMotor, float lModifier, float rModifier, boolean doubleBack) {
+    private void driveMethodComplex(float distance, float slowdown, float precision, DcMotor encoderMotor, float lModifier, float rModifier, boolean doubleBack, float minPower, float maxPower) {
         distance *= lModifier;
 
         int initEncoder = encoderMotor.getCurrentPosition();
         int targetEncoder = (int)(distance / (wheelDiameter * Math.PI) * encoderCountsPerRev) + initEncoder;
         int slowdownEncoder = (int)(slowdown / (wheelDiameter * Math.PI) * encoderCountsPerRev);
 
-        driveMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        while ((targetEncoder - encoderMotor.getCurrentPosition()) / (float)slowdownEncoder > 0 || (doubleBack && (targetEncoder - encoderMotor.getCurrentPosition()) / (float)slowdownEncoder < precision)) {
+        driveMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        while ((targetEncoder - encoderMotor.getCurrentPosition()) > precision || (doubleBack && (targetEncoder - encoderMotor.getCurrentPosition()) < precision)) {
             float uncappedPower = (targetEncoder - encoderMotor.getCurrentPosition()) / (float)slowdownEncoder;
-            float power = (uncappedPower < 0 ? -1:1) * Math.min(maximumMotorPower, Math.max(minimumMotorPower, Math.abs(uncappedPower)));
+            float power = (uncappedPower < 0 ? -1:1) * Math.min(maxPower, Math.max(minPower, Math.abs(uncappedPower)));
             drivePower(power*lModifier, power*rModifier);
             telemetry.addData("PowerUncapped", uncappedPower);
             telemetry.addData("LeftPower", power * lModifier);
