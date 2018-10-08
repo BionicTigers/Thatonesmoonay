@@ -58,7 +58,7 @@ public class TeleOp4motors extends OpMode {
 
             if (calibToggle == 0) { //A
                 yValue = (gamepad1.left_stick_y);
-                xValue = (gamepad1.right_stick_x * .75);
+                xValue = (gamepad1.left_stick_x * .75);
 
                 leftPower = Math.pow(yValue - xValue, 3);
                 rightPower = Math.pow(yValue + xValue, 3);
@@ -75,7 +75,7 @@ public class TeleOp4motors extends OpMode {
 
             } else if (calibToggle == 1) { //B
                 yValue = (gamepad1.left_stick_y);
-                xValue = (gamepad1.right_stick_x * .75);
+                xValue = (gamepad1.left_stick_x * .75);
 
                 leftPower = Math.pow(yValue - xValue, 3) * .75;
                 rightPower = Math.pow(yValue + xValue, 3) * .75;
