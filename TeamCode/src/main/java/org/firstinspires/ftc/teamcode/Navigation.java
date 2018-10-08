@@ -71,18 +71,18 @@ public class Navigation{
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
+        driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
         parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-
         vuforia = ClassFactory.createVuforiaLocalizer(parameters);
         vumarks = vuforia.loadTrackablesFromAsset("18-19_rover_ruckus");
         vumarkLocations[0] = new Location(0f,5.75f,71.5f,180f); //east
         vumarkLocations[1] = new Location(-71.5f,5.75f,0f,270f); //north
         vumarkLocations[2] = new Location(0f,5.75f,-71.5f,0f); //west
         vumarkLocations[3] = new Location(71.5f,5.75f,0f,90f); //south
-
         vumarks.activate();
 
         telemetry = tele;
@@ -150,6 +150,11 @@ public class Navigation{
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
+    public void stopAllMotors() {
+        drivePower(0f,0f);
+        driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
     public void goDistance(float distance, float slowdown) {
         driveMethodComplex(distance, slowdown, 0f, frontLeft, 1f, 1f, false, minimumMotorPower, maximumMotorPower);
 
@@ -158,13 +163,16 @@ public class Navigation{
     }
 
     public void rotateTo(float rot, float slowdown, float precision) {
-        float rota = rot - pos.getLocation(3);
-        float rotb = (rot-360) - pos.getLocation(3);
-        float optimalRotation = Math.abs(rota)<Math.abs(rotb) ? rota : rotb; //selects shorter rotation
+        float rota = (rot - pos.getLocation(3)) % 360f;
+        float rotb = -(360f - rota);
+        float optimalRotation = (rota < rotb) ? rota : rotb; //selects shorter rotation
         float distance = (float)(Math.toRadians(optimalRotation) * wheelDistance); //arc length of turn (radians * radius)
         slowdown = (float)(Math.toRadians(slowdown) * wheelDistance);
 
-        driveMethodComplex(distance, slowdown, precision, frontLeft, 1f, -1f, true, 0f, maximumMotorPower);
+        telemetry.addData("selection",optimalRotation);
+        telemetry.update();
+
+        driveMethodComplex(distance, slowdown, precision, frontLeft, 1f, -1f, true, 0.2f, maximumMotorPower);
 
         pos.setRotation(rot);
         updatePos();
@@ -186,14 +194,6 @@ public class Navigation{
             float uncappedPower = (targetEncoder - encoderMotor.getCurrentPosition()) / (float)slowdownEncoder;
             float power = (uncappedPower < 0 ? -1:1) * Math.min(maxPower, Math.max(minPower, Math.abs(uncappedPower)));
             drivePower(power*lModifier, power*rModifier);
-            telemetry.addData("PowerUncapped", uncappedPower);
-            telemetry.addData("LeftPower", power * lModifier);
-            telemetry.addData("RightPower", power * rModifier);
-            telemetry.addData("Left Front", frontLeft.getCurrentPosition());
-            telemetry.addData("Left Back", backLeft.getCurrentPosition());
-            telemetry.addData("Right Front", frontRight.getCurrentPosition());
-            telemetry.addData("Right Back", backRight.getCurrentPosition());
-            telemetry.update();
         }
         driveEncoderReset();
     }
