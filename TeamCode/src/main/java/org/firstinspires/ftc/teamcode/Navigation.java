@@ -20,7 +20,7 @@ public class Navigation{
         z+ is right (east)(red side)
         x- is back (north)(back side)
         z- is left (west)(blue side)
-        rotation is in degrees, going from 0 @ z+ to 360 @ z+
+        rotation is in degrees, going from 0 @ z+ to 360 @ z+ 
      */
 
     //------game element locations-----//
