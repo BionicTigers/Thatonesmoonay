@@ -22,7 +22,7 @@ public class TeleOp4motors extends OpMode {
 //    private Servo teamMarker;
 
     //Variables//
-    private double xValue, yValue, leftPower, rightPower, coarseDiff, fineDiff, stickDiff;
+    private double xValue, yValue, leftPower, rightPower, coarseDiff, fineDiff, stickDiff, xOffset;
     public double calibToggle;
     public int driveMode;
 //    public int target;
@@ -66,63 +66,20 @@ public class TeleOp4motors extends OpMode {
         fineDiff = .3;
         stickDiff = .9;
 
-        //=IF(ABS(B4) > 0.5, IF(ABS(A4) > 0.5, A4/2+B4*0.25, A4-B4), A4) // Left
-        //=IF(ABS(B4) > 0.5, IF(ABS(A4) > 0.5, A4/2+-B4*0.25, A4+B4), A4) // Right
-
         yValue = (gamepad1.left_stick_y);
         xValue = (gamepad1.right_stick_x * stickDiff); //Multiplied by .92 to eliminate over-turning
 
         if (driveMode % 2 == 0) { //Coarse Drive Mode
-            if (Math.abs(xValue) > 0.5) {
-                if (Math.abs(yValue) > 0.5) {
-                    leftPower = yValue / 2 + xValue * 0.25;
-                } else {
-                    leftPower = yValue + xValue;
-                }
-            } else {
-                leftPower = yValue;
-            }
-
-            if (Math.abs(xValue) > 0.5) {
-                if (Math.abs(yValue) > 0.5) {
-                    rightPower = yValue / 2 - xValue * 0.25;
-                } else {
-                    rightPower = yValue - xValue;
-                }
-            } else {
-                rightPower = yValue;
-            }
-
-            leftPower = Math.pow(leftPower, 3) * coarseDiff;
-            rightPower = Math.pow(rightPower, 3) * coarseDiff;
+            leftPower = Math.pow(yValue - xValue, 3) * coarseDiff;
+            rightPower = Math.pow(yValue + xValue, 3) * coarseDiff;
 
             telemetry.addData("Mode: ", "COARSE");
             telemetry.addData("Stick: ", "Y = " + round(yValue, 3) + ", X = " + round(xValue / stickDiff, 3));
             telemetry.addData("Power: ", "L = " + round(leftPower / coarseDiff, 3) + ", R = " + round(rightPower / coarseDiff, 3));
             telemetry.update();
         } else { //Fine Drive Mode
-            if (Math.abs(xValue) > 0.5) {
-                if (Math.abs(yValue) > 0.5) {
-                    leftPower = yValue / 2 + xValue * 0.25;
-                } else {
-                    leftPower = yValue + xValue;
-                }
-            } else {
-                leftPower = yValue;
-            }
-
-            if (Math.abs(xValue) > 0.5) {
-                if (Math.abs(yValue) > 0.5) {
-                    rightPower = yValue / 2 - xValue * 0.25;
-                } else {
-                    rightPower = yValue - xValue;
-                }
-            } else {
-                rightPower = yValue;
-            }
-
-            leftPower = Math.pow(leftPower, 3) * fineDiff;
-            rightPower = Math.pow(rightPower, 3) * fineDiff;
+            leftPower = Math.pow(yValue - xValue, 3) * fineDiff;
+            rightPower = Math.pow(yValue + xValue, 3) * fineDiff;
 
             telemetry.addData("Mode: ", "FINE");
             telemetry.addData("Stick: ", "Y = " + round(yValue, 3) + ", X = " + round(xValue / stickDiff, 3));
