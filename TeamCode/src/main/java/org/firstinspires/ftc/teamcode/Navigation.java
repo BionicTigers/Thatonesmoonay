@@ -13,6 +13,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.ArrayList;
 
+/**
+ * A class for all movement methods for Rover Ruckus!
+ */
 public class Navigation{
     /*
     //-----REFERENCE------//
@@ -104,6 +107,10 @@ public class Navigation{
         vumarks.activate();
     }
 
+    /**
+     * Updates the Robot's position using Vuforia. Value is in inches from center of map (see ccoordinate_diagram.png). Access using [nav].pos.
+     * @return boolean, true if updated, false otherwise
+     */
     public boolean updatePos() {
         ArrayList<Location> validPositions = new ArrayList<>();
         for (int i = 0; i < vumarks.size(); i++) {
@@ -122,6 +129,10 @@ public class Navigation{
         return false;
     }
 
+    /**
+     * Updates the robot team enumerator using the current position. Access using [nav].team.
+     * @return boolean, true if updated, false otherwise.
+     */
     public boolean updateTeam() {
         updatePos();
         if(!posHasBeenUpdated) return false;
@@ -138,6 +149,10 @@ public class Navigation{
         return true;
     }
 
+    /**
+     * Updates the cube location enumerator using OpenCV. Access using [nav].cubePos.
+     * @return boolean, true if updated, false otherwise.
+     */
     public boolean updateCubePos() {
 
         //chirs put code here
@@ -145,6 +160,11 @@ public class Navigation{
         return false;
     }
 
+    /**
+     * Sets drive motor powers.
+     * @param left power of left two motors as percentage (0-1).
+     * @param right power of right two motors as percentage (0-1).
+     */
     public void drivePower(float left, float right) {
         frontLeft.setPower(left);
         backLeft.setPower(left);
@@ -152,6 +172,11 @@ public class Navigation{
         backRight.setPower(right);
     }
 
+    /**
+     * Sets drive motor target encoder to given values.
+     * @param left encoder set for left motors.
+     * @param right encoder set for right motors.
+     */
     public void drivePosition(int left, int right) {
         frontLeft.setTargetPosition(left);
         backLeft.setTargetPosition(left);
@@ -159,6 +184,10 @@ public class Navigation{
         backRight.setTargetPosition(right);
     }
 
+    /**
+     * Sets all drive motor run modes to given mode.
+     * @param r DcMotor mode to given value.
+     */
     public void driveMode(DcMotor.RunMode r) {
         frontLeft.setMode(r);
         backLeft.setMode(r);
@@ -166,6 +195,9 @@ public class Navigation{
         backRight.setMode(r);
     }
 
+    /**
+     * Calls DcMotor.RunMode.STOP_AND_RESET_ENCODER for drive motors.
+     */
     public void driveEncoderReset() {
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -173,11 +205,19 @@ public class Navigation{
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
+    /**
+     * Stops all drive motors and resets encoders.
+     */
     public void stopAllMotors() {
         drivePower(0f,0f);
         driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
+    /**
+     * Pseudo PID to drive the given distance. Will slow down from maximumMotorPower to minimumMotorPower starting at [slowdown] behind target.
+     * @param distance Distance to drive forward in inches.
+     * @param slowdown Distance to start linearly slowing down before target position.
+     */
     public void goDistance(float distance, float slowdown) {
         driveMethodComplex(distance, slowdown, 0f, frontLeft, 1f, 1f, false, minimumMotorPower, maximumMotorPower);
 
@@ -185,6 +225,13 @@ public class Navigation{
         updatePos();
     }
 
+    /**
+     * Pseudo PID to rotate the given rotation. Will slow down from maximumMotorPower to minimumMotorPower starting at [slowdown] behind target azimuth.
+     * Precision will stop making adjustments once it is within given degrees of target azimuth.
+     * @param rot Target azimuth in degrees
+     * @param slowdown Degrees behind target rotation to slow down
+     * @param precision Degrees of imprecision in rotation value
+     */
     public void rotateTo(float rot, float slowdown, float precision) {
         float rota = (rot - pos.getLocation(3)) % 360f;
         float rotb = -(360f - rota);
@@ -198,10 +245,37 @@ public class Navigation{
         updatePos();
     }
 
+    /**
+     * Pseudo PID to rotate to face the given Location. Will slow down from maximumMotorPower to minimumMotorPower starting at [slowdown] behind target azimuth.
+     * Precision will stop making adjustments once it is within given degrees of target azimuth.
+     * @param loc Target Location object
+     * @param slowdown Degrees behind target rotation to slow down
+     * @param precision Degrees of imprecision in rotation value
+     */
     public void rotateTo(Location loc, float slowdown, float precision) {
         rotateTo((float) Math.toDegrees(Math.atan2(loc.getLocation(2) - pos.getLocation(2), loc.getLocation(0) - pos.getLocation(0))), slowdown, precision);
     }
 
+    /**
+     * Sets lift motor to given encoder position
+     * @param pos Encoder ticks for lift motor
+     */
+    public void setLift(float pos) {
+
+    }
+
+    /**
+     * Good luck.
+     * @param distance
+     * @param slowdown
+     * @param precision
+     * @param encoderMotor
+     * @param lModifier
+     * @param rModifier
+     * @param doubleBack
+     * @param minPower
+     * @param maxPower
+     */
     private void driveMethodComplex(float distance, float slowdown, float precision, DcMotor encoderMotor, float lModifier, float rModifier, boolean doubleBack, float minPower, float maxPower) {
         distance *= lModifier;
 
