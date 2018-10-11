@@ -65,6 +65,8 @@ public class Navigation{
     private float precisionRatio = 0.2f; //percentage of maximum motor power to use in precision ops
 
     public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry tele) {
+        telemetry = tele;
+
         frontLeft = hardwareGetter.hardwareMap.dcMotor.get("frontLeft");
         backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
         frontRight = hardwareGetter.hardwareMap.dcMotor.get("frontRight");
@@ -75,19 +77,31 @@ public class Navigation{
 
         driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        telemetry.addData("current",1);
+        telemetry.update();
         int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
+        telemetry.addData("current",2);
+        telemetry.update();
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+        telemetry.addData("current",3);
+        telemetry.update();
         parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
+        telemetry.addData("current",4);
+        telemetry.update();
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        telemetry.addData("current",5);
+        telemetry.update();
         vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+        telemetry.addData("current",6);
+        telemetry.update();
         vumarks = vuforia.loadTrackablesFromAsset("18-19_rover_ruckus");
+        telemetry.addData("current",7);
+        telemetry.update();
         vumarkLocations[0] = new Location(0f,5.75f,71.5f,180f); //east
         vumarkLocations[1] = new Location(-71.5f,5.75f,0f,270f); //north
         vumarkLocations[2] = new Location(0f,5.75f,-71.5f,0f); //west
         vumarkLocations[3] = new Location(71.5f,5.75f,0f,90f); //south
         vumarks.activate();
-
-        telemetry = tele;
     }
 
     public boolean updatePos() {
@@ -174,12 +188,9 @@ public class Navigation{
     public void rotateTo(float rot, float slowdown, float precision) {
         float rota = (rot - pos.getLocation(3)) % 360f;
         float rotb = -(360f - rota);
-        float optimalRotation = (rota < rotb) ? rota : rotb; //selects shorter rotation
+        float optimalRotation = (Math.abs(rota) < Math.abs(rotb) ? rota : rotb); //selects shorter rotation
         float distance = (float)(Math.toRadians(optimalRotation) * wheelDistance); //arc length of turn (radians * radius)
         slowdown = (float)(Math.toRadians(slowdown) * wheelDistance);
-
-        telemetry.addData("selection",optimalRotation);
-        telemetry.update();
 
         driveMethodComplex(distance, slowdown, precision, frontLeft, 1f, -1f, true, 0.2f, maximumMotorPower);
 
