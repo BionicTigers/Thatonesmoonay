@@ -70,7 +70,7 @@ public class TeleOp4motors extends OpMode {
         //=IF(ABS(B4) > 0.5, IF(ABS(A4) > 0.5, A4/2+-B4*0.25, A4+B4), A4) // Right
 
         yValue = (gamepad1.left_stick_y);
-        xValue = (-gamepad1.right_stick_x * stickDiff); //Multiplied by .92 to eliminate over-turning
+        xValue = (-gamepad1.right_stick_x * stickDiff);
 
         if (driveMode % 2 == 0) { //Coarse Drive Mode
             if (Math.abs(xValue) > 0.5) {
