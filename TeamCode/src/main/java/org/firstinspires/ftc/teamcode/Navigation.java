@@ -20,7 +20,7 @@ public class Navigation{
         z+ is right (east)(red side)
         x- is back (north)(back side)
         z- is left (west)(blue side)
-        rotation is in degrees, going from 0 @ z+ to 360 @ z+ 
+        rotation is in degrees, going from 0 @ z+ to 360 @ z+
      */
 
     //------game element locations-----//
@@ -29,9 +29,11 @@ public class Navigation{
     public static final Location cargoRedGold = new Location(8.31f,27f,8.31f,0f);
     public static final Location cargoRedSilver = new Location(8.31f,27f,-8.31f,0f);
 
-    //-----team enum-----//
+    //-----enums-----//
     public enum Team {UNKNOWN, REDNORTH, REDSOUTH, BLUENORTH, BLUESOUTH}
     public Team team = Team.UNKNOWN;
+    public enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
+    public CubePosition cubePos = CubePosition.UNKNOWN;
 
     //-----public robot elements-----//
     //if you guys rename these I will cry - Quinn
@@ -120,6 +122,13 @@ public class Navigation{
             else team = Team.REDNORTH;
         }
         return true;
+    }
+
+    public boolean updateCubePos() {
+
+        //chirs put code here
+
+        return false;
     }
 
     public void drivePower(float left, float right) {
