@@ -15,4 +15,7 @@ dependencies {
     implementation project(':FtcRobotController')
   //  implementation project(path: ':endercv')
 }
+repositories{
+    google()
+}
 
