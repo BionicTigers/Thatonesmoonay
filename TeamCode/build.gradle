@@ -11,9 +11,9 @@
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 dependencies {
-//    implementation project(':openCVLibrary3')
     implementation project(':FtcRobotController')
-  //  implementation project(path: ':endercv')
+    implementation project(':DogeCV')
+    implementation project(':openCVLibrary3')
 }
 repositories{
     google()
