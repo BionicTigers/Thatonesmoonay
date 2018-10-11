@@ -9,22 +9,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import java.util.ArrayList;
-
 /**
  * A class for all movement methods for Rover Ruckus!
  */
 public class Navigation{
-    /*
-    //-----REFERENCE------//
-        x+ is back (south)(audience side)
-        z+ is right (east)(red side)
-        x- is back (north)(back side)
-        z- is left (west)(blue side)
-        rotation is in degrees, going from 0 @ z+ to 360 @ z+
-     */
 
     //------game element locations-----//
     public static final Location cargoBlueGold = new Location(-8.31f,27f,-8.31f,0f);
@@ -38,34 +26,37 @@ public class Navigation{
     public enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
     public CubePosition cubePos = CubePosition.UNKNOWN;
 
-    //-----public robot elements-----//
+    //-----robot hardware elements-----//
     //if you guys rename these I will cry - Quinn
-    public DcMotor frontLeft;
-    public DcMotor backLeft;
-    public DcMotor frontRight;
-    public DcMotor backRight;
+    private DcMotor frontLeft;
+    private DcMotor backLeft;
+    private DcMotor frontRight;
+    private DcMotor backRight;
+    private DcMotor lift;
 
     //-----robot position and dimensions-----//
-    public Location pos = new Location(); //location of robot as [x,y,z,rot] (inches)
+    public Location pos = new Location();           //location of robot as [x,y,z,rot] (inches)
     public boolean posHasBeenUpdated = false;
-    private float wheelDistance = 6; //distance from center of robot to center of wheel (inches)
-    private float wheelDiameter = 4; //diameter of wheel (inches)
+    private float wheelDistance = 6;                //distance from center of robot to center of wheel (inches)
+    private float wheelDiameter = 4;                //diameter of wheel (inches)
     private Location camLocation = new Location(0f,6f,6f,0f);
 
+    //-----telemetry-----//
+    private org.firstinspires.ftc.robotcore.external.Telemetry telemetry;
 
-    //-----vuforia init------//
+
+    //-----vuforia------//
     private VuforiaLocalizer vuforia;
     private VuforiaTrackables vumarks;
     private Location[] vumarkLocations = new Location[4];
 
     //-----tweak values-----//
-    private float minimumSlowdownDistance = 10f; //when executing a goToLocation function, robot will begin slowing this far from destination (inches)
-    private float maximumMotorPower = 1f; //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
+    private float minimumSlowdownDistance = 10f;    //when executing a goToLocation function, robot will begin slowing this far from destination (inches)
+    private float maximumMotorPower = 1f;           //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
     private float minimumMotorPower = 0.2f;
-    private float killDistance = 0; //kills program if robot farther than distance in x or z from origin (inches) (0 means no kill)
-    private org.firstinspires.ftc.robotcore.external.Telemetry telemetry;
-    private float encoderCountsPerRev = 537.6f;
-    private float precisionRatio = 0.2f; //percentage of maximum motor power to use in precision ops
+    private float liftPower = 0.3f;                 //power the lift will run at
+    private float killDistance = 0;                 //kills program if robot farther than distance in x or z from origin (inches) (0 means no kill)
+    private float encoderCountsPerRev = 537.6f;     //encoder ticks per one revolution
 
     public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry tele) {
         telemetry = tele;
@@ -74,11 +65,13 @@ public class Navigation{
         backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
         frontRight = hardwareGetter.hardwareMap.dcMotor.get("frontRight");
         backRight = hardwareGetter.hardwareMap.dcMotor.get("backRight");
+        lift = hardwareGetter.hardwareMap.dcMotor.get("lift");
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
         driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         telemetry.addData("current",1);
         telemetry.update();
@@ -112,7 +105,6 @@ public class Navigation{
      * @return boolean, true if updated, false otherwise
      */
     public boolean updatePos() {
-        ArrayList<Location> validPositions = new ArrayList<>();
         for (int i = 0; i < vumarks.size(); i++) {
             OpenGLMatrix testLocation = ((VuforiaTrackableDefaultListener) vumarks.get(i).getListener()).getPose();
             if (testLocation != null) {
@@ -260,8 +252,10 @@ public class Navigation{
      * Sets lift motor to given encoder position
      * @param pos Encoder ticks for lift motor
      */
-    public void setLift(float pos) {
-
+    public void setLift(int pos) {
+        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lift.setTargetPosition(pos);
+        lift.setPower(liftPower);
     }
 
     /**

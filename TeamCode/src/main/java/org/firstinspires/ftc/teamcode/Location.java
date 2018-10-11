@@ -2,11 +2,8 @@ package org.firstinspires.ftc.teamcode;
 //EXIST
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 
-/** A custom class to store the robot's position data.
- * x (x+ west)
- * y (y+ up)
- * z (z+ north)
- * rotation in degrees (0 faces west)
+/**
+ * A custom class to store the robot's position data. Stores X, Y, Z, and Azimuth (degrees).
  */
 public class Location {
     private float[] pos;
