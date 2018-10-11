@@ -62,20 +62,20 @@ public class TeleOp4motors extends OpMode {
             ++driveMode;
         }
 
-        coarseDiff = .6; //Different offsets
-        fineDiff = .3;
+        coarseDiff = .75; //Different offsets
+        fineDiff = .45;
         stickDiff = .9;
 
         //=IF(ABS(B4) > 0.5, IF(ABS(A4) > 0.5, A4/2+B4*0.25, A4-B4), A4) // Left
         //=IF(ABS(B4) > 0.5, IF(ABS(A4) > 0.5, A4/2+-B4*0.25, A4+B4), A4) // Right
 
         yValue = (gamepad1.left_stick_y);
-        xValue = (gamepad1.right_stick_x * stickDiff); //Multiplied by .92 to eliminate over-turning
+        xValue = (-gamepad1.right_stick_x * stickDiff); //Multiplied by .92 to eliminate over-turning
 
         if (driveMode % 2 == 0) { //Coarse Drive Mode
             if (Math.abs(xValue) > 0.5) {
                 if (Math.abs(yValue) > 0.5) {
-                    leftPower = yValue / 2 + xValue * 0.25;
+                    leftPower = yValue / 2 + xValue * 0.5;
                 } else {
                     leftPower = yValue - xValue;
                 }
@@ -85,7 +85,7 @@ public class TeleOp4motors extends OpMode {
 
             if (Math.abs(xValue) > 0.5) {
                 if (Math.abs(yValue) > 0.5) {
-                    rightPower = yValue / 2 - xValue * 0.25;
+                    rightPower = yValue / 2 - xValue * 0.5;
                 } else {
                     rightPower = yValue + xValue;
                 }
@@ -103,7 +103,7 @@ public class TeleOp4motors extends OpMode {
         } else { //Fine Drive Mode
             if (Math.abs(xValue) > 0.5) {
                 if (Math.abs(yValue) > 0.5) {
-                    leftPower = yValue / 2 + xValue * 0.25;
+                    leftPower = yValue / 2 + xValue * 0.5;
                 } else {
                     leftPower = yValue - xValue;
                 }
@@ -113,7 +113,7 @@ public class TeleOp4motors extends OpMode {
 
             if (Math.abs(xValue) > 0.5) {
                 if (Math.abs(yValue) > 0.5) {
-                    rightPower = yValue / 2 - xValue * 0.25;
+                    rightPower = yValue / 2 - xValue * 0.5;
                 } else {
                     rightPower = yValue + xValue;
                 }
