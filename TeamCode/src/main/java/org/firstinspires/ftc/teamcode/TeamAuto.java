@@ -6,52 +6,36 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 @Autonomous(name="Team Autonomous")
 public class TeamAuto extends LinearOpMode {
 
-    private boolean teamAndLocationDetermined = false;
-
     @Override public void runOpMode() {
         //initialization
         Navigation nav = new Navigation(this,telemetry);
 
+        //try determine vision stuff
+        nav.updatePos();
+        nav.updateTeam();
+        nav.updateCubePos();
 
         waitForStart();
 
-        if(nav.updatePos()) {
-            nav.updateTeam();
-            teamAndLocationDetermined = true;
-        }
+        //try determine vision stuff
+        nav.updatePos();
+        nav.updateTeam();
+        nav.updateCubePos();
 
-        //landing motor
 
-        if(nav.updatePos() && !teamAndLocationDetermined) {
-            nav.updateTeam();
-            teamAndLocationDetermined = true;
-        }
+        //landing motor commands
 
-        //locate cube
-
-        while(nav.updatePos() && !teamAndLocationDetermined) {
-            nav.updateTeam();
-            while (nav.updateCubePos() == null){
-
-            teamAndLocationDetermined = false;
-            }
-            teamAndLocationDetermined = true;
-            telemetry.addData("Status", nav.updateCubePos());
-        }
+        //try determine vision stuff
+        nav.updatePos();
+        nav.updateTeam();
+        nav.updateCubePos();
 
         //goto cube
-
-        if(nav.updatePos() && !teamAndLocationDetermined) {
-            nav.updateTeam();
-            teamAndLocationDetermined = true;
-        }
-
-        //if location is undetermined, drive forward. If gyro detects crater, goto depot
-
+        //collect/nudge
+        //goto depot
         //deploy team marker thing
         //go to appropriate crater
         //begin collection
-
-        //auto end?
+        //parking
     }
 }

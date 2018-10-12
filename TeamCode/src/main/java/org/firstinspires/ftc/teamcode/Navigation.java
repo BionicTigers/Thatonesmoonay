@@ -2,10 +2,12 @@ package org.firstinspires.ftc.teamcode;
 //EXIST
 import com.disnodeteam.dogecv.CameraViewDisplay;
 import com.disnodeteam.dogecv.DogeCV;
+import com.disnodeteam.dogecv.detectors.roverrukus.GoldDetector;
 import com.disnodeteam.dogecv.detectors.roverrukus.SamplingOrderDetector;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.SampleRevBlinkinLedDriver;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -26,6 +28,8 @@ public class Navigation{
     //-----enums-----//
     public enum Team {UNKNOWN, REDNORTH, REDSOUTH, BLUENORTH, BLUESOUTH}
     public Team team = Team.UNKNOWN;
+    public enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
+    public CubePosition cubePos = CubePosition.UNKNOWN;
 
     //-----robot hardware elements-----//
     //if you guys rename these I will cry - Quinn
@@ -57,11 +61,9 @@ public class Navigation{
     private float minimumMotorPower = 0.2f;
     private float liftPower = 0.3f;                 //power the lift will run at
     private float killDistance = 0;                 //kills program if robot farther than distance in x or z from origin (inches) (0 means no kill)
-    private float encoderCountsPerRev = 537.6f;
+    private float encoderCountsPerRev = 537.6f;     //encoder ticks per one revolution
     private SamplingOrderDetector detector;
     private com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter;
-
-    //encoder ticks per one revolution
 
     public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter1, org.firstinspires.ftc.robotcore.external.Telemetry tele) {
         telemetry = tele;
@@ -127,10 +129,11 @@ public class Navigation{
     }
 
     /**
-     * Updates the robot team enumerator using the current position. Access using [nav].team.
-     * @return boolean, true if updated, false otherwise.
+     * Updates the robot team enumerator using the current position. Will not overwrite old data. Access using [nav].team.
+     * @return boolean, true if updated, false if not updated or was updated in past.
      */
     public boolean updateTeam() {
+        if(team != Team.UNKNOWN) return false;
         updatePos();
         if(!posHasBeenUpdated) return false;
         float x = pos.getLocation(0);
@@ -147,10 +150,11 @@ public class Navigation{
     }
 
     /**
-     * Updates the cube location enumerator using OpenCV. Access using [nav].cubePos.
-     * @return boolean, true if updated, false otherwise.
+     * Updates the cube location enumerator using OpenCV. Will not overwrite old data. Access using [nav].cubePos.
+     * @return boolean, true if updated, false if not updated or was updated in past.
      */
-    public SamplingOrderDetector.GoldLocation updateCubePos() {
+    public boolean updateCubePos() {
+        if(cubePos != CubePosition.UNKNOWN) return false;
 
         detector = new SamplingOrderDetector();
         detector.init(hardwareGetter.hardwareMap.appContext, CameraViewDisplay.getInstance());
@@ -168,9 +172,22 @@ public class Navigation{
 
         detector.enable();
 
-        return detector.getCurrentOrder();
+        SamplingOrderDetector.GoldLocation position = detector.getCurrentOrder();
 
+        if(position == SamplingOrderDetector.GoldLocation.UNKNOWN) return false;
+        switch (position) {
+            case LEFT:
+                cubePos = CubePosition.LEFT;
+                break;
+            case CENTER:
+                cubePos = CubePosition.MIDDLE;
+                break;
+            case RIGHT:
+                cubePos = CubePosition.RIGHT;
+                break;
+        }
 
+        return true;
     }
 
     /**
