@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 //EXIST
+import com.disnodeteam.dogecv.CameraViewDisplay;
+import com.disnodeteam.dogecv.DogeCV;
+import com.disnodeteam.dogecv.detectors.roverrukus.SamplingOrderDetector;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
@@ -23,8 +26,12 @@ public class Navigation{
     //-----enums-----//
     public enum Team {UNKNOWN, REDNORTH, REDSOUTH, BLUENORTH, BLUESOUTH}
     public Team team = Team.UNKNOWN;
-    public enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
-    public CubePosition cubePos = CubePosition.UNKNOWN;
+    private enum GoldLocation {
+        UNKNOWN,
+        LEFT,
+        CENTER,
+        RIGHT
+    }
 
     //-----robot hardware elements-----//
     //if you guys rename these I will cry - Quinn
@@ -56,11 +63,15 @@ public class Navigation{
     private float minimumMotorPower = 0.2f;
     private float liftPower = 0.3f;                 //power the lift will run at
     private float killDistance = 0;                 //kills program if robot farther than distance in x or z from origin (inches) (0 means no kill)
-    private float encoderCountsPerRev = 537.6f;     //encoder ticks per one revolution
+    private float encoderCountsPerRev = 537.6f;
+    private SamplingOrderDetector detector;
+    private com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter;
 
-    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry tele) {
+    //encoder ticks per one revolution
+
+    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter1, org.firstinspires.ftc.robotcore.external.Telemetry tele) {
         telemetry = tele;
-
+        hardwareGetter = hardwareGetter1;
         frontLeft = hardwareGetter.hardwareMap.dcMotor.get("frontLeft");
         backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
         frontRight = hardwareGetter.hardwareMap.dcMotor.get("frontRight");
@@ -70,8 +81,8 @@ public class Navigation{
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
-        driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         telemetry.addData("current",1);
         telemetry.update();
@@ -145,11 +156,28 @@ public class Navigation{
      * Updates the cube location enumerator using OpenCV. Access using [nav].cubePos.
      * @return boolean, true if updated, false otherwise.
      */
-    public boolean updateCubePos() {
+    public SamplingOrderDetector.GoldLocation updateCubePos() {
+        //telemetry.addData("Status", "DogeCV 2018.0 - Sampling Order Example");
 
-        //chirs put code here
+        detector = new SamplingOrderDetector();
+        detector.init(hardwareGetter.hardwareMap.appContext, CameraViewDisplay.getInstance());
+        detector.useDefaults();
 
-        return false;
+        detector.downscale = 0.4; // How much to downscale the input frames
+
+        // Optional Tuning
+        detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
+        //detector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
+        detector.maxAreaScorer.weight = 0.001;
+
+        detector.ratioScorer.weight = 15;
+        detector.ratioScorer.perfectRatio = 1.0;
+
+        detector.enable();
+
+        return detector.getCurrentOrder();
+
+
     }
 
     /**

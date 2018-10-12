@@ -12,6 +12,7 @@ public class TeamAuto extends LinearOpMode {
         //initialization
         Navigation nav = new Navigation(this,telemetry);
 
+
         waitForStart();
 
         if(nav.updatePos()) {
@@ -28,9 +29,12 @@ public class TeamAuto extends LinearOpMode {
 
         //locate cube
 
-        if(nav.updatePos() && !teamAndLocationDetermined) {
+        while(nav.updatePos() && !teamAndLocationDetermined) {
             nav.updateTeam();
+            while (nav.updateCubePos() == null){
+
             teamAndLocationDetermined = true;
+            }
         }
 
         //goto cube
