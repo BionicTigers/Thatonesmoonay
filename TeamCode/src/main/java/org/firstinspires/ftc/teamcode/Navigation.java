@@ -26,12 +26,6 @@ public class Navigation{
     //-----enums-----//
     public enum Team {UNKNOWN, REDNORTH, REDSOUTH, BLUENORTH, BLUESOUTH}
     public Team team = Team.UNKNOWN;
-    private enum GoldLocation {
-        UNKNOWN,
-        LEFT,
-        CENTER,
-        RIGHT
-    }
 
     //-----robot hardware elements-----//
     //if you guys rename these I will cry - Quinn
@@ -157,7 +151,6 @@ public class Navigation{
      * @return boolean, true if updated, false otherwise.
      */
     public SamplingOrderDetector.GoldLocation updateCubePos() {
-        //telemetry.addData("Status", "DogeCV 2018.0 - Sampling Order Example");
 
         detector = new SamplingOrderDetector();
         detector.init(hardwareGetter.hardwareMap.appContext, CameraViewDisplay.getInstance());

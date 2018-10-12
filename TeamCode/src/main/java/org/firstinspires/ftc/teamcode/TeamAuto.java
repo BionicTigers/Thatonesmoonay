@@ -33,8 +33,10 @@ public class TeamAuto extends LinearOpMode {
             nav.updateTeam();
             while (nav.updateCubePos() == null){
 
-            teamAndLocationDetermined = true;
+            teamAndLocationDetermined = false;
             }
+            teamAndLocationDetermined = true;
+            telemetry.addData("Status", nav.updateCubePos());
         }
 
         //goto cube
