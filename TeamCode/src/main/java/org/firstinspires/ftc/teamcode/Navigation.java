@@ -37,7 +37,7 @@ public class Navigation{
     private DcMotor backLeft;
     private DcMotor frontRight;
     private DcMotor backRight;
-    private DcMotor lift;
+   // private DcMotor lift;
 
     //-----robot position and dimensions-----//
     public Location pos = new Location();           //location of robot as [x,y,z,rot] (inches)
@@ -72,7 +72,7 @@ public class Navigation{
         backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
         frontRight = hardwareGetter.hardwareMap.dcMotor.get("frontRight");
         backRight = hardwareGetter.hardwareMap.dcMotor.get("backRight");
-        lift = hardwareGetter.hardwareMap.dcMotor.get("lift");
+        //lift = hardwareGetter.hardwareMap.dcMotor.get("lift");
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
@@ -80,31 +80,31 @@ public class Navigation{
         //driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        telemetry.addData("current",1);
-        telemetry.update();
+//        telemetry.addData("current",1);
+//        telemetry.update();
         int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
-        telemetry.addData("current",2);
-        telemetry.update();
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        telemetry.addData("current",3);
-        telemetry.update();
-        parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
-        telemetry.addData("current",4);
-        telemetry.update();
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        telemetry.addData("current",5);
-        telemetry.update();
-        vuforia = ClassFactory.createVuforiaLocalizer(parameters);
-        telemetry.addData("current",6);
-        telemetry.update();
-        vumarks = vuforia.loadTrackablesFromAsset("18-19_rover_ruckus");
-        telemetry.addData("current",7);
-        telemetry.update();
-        vumarkLocations[0] = new Location(0f,5.75f,71.5f,180f); //east
-        vumarkLocations[1] = new Location(-71.5f,5.75f,0f,270f); //north
-        vumarkLocations[2] = new Location(0f,5.75f,-71.5f,0f); //west
-        vumarkLocations[3] = new Location(71.5f,5.75f,0f,90f); //south
-        vumarks.activate();
+//        telemetry.addData("current",2);
+//        telemetry.update();
+//        //VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+//        telemetry.addData("current",3);
+//        telemetry.update();
+//        //parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
+//        telemetry.addData("current",4);
+//        telemetry.update();
+//        //parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+//        telemetry.addData("current",5);
+//        telemetry.update();
+//        vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+//        telemetry.addData("current",6);
+//        telemetry.update();
+//        vumarks = vuforia.loadTrackablesFromAsset("18-19_rover_ruckus");
+//        telemetry.addData("current",7);
+//        telemetry.update();
+//        vumarkLocations[0] = new Location(0f,5.75f,71.5f,180f); //east
+//        vumarkLocations[1] = new Location(-71.5f,5.75f,0f,270f); //north
+//        vumarkLocations[2] = new Location(0f,5.75f,-71.5f,0f); //west
+//        vumarkLocations[3] = new Location(71.5f,5.75f,0f,90f); //south
+//        vumarks.activate();
     }
 
     /**
@@ -112,19 +112,19 @@ public class Navigation{
      * @return boolean, true if updated, false otherwise
      */
     public boolean updatePos() {
-        for (int i = 0; i < vumarks.size(); i++) {
-            OpenGLMatrix testLocation = ((VuforiaTrackableDefaultListener) vumarks.get(i).getListener()).getPose();
-            if (testLocation != null) {
-                Location markLocation = new Location(vumarkLocations[i].getLocation(0), vumarkLocations[i].getLocation(1), vumarkLocations[i].getLocation(2), vumarkLocations[i].getLocation(3) - (float)Math.toDegrees(testLocation.get(1,2)));
-                markLocation.translateLocal(testLocation.getTranslation().get(1), -testLocation.getTranslation().get(0), testLocation.getTranslation().get(2));
-                markLocation.translateLocal(camLocation.getLocation(0),camLocation.getLocation(1),camLocation.getLocation(2));
-                markLocation.setRotation(markLocation.getLocation(3) + 180f);
-                pos = markLocation;
-                posHasBeenUpdated = true;
-                if( killDistance!= 0 && (Math.abs(pos.getLocation(0)) >  killDistance || Math.abs(pos.getLocation(2)) >  killDistance)) throw new IllegalStateException("Robot outside of killDistance at pos: " + pos);
-                return true;
-            }
-        }
+//        for (int i = 0; i < vumarks.size(); i++) {
+//            OpenGLMatrix testLocation = ((VuforiaTrackableDefaultListener) vumarks.get(i).getListener()).getPose();
+//            if (testLocation != null) {
+//                Location markLocation = new Location(vumarkLocations[i].getLocation(0), vumarkLocations[i].getLocation(1), vumarkLocations[i].getLocation(2), vumarkLocations[i].getLocation(3) - (float)Math.toDegrees(testLocation.get(1,2)));
+//                markLocation.translateLocal(testLocation.getTranslation().get(1), -testLocation.getTranslation().get(0), testLocation.getTranslation().get(2));
+//                markLocation.translateLocal(camLocation.getLocation(0),camLocation.getLocation(1),camLocation.getLocation(2));
+//                markLocation.setRotation(markLocation.getLocation(3) + 180f);
+//                pos = markLocation;
+//                posHasBeenUpdated = true;
+//                if( killDistance!= 0 && (Math.abs(pos.getLocation(0)) >  killDistance || Math.abs(pos.getLocation(2)) >  killDistance)) throw new IllegalStateException("Robot outside of killDistance at pos: " + pos);
+//                return true;
+//            }
+//        }
         return false;
     }
 
@@ -133,20 +133,20 @@ public class Navigation{
      * @return boolean, true if updated, false if not updated or was updated in past.
      */
     public boolean updateTeam() {
-        if(team != Team.UNKNOWN) return false;
-        updatePos();
-        if(!posHasBeenUpdated) return false;
-        float x = pos.getLocation(0);
-        float z = pos.getLocation(2);
-        if(x <= 0) {
-            if(z <= 0) team = Team.BLUESOUTH;
-            else team = Team.BLUENORTH;
-        }
-        else {
-            if(z <= 0) team = Team.REDSOUTH;
-            else team = Team.REDNORTH;
-        }
-        return true;
+//        if(team != Team.UNKNOWN) return false;
+//        updatePos();
+//        if(!posHasBeenUpdated) return false;
+//        float x = pos.getLocation(0);
+//        float z = pos.getLocation(2);
+//        if(x <= 0) {
+//            if(z <= 0) team = Team.BLUESOUTH;
+//            else team = Team.BLUENORTH;
+//        }
+//        else {
+//            if(z <= 0) team = Team.REDSOUTH;
+//            else team = Team.REDNORTH;
+//        }
+        return false;
     }
 
     /**
@@ -174,6 +174,7 @@ public class Navigation{
 
         SamplingOrderDetector.GoldLocation position = detector.getCurrentOrder();
 
+
         if(position == SamplingOrderDetector.GoldLocation.UNKNOWN) return false;
         switch (position) {
             case LEFT:
@@ -188,6 +189,10 @@ public class Navigation{
         }
 
         return true;
+    }
+
+    public CubePosition getCubePos() {
+        return cubePos;
     }
 
     /**
@@ -290,11 +295,11 @@ public class Navigation{
      * Sets lift motor to given encoder position
      * @param pos Encoder ticks for lift motor
      */
-    public void setLift(int pos) {
-        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        lift.setTargetPosition(pos);
-        lift.setPower(liftPower);
-    }
+//    public void setLift(int pos) {
+//        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        lift.setTargetPosition(pos);
+//        lift.setPower(liftPower);
+//    }
 
     /**
      * Good luck.
