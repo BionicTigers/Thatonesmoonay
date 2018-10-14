@@ -1,4 +1,3 @@
-//
 //package org.firstinspires.ftc.teamcode;
 //
 //import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -18,32 +17,26 @@
 //public class Driving_Auto extends LinearOpMode {
 //
 //    //Drivetrain Motors//
-//    //public Servo teamMarker; //Glyph Flipper
 //    private DcMotor backLeft; //left motor back
-//    //private DcMotor frontLeft; //left motor front (Ladies first)ot
+//    private DcMotor frontLeft; //left motor front (Ladies first)ot
 //    private DcMotor backRight; //right motor back
-//    //private DcMotor frontRight; //right motor front (Ladies first)
+//    private DcMotor frontRight; //right motor front (Ladies first)
 //    private DcMotor collector;
 //    private DcMotor evangelino;
 //    private Servo teamMarker;
 //    private Servo flickyWrist;
+//    private Servo liftrawrh;
 //
 //    //Variables//
-//    private double yValue;
-//    private double xValue;
-//    private double leftPower;
-//    private double rightPower;
-//    public int calibToggle;
+//    private double leftPower, rightPower, speed;
 //    public int target;
-//    private double speed;
-//    private Servo liftrawrh;
 //
 //    public ElapsedTime runtime = new ElapsedTime();
 //    int i;
-////    private Servo clark; //drop down servo (for color sensor)
-////    private Servo eddie; //swing servo (for color sensor)
-////    private ColorSensor roger; //right color sensor
-////    private ColorSensor leo; //left color sensor
+//    private Servo clark; //drop down servo (for color sensor)
+//    private Servo eddie; //swing servo (for color sensor)
+//    private ColorSensor roger; //right color sensor
+//    private ColorSensor leo; //left color sensor
 //    private double waitTime;
 //    private int gameState;
 //
@@ -134,8 +127,8 @@
 //                }
 //            }
 //
-////    String format(OpenGLMatrix transformationMatrix) {
-////        return (transformationMatrix != null) ? transformationMatrix.formatAsTransform() : "null";
+//    String format(OpenGLMatrix transformationMatrix) {
+//        return (transformationMatrix != null) ? transformationMatrix.formatAsTransform() : "null";
 //
 //
 //            public void driveForward(double power, int distance) {
@@ -292,4 +285,3 @@
 //
 //
 //        }
-//

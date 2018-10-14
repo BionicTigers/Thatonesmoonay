@@ -61,7 +61,7 @@ public class TeleOp4motors extends OpMode {
         //Left Side
         if (Math.abs(xValue) > 0.5) {
             if (Math.abs(yValue) > 0.5) {
-                leftPower = yValue / 2 + xValue * 0.5;
+                leftPower = yValue / 2 + xValue / 2;
             } else {
                 leftPower = yValue + xValue;
             }
@@ -72,7 +72,7 @@ public class TeleOp4motors extends OpMode {
         //Right Side
         if (Math.abs(xValue) > 0.5) {
             if (Math.abs(yValue) > 0.5) {
-                rightPower = yValue / 2 - xValue * 0.5;
+                rightPower = yValue / 2 - xValue / 2;
             } else {
                 rightPower = yValue - xValue;
             }
