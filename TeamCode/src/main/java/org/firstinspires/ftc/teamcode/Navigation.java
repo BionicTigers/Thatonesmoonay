@@ -24,6 +24,8 @@ public class Navigation{
     private float liftPower = 0.3f;                 //power the lift will run at
     private float encoderCountsPerRev = 537.6f;     //encoder ticks per one revolution
     private boolean useTelemetry = false;           //display motor values when running etc
+    private boolean nothingButDrive = false;
+    private boolean twoWheels = false;
 
     //------game element locations-----//
     public static final Location cargoBlueGold = new Location(-8.31f,27f,-8.31f,0f);
@@ -59,20 +61,28 @@ public class Navigation{
     private SamplingOrderDetector detector;
 
 
-    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean useVuforia) {
+    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean nothingButDrive, boolean twoWheels, boolean useVuforia) {
         this.hardwareGetter = hardwareGetter;
         this.telemetry = telemetry;
+        this.nothingButDrive = nothingButDrive;
+        this.twoWheels = twoWheels;
         this.useVuforia = useVuforia;
 
         frontLeft = hardwareGetter.hardwareMap.dcMotor.get("frontLeft");
-        backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
         frontRight = hardwareGetter.hardwareMap.dcMotor.get("frontRight");
-        backRight = hardwareGetter.hardwareMap.dcMotor.get("backRight");
-        lift = hardwareGetter.hardwareMap.dcMotor.get("lift");
         frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
         driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        if(!twoWheels) {
+            backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
+            backRight = hardwareGetter.hardwareMap.dcMotor.get("backRight");
+            backRight.setDirection(DcMotor.Direction.REVERSE);
+        }
+
+        if(!nothingButDrive) {
+            lift = hardwareGetter.hardwareMap.dcMotor.get("lift");
+            lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
 
         if(useVuforia) {
             int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
@@ -186,9 +196,11 @@ public class Navigation{
      */
     public void drivePower(float left, float right) {
         frontLeft.setPower(left);
-        backLeft.setPower(left);
         frontRight.setPower(right);
-        backRight.setPower(right);
+        if(!twoWheels) {
+            backLeft.setPower(left);
+            backRight.setPower(right);
+        }
     }
 
     /**
@@ -198,9 +210,11 @@ public class Navigation{
      */
     public void drivePosition(int left, int right) {
         frontLeft.setTargetPosition(left);
-        backLeft.setTargetPosition(left);
         frontRight.setTargetPosition(right);
-        backRight.setTargetPosition(right);
+        if(!twoWheels) {
+            backLeft.setTargetPosition(left);
+            backRight.setTargetPosition(right);
+        }
     }
 
     /**
@@ -209,9 +223,11 @@ public class Navigation{
      */
     public void driveMode(DcMotor.RunMode r) {
         frontLeft.setMode(r);
-        backLeft.setMode(r);
         frontRight.setMode(r);
-        backRight.setMode(r);
+        if(!twoWheels) {
+            backLeft.setMode(r);
+            backRight.setMode(r);
+        }
     }
 
     /**
@@ -219,9 +235,11 @@ public class Navigation{
      */
     public void driveEncoderReset() {
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        if(!twoWheels) {
+            backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
     }
 
     /**
@@ -280,9 +298,11 @@ public class Navigation{
      * @param pos Encoder ticks for lift motor
      */
     public void setLift(int pos) {
-        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        lift.setTargetPosition(pos);
-        lift.setPower(liftPower);
+        if(!nothingButDrive) {
+            lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            lift.setTargetPosition(pos);
+            lift.setPower(liftPower);
+        }
     }
 
     private void driveMethodComplex(float distance, float slowdown, float precision, DcMotor encoderMotor, float lModifier, float rModifier, boolean doubleBack, float minPower, float maxPower) {
