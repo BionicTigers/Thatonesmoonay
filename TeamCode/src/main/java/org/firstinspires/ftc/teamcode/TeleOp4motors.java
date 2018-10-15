@@ -21,7 +21,7 @@ public class TeleOp4motors extends OpMode {
     //Variables//
     private double leftStick, rightStick;
     private double leftPower, rightPower;
-    private double calibToggle, coarseDiff, fineDiff, stickDiff;
+    private double coarseDiff, fineDiff, calibToggle;
     private int driveSpeed, driveMode;
 
     //Objects//
@@ -67,14 +67,13 @@ public class TeleOp4motors extends OpMode {
             //Speed Offsets
             coarseDiff = .75;
             fineDiff = .45;
-            stickDiff = 1;
 
-            leftStick = (gamepad1.left_stick_y);
-            rightStick = (-gamepad1.right_stick_x * stickDiff);
+            leftStick = gamepad1.left_stick_y;
+            rightStick = -gamepad1.right_stick_x;
 
             //Left Side
-            if (Math.abs(rightStick) > 0.45) {
-                if (Math.abs(leftStick) > 0.45) {
+            if (Math.abs(rightStick) > 0.5) {
+                if (Math.abs(leftStick) > 0.5) {
                     leftPower = leftStick / 2 + rightStick / 2;
                 } else {
                     leftPower = leftStick + rightStick;
@@ -84,8 +83,8 @@ public class TeleOp4motors extends OpMode {
             }
 
             //Right Side
-            if (Math.abs(rightStick) > 0.45) {
-                if (Math.abs(leftStick) > 0.45) {
+            if (Math.abs(rightStick) > 0.5) {
+                if (Math.abs(leftStick) > 0.5) {
                     rightPower = leftStick / 2 - rightStick / 2;
                 } else {
                     rightPower = leftStick - rightStick;
@@ -100,8 +99,8 @@ public class TeleOp4motors extends OpMode {
             coarseDiff = .75;
             fineDiff = .45;
 
-            leftPower = (gamepad1.left_stick_y * coarseDiff);
-            rightPower = (gamepad1.right_stick_y * coarseDiff);
+            leftPower = gamepad1.left_stick_y;
+            rightPower = gamepad1.right_stick_y;
         } else if (driveMode == 2) {
             ////////////////////////////////// ACKERMAN DRIVE //////////////////////////////////////
 
@@ -110,29 +109,31 @@ public class TeleOp4motors extends OpMode {
             fineDiff = .45;
 
             leftStick = (gamepad1.left_stick_y);
+            double gasPedal = gamepad1.right_trigger;
+            double backPedal = gamepad1.left_trigger;
             rightStick = 1;
 
-            if (gamepad1.right_trigger > 0.15) {
-                if (Math.abs(rightStick) > 0.45) {
-                    leftPower = leftStick / 2 + gamepad1.right_trigger;
+            if (gasPedal > 0.15) {
+                if (Math.abs(rightStick) > 0.5) {
+                    leftPower = leftStick / 2 + gasPedal;
                 } else {
-                    leftPower = leftStick;
+                    leftPower = gasPedal;
                 }
-                if (Math.abs(rightStick) > 0.45) {
-                    rightPower = leftStick / 2 - gamepad1.right_trigger;
+                if (Math.abs(rightStick) > 0.5) {
+                    rightPower = leftStick / 2 - gasPedal;
                 } else {
-                    rightPower = leftStick;
+                    rightPower = gasPedal;
                 }
-            } else if (gamepad1.left_trigger > 0.15) {
-                if (Math.abs(rightStick) > 0.45) {
-                    leftPower = leftStick / 2 + gamepad1.left_trigger;
+            } else if (backPedal > 0.15) {
+                if (Math.abs(rightStick) > 0.5) {
+                    leftPower = leftStick / 2 - backPedal;
                 } else {
-                    leftPower = leftStick;
+                    leftPower = backPedal;
                 }
-                if (Math.abs(rightStick) > 0.45) {
-                    rightPower = leftStick / 2 - gamepad1.left_trigger;
+                if (Math.abs(rightStick) > 0.5) {
+                    rightPower = leftStick / 2 + backPedal;
                 } else {
-                    rightPower = leftStick;
+                    rightPower = backPedal;
                 }
             } else {
                 leftPower = 0;
@@ -148,6 +149,11 @@ public class TeleOp4motors extends OpMode {
             telemetry.addData("Stick: ", "Y = " + round(leftStick, 3) + ", X = " + round(rightStick, 3));
             telemetry.addData("Power: ", "L = " + round(leftPower / coarseDiff, 3) + ", R = " + round(rightPower / coarseDiff, 3));
             telemetry.update();
+
+            backLeft.setPower(leftPower * coarseDiff);
+            backRight.setPower(rightPower * coarseDiff);
+            frontLeft.setPower(leftPower * coarseDiff);
+            frontRight.setPower(rightPower * coarseDiff);
         } else { //Fine Drive Mode
             leftPower = Math.pow(leftPower, 3) * fineDiff;
             rightPower = Math.pow(rightPower, 3) * fineDiff;
@@ -156,12 +162,12 @@ public class TeleOp4motors extends OpMode {
             telemetry.addData("Stick: ", "Y = " + round(leftStick, 3) + ", X = " + round(rightStick, 3));
             telemetry.addData("Power: ", "L = " + round(leftPower / fineDiff, 3) + ", R = " + round(rightPower / fineDiff, 3));
             telemetry.update();
-        }
 
-        backLeft.setPower(leftPower);
-        backRight.setPower(rightPower);
-        frontLeft.setPower(leftPower);
-        frontRight.setPower(rightPower);
+            backLeft.setPower(leftPower * fineDiff);
+            backRight.setPower(rightPower * fineDiff);
+            frontLeft.setPower(leftPower * fineDiff);
+            frontRight.setPower(rightPower * fineDiff);
+        }
     }
 
 
