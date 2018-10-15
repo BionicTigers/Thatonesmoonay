@@ -339,9 +339,11 @@ public class Navigation{
      * A simple method to output the status of all motors and other variables to telemetry.
      */
     private void telemetryMethod() {
-        String motorString = "FL-" + frontLeft.getCurrentPosition() + " BL-"+backLeft.getCurrentPosition()+" FR-"+frontRight.getCurrentPosition()+" BR-"+backRight.getCurrentPosition();
-        telemetry.addData("Drive",motorString);
-        telemetry.addData("Lift",lift.getCurrentPosition());
+        if(!twoWheels) {
+            String motorString = "FL-" + frontLeft.getCurrentPosition() + " BL-" + backLeft.getCurrentPosition() + " FR-" + frontRight.getCurrentPosition() + " BR-" + backRight.getCurrentPosition();
+            telemetry.addData("Drive", motorString);
+        }
+        if(!nothingButDrive) telemetry.addData("Lift",lift.getCurrentPosition());
         telemetry.addData("Pos",pos);
         telemetry.addData("Team",team);
         telemetry.addData("CubePos",cubePos);
