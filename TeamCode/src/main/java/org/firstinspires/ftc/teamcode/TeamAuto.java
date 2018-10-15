@@ -11,22 +11,26 @@ public class TeamAuto extends LinearOpMode {
         Navigation nav = new Navigation(this,telemetry,true);
 
         //try determine vision stuff
-        nav.updatePos();
-        nav.updateTeam();
-        nav.updateCubePos();
+       // nav.updatePos();
+        //nav.updateTeam();
+        while (!isStarted()) {
+            nav.updateCubePos();
 
-        waitForStart();
+        }
+        while (!isStopRequested()){
+            nav.getCubePos();
+        }
 
         //try determine vision stuff
-        nav.updatePos();
-        nav.updateTeam();
+        //nav.updatePos();
+        //nav.updateTeam();
         nav.updateCubePos();
 
 
         //landing motor commands
 
         //try determine vision stuff
-        nav.updatePos();
+        //nav.updatePos();
         nav.updateTeam();
         nav.updateCubePos();
 

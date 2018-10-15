@@ -167,6 +167,7 @@ public class Navigation{
 
         SamplingOrderDetector.GoldLocation position = detector.getCurrentOrder();
 
+
         if(position == SamplingOrderDetector.GoldLocation.UNKNOWN) return false;
         switch (position) {
             case LEFT:
@@ -181,6 +182,10 @@ public class Navigation{
         }
 
         return true;
+    }
+
+    public CubePosition getCubePos() {
+        return cubePos;
     }
 
     /**
