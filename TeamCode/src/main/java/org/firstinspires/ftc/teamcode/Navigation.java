@@ -54,6 +54,7 @@ public class Navigation{
     private VuforiaLocalizer vuforia;
     private VuforiaTrackables vumarks;
     private Location[] vumarkLocations = new Location[4];
+    boolean useVuforia;
 
     //-----tweak values-----//
     private float minimumSlowdownDistance = 10f;    //when executing a goToLocation function, robot will begin slowing this far from destination (inches)
@@ -65,46 +66,34 @@ public class Navigation{
     private SamplingOrderDetector detector;
     private com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter;
 
-    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter1, org.firstinspires.ftc.robotcore.external.Telemetry tele) {
-        telemetry = tele;
-        hardwareGetter = hardwareGetter1;
+    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean useVuforia) {
+        this.hardwareGetter = hardwareGetter;
+        this.telemetry = telemetry;
+        this.useVuforia = useVuforia;
+
         frontLeft = hardwareGetter.hardwareMap.dcMotor.get("frontLeft");
         backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
         frontRight = hardwareGetter.hardwareMap.dcMotor.get("frontRight");
         backRight = hardwareGetter.hardwareMap.dcMotor.get("backRight");
         lift = hardwareGetter.hardwareMap.dcMotor.get("lift");
-
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
+        driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        //driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        telemetry.addData("current",1);
-        telemetry.update();
-        int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
-        telemetry.addData("current",2);
-        telemetry.update();
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        telemetry.addData("current",3);
-        telemetry.update();
-        parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
-        telemetry.addData("current",4);
-        telemetry.update();
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        telemetry.addData("current",5);
-        telemetry.update();
-        vuforia = ClassFactory.createVuforiaLocalizer(parameters);
-        telemetry.addData("current",6);
-        telemetry.update();
-        vumarks = vuforia.loadTrackablesFromAsset("18-19_rover_ruckus");
-        telemetry.addData("current",7);
-        telemetry.update();
-        vumarkLocations[0] = new Location(0f,5.75f,71.5f,180f); //east
-        vumarkLocations[1] = new Location(-71.5f,5.75f,0f,270f); //north
-        vumarkLocations[2] = new Location(0f,5.75f,-71.5f,0f); //west
-        vumarkLocations[3] = new Location(71.5f,5.75f,0f,90f); //south
-        vumarks.activate();
+        if(useVuforia) {
+            int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
+            VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+            parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
+            parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+            vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+            vumarks = vuforia.loadTrackablesFromAsset("18-19_rover_ruckus");
+            vumarkLocations[0] = new Location(0f, 5.75f, 71.5f, 180f); //east
+            vumarkLocations[1] = new Location(-71.5f, 5.75f, 0f, 270f); //north
+            vumarkLocations[2] = new Location(0f, 5.75f, -71.5f, 0f); //west
+            vumarkLocations[3] = new Location(71.5f, 5.75f, 0f, 90f); //south
+            vumarks.activate();
+        }
     }
 
     /**
@@ -112,16 +101,20 @@ public class Navigation{
      * @return boolean, true if updated, false otherwise
      */
     public boolean updatePos() {
+        //will never run method given useVuforia is false
+        if(!useVuforia) return false;
+
         for (int i = 0; i < vumarks.size(); i++) {
             OpenGLMatrix testLocation = ((VuforiaTrackableDefaultListener) vumarks.get(i).getListener()).getPose();
             if (testLocation != null) {
-                Location markLocation = new Location(vumarkLocations[i].getLocation(0), vumarkLocations[i].getLocation(1), vumarkLocations[i].getLocation(2), vumarkLocations[i].getLocation(3) - (float)Math.toDegrees(testLocation.get(1,2)));
+                Location markLocation = new Location(vumarkLocations[i].getLocation(0), vumarkLocations[i].getLocation(1), vumarkLocations[i].getLocation(2), vumarkLocations[i].getLocation(3) - (float) Math.toDegrees(testLocation.get(1, 2)));
                 markLocation.translateLocal(testLocation.getTranslation().get(1), -testLocation.getTranslation().get(0), testLocation.getTranslation().get(2));
-                markLocation.translateLocal(camLocation.getLocation(0),camLocation.getLocation(1),camLocation.getLocation(2));
+                markLocation.translateLocal(camLocation.getLocation(0), camLocation.getLocation(1), camLocation.getLocation(2));
                 markLocation.setRotation(markLocation.getLocation(3) + 180f);
                 pos = markLocation;
                 posHasBeenUpdated = true;
-                if( killDistance!= 0 && (Math.abs(pos.getLocation(0)) >  killDistance || Math.abs(pos.getLocation(2)) >  killDistance)) throw new IllegalStateException("Robot outside of killDistance at pos: " + pos);
+                if (killDistance != 0 && (Math.abs(pos.getLocation(0)) > killDistance || Math.abs(pos.getLocation(2)) > killDistance))
+                    throw new IllegalStateException("Robot outside of killDistance at pos: " + pos);
                 return true;
             }
         }
@@ -322,5 +315,20 @@ public class Navigation{
             drivePower(power*lModifier, power*rModifier);
         }
         driveEncoderReset();
+    }
+
+    private void driveMethodSimple(float distanceL, float distanceR, float LPower, float RPower) {
+        driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        int l = (int)(distanceL / (wheelDiameter * Math.PI) * encoderCountsPerRev);
+        int r = (int)(distanceR / (wheelDiameter * Math.PI) * encoderCountsPerRev);
+        drivePosition(l,r);
+        drivePower(LPower,RPower);
+        while(frontLeft.isBusy()) {
+
+        }
+    }
+
+    private void telemetryMethod() {
+
     }
 }
