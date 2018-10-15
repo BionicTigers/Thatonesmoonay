@@ -285,18 +285,6 @@ public class Navigation{
         lift.setPower(liftPower);
     }
 
-    /**
-     * Good luck.
-     * @param distance
-     * @param slowdown
-     * @param precision
-     * @param encoderMotor
-     * @param lModifier
-     * @param rModifier
-     * @param doubleBack
-     * @param minPower
-     * @param maxPower
-     */
     private void driveMethodComplex(float distance, float slowdown, float precision, DcMotor encoderMotor, float lModifier, float rModifier, boolean doubleBack, float minPower, float maxPower) {
         distance *= lModifier;
 
@@ -325,10 +313,16 @@ public class Navigation{
         }
     }
 
+    /**
+     * A simple method to output the status of all motors and other variables to telemetry.
+     */
     private void telemetryMethod() {
-        telemetry.addData("Front Left",frontLeft.getCurrentPosition());
-        telemetry.addData("Back Left",backLeft.getCurrentPosition());
-        telemetry.addData("Front Right",frontRight.getCurrentPosition());
-        telemetry.addData("Back Right",backRight.getCurrentPosition());
+        String motorString = "FL-" + frontLeft.getCurrentPosition() + " BL-"+backLeft.getCurrentPosition()+" FR-"+frontRight.getCurrentPosition()+" BR-"+backRight.getCurrentPosition();
+        telemetry.addData("Drive",motorString);
+        telemetry.addData("Lift",lift.getCurrentPosition());
+        telemetry.addData("Pos",pos);
+        telemetry.addData("Team",team);
+        telemetry.addData("CubePos",cubePos);
+        telemetry.update();
     }
 }
