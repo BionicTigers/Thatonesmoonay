@@ -15,7 +15,7 @@ public class TeamAuto extends LinearOpMode {
 
         //liftrawrh.setPosition(1.0);
         //flickyWrist.setPosition(0.5);
-        Navigation nav = new Navigation(this,telemetry, true, false, true);
+        Navigation nav = new Navigation(this,telemetry, true, false, true, true);
 
         waitForStart();
 
@@ -40,8 +40,9 @@ public class TeamAuto extends LinearOpMode {
         sleep(100);
 //        //Start lift down motors(2) go down, need method (note to self), reverse one motor
         nav.rotateTo(0f, 200f, 40f);
-        nav.goDistance(200f,50f);
-        nav.drivePower(0,0);
+        nav.goDistance(-36f,50f);
+
+
         //try determine vision stuff
         //nav.updatePos();
 

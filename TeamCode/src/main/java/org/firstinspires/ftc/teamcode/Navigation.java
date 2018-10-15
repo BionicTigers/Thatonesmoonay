@@ -61,17 +61,17 @@ public class Navigation{
     private SamplingOrderDetector detector;
 
 
-    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean nothingButDrive, boolean twoWheels, boolean useVuforia) {
+    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean nothingButDrive, boolean twoWheels, boolean useVuforia, boolean useTelemetry) {
         this.hardwareGetter = hardwareGetter;
         this.telemetry = telemetry;
         this.nothingButDrive = nothingButDrive;
         this.twoWheels = twoWheels;
         this.useVuforia = useVuforia;
+        this.useTelemetry = useTelemetry;
 
         frontLeft = hardwareGetter.hardwareMap.dcMotor.get("frontLeft");
         frontRight = hardwareGetter.hardwareMap.dcMotor.get("frontRight");
         frontRight.setDirection(DcMotor.Direction.REVERSE);
-        driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         if(!twoWheels) {
             backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
@@ -83,6 +83,8 @@ public class Navigation{
             lift = hardwareGetter.hardwareMap.dcMotor.get("lift");
             lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
+
+        driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         if(useVuforia) {
             int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
@@ -276,7 +278,7 @@ public class Navigation{
         float distance = (float)(Math.toRadians(optimalRotation) * wheelDistance); //arc length of turn (radians * radius)
         slowdown = (float)(Math.toRadians(slowdown) * wheelDistance);
 
-        driveMethodComplex(distance, slowdown, precision, frontLeft, 1f, -1f, true, 0.2f, maximumMotorPower);
+        driveMethodComplex(distance, slowdown, precision, frontLeft, 1f, -1f, true, 0.05f, maximumMotorPower);
 
         pos.setRotation(rot);
         updatePos();
