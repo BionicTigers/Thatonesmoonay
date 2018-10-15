@@ -7,7 +7,6 @@ import com.disnodeteam.dogecv.detectors.roverrukus.SamplingOrderDetector;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.SampleRevBlinkinLedDriver;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -18,6 +17,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
  * A class for all movement methods for Rover Ruckus!
  */
 public class Navigation{
+
+    //-----tweak values-----//
+    private float maximumMotorPower = 1f;           //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
+    private float minimumMotorPower = 0.2f;
+    private float liftPower = 0.3f;                 //power the lift will run at
+    private float encoderCountsPerRev = 537.6f;     //encoder ticks per one revolution
+    private boolean useTelemetry = false;           //display motor values when running etc
 
     //------game element locations-----//
     public static final Location cargoBlueGold = new Location(-8.31f,27f,-8.31f,0f);
@@ -31,40 +37,27 @@ public class Navigation{
     public enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
     public CubePosition cubePos = CubePosition.UNKNOWN;
 
-    //-----robot hardware elements-----//
-    //if you guys rename these I will cry - Quinn
+    //-----robot hardware, position, and dimensions-----//
+    private com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter;
     private DcMotor frontLeft;
     private DcMotor backLeft;
     private DcMotor frontRight;
     private DcMotor backRight;
     private DcMotor lift;
-
-    //-----robot position and dimensions-----//
-    public Location pos = new Location();           //location of robot as [x,y,z,rot] (inches)
-    public boolean posHasBeenUpdated = false;
+    public Location pos = new Location();           //location of robot as [x,y,z,rot] (inches / degrees)
+    public boolean posHasBeenUpdated = false;       //used with methods that require a vuforia input as not to produce inaccurate results
     private float wheelDistance = 6;                //distance from center of robot to center of wheel (inches)
     private float wheelDiameter = 4;                //diameter of wheel (inches)
     private Location camLocation = new Location(0f,6f,6f,0f);
 
-    //-----telemetry-----//
+    //-----internal values-----//
     private org.firstinspires.ftc.robotcore.external.Telemetry telemetry;
-
-
-    //-----vuforia------//
     private VuforiaLocalizer vuforia;
     private VuforiaTrackables vumarks;
     private Location[] vumarkLocations = new Location[4];
-    boolean useVuforia;
-
-    //-----tweak values-----//
-    private float minimumSlowdownDistance = 10f;    //when executing a goToLocation function, robot will begin slowing this far from destination (inches)
-    private float maximumMotorPower = 1f;           //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
-    private float minimumMotorPower = 0.2f;
-    private float liftPower = 0.3f;                 //power the lift will run at
-    private float killDistance = 0;                 //kills program if robot farther than distance in x or z from origin (inches) (0 means no kill)
-    private float encoderCountsPerRev = 537.6f;     //encoder ticks per one revolution
+    private boolean useVuforia;
     private SamplingOrderDetector detector;
-    private com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter;
+
 
     public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean useVuforia) {
         this.hardwareGetter = hardwareGetter;
@@ -113,8 +106,6 @@ public class Navigation{
                 markLocation.setRotation(markLocation.getLocation(3) + 180f);
                 pos = markLocation;
                 posHasBeenUpdated = true;
-                if (killDistance != 0 && (Math.abs(pos.getLocation(0)) > killDistance || Math.abs(pos.getLocation(2)) > killDistance))
-                    throw new IllegalStateException("Robot outside of killDistance at pos: " + pos);
                 return true;
             }
         }
@@ -318,6 +309,7 @@ public class Navigation{
             float uncappedPower = (targetEncoder - encoderMotor.getCurrentPosition()) / (float)slowdownEncoder;
             float power = (uncappedPower < 0 ? -1:1) * Math.min(maxPower, Math.max(minPower, Math.abs(uncappedPower)));
             drivePower(power*lModifier, power*rModifier);
+            if(useTelemetry) telemetryMethod();
         }
         driveEncoderReset();
     }
@@ -329,11 +321,14 @@ public class Navigation{
         drivePosition(l,r);
         drivePower(LPower,RPower);
         while(frontLeft.isBusy()) {
-
+            if(useTelemetry) telemetryMethod();
         }
     }
 
     private void telemetryMethod() {
-
+        telemetry.addData("Front Left",frontLeft.getCurrentPosition());
+        telemetry.addData("Back Left",backLeft.getCurrentPosition());
+        telemetry.addData("Front Right",frontRight.getCurrentPosition());
+        telemetry.addData("Back Right",backRight.getCurrentPosition());
     }
 }

@@ -14,7 +14,7 @@ public class DebugAuto extends LinearOpMode {
 
     @Override public void runOpMode() {
         //initialization
-        Navigation nav = new Navigation(this,telemetry);
+        Navigation nav = new Navigation(this,telemetry, true);
 
         waitForStart();
 
