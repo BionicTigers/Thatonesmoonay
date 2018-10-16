@@ -258,6 +258,7 @@ public class Navigation{
      * @param slowdown Distance to start linearly slowing down before target position.
      */
     public void goDistance(float distance, float slowdown) {
+
         driveMethodComplex(distance, slowdown, 0f, frontLeft, 1f, 1f, false, minimumMotorPower, maximumMotorPower);
 
         pos.translateLocal(distance);
@@ -313,9 +314,9 @@ public class Navigation{
         int initEncoder = encoderMotor.getCurrentPosition();
         int targetEncoder = (int)(distance / (wheelDiameter * Math.PI) * encoderCountsPerRev) + initEncoder;
         int slowdownEncoder = (int)(slowdown / (wheelDiameter * Math.PI) * encoderCountsPerRev);
-
+        int premodifier = (targetEncoder > 0) ? 1 : -1;
         driveMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        while ((targetEncoder - encoderMotor.getCurrentPosition()) > precision || (doubleBack && (targetEncoder - encoderMotor.getCurrentPosition()) < precision)) {
+        while ((!doubleBack && (targetEncoder - encoderMotor.getCurrentPosition())*premodifier > precision) || (doubleBack && Math.abs(targetEncoder - encoderMotor.getCurrentPosition()) > precision)) {
             float uncappedPower = (targetEncoder - encoderMotor.getCurrentPosition()) / (float)slowdownEncoder;
             float power = (uncappedPower < 0 ? -1:1) * Math.min(maxPower, Math.max(minPower, Math.abs(uncappedPower)));
             drivePower(power*lModifier, power*rModifier);
