@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import com.vuforia.Image;
 
 /**
  * A class for all movement methods for Rover Ruckus!
@@ -35,9 +36,9 @@ public class Navigation{
 
     //-----enums-----//
     public enum Team {UNKNOWN, REDNORTH, REDSOUTH, BLUENORTH, BLUESOUTH}
-    public Team team = Team.UNKNOWN;
+    private Team team = Team.UNKNOWN;
     public enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
-    public CubePosition cubePos = CubePosition.UNKNOWN;
+    private CubePosition cubePos = CubePosition.UNKNOWN;
 
     //-----robot hardware, position, and dimensions-----//
     private com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter;
@@ -46,8 +47,8 @@ public class Navigation{
     private DcMotor frontRight;
     private DcMotor backRight;
     private DcMotor lift;
-    public Location pos = new Location();           //location of robot as [x,y,z,rot] (inches / degrees)
-    public boolean posHasBeenUpdated = false;       //used with methods that require a vuforia input as not to produce inaccurate results
+    private Location pos = new Location();           //location of robot as [x,y,z,rot] (inches / degrees)
+    private boolean posHasBeenUpdated = false;       //used with methods that require a vuforia input as not to produce inaccurate results
     private float wheelDistance = 6;                //distance from center of robot to center of wheel (inches)
     private float wheelDiameter = 4;                //diameter of wheel (inches)
     private Location camLocation = new Location(0f,6f,6f,0f);
@@ -57,16 +58,16 @@ public class Navigation{
     private VuforiaLocalizer vuforia;
     private VuforiaTrackables vumarks;
     private Location[] vumarkLocations = new Location[4];
-    private boolean useVuforia;
+    private boolean useAnyCV;
     private SamplingOrderDetector detector;
 
 
-    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean nothingButDrive, boolean twoWheels, boolean useVuforia, boolean useTelemetry) {
+    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean nothingButDrive, boolean twoWheels, boolean useAnyCV, boolean useTelemetry) {
         this.hardwareGetter = hardwareGetter;
         this.telemetry = telemetry;
         this.nothingButDrive = nothingButDrive;
         this.twoWheels = twoWheels;
-        this.useVuforia = useVuforia;
+        this.useAnyCV = useAnyCV;
         this.useTelemetry = useTelemetry;
 
         frontLeft = hardwareGetter.hardwareMap.dcMotor.get("frontLeft");
@@ -86,7 +87,7 @@ public class Navigation{
 
         driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        if(useVuforia) {
+        if(useAnyCV) {
             int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
             VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
             parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
@@ -107,7 +108,7 @@ public class Navigation{
      */
     public boolean updatePos() {
         //will never run method given useVuforia is false
-        if(!useVuforia) return false;
+        if(!useAnyCV) return false;
 
         for (int i = 0; i < vumarks.size(); i++) {
             OpenGLMatrix testLocation = ((VuforiaTrackableDefaultListener) vumarks.get(i).getListener()).getPose();
@@ -124,12 +125,16 @@ public class Navigation{
         return false;
     }
 
+    public Location getPos() {
+        return pos;
+    }
+
     /**
      * Updates the robot team enumerator using the current position. Will not overwrite old data. Access using [nav].team.
      * @return boolean, true if updated, false if not updated or was updated in past.
      */
     public boolean updateTeam() {
-        if(team != Team.UNKNOWN) return false;
+        if(team != Team.UNKNOWN || !useAnyCV) return false;
         updatePos();
         if(!posHasBeenUpdated) return false;
         float x = pos.getLocation(0);
@@ -145,12 +150,22 @@ public class Navigation{
         return true;
     }
 
+    public Team getTeam() {
+        return team;
+    }
+
     /**
      * Updates the cube location enumerator using OpenCV. Will not overwrite old data. Access using [nav].cubePos.
      * @return boolean, true if updated, false if not updated or was updated in past.
      */
     public boolean updateCubePos() {
-        if(cubePos != CubePosition.UNKNOWN) return false;
+        if(cubePos != CubePosition.UNKNOWN || !useAnyCV) return false;
+
+        //gets the most recent Frame from the queue.
+        VuforiaLocalizer.CloseableFrame frame = vuforia.getFrameQueue().element();
+        Image image = frame.getImage(0);
+
+        //TODO Use this frame output as an input value for OpenCV. I will try to help.
 
         detector = new SamplingOrderDetector();
         detector.init(hardwareGetter.hardwareMap.appContext, CameraViewDisplay.getInstance());
