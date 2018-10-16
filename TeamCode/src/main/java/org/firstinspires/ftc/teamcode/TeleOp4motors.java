@@ -187,7 +187,7 @@ public class TeleOp4motors extends OpMode {
                 telemetry.addData("Mode: ", "ACKERMAN");
                 telemetry.addData("Speed: ", "SLOW");
                 telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", G: " + round(gasPedal, 3));
-                telemetry.addData("Power: ", "L = " + round(leftPower / fineDiff, 3) + ", R = " + round(rightPower / fineDiff, 3));
+                telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
                 backLeft.setPower(leftPower * fineDiff);
