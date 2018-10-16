@@ -93,7 +93,7 @@ public class Navigation{
             int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
             VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
             parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
-            parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+            parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
             //vuforia = ClassFactory.createVuforiaLocalizer(parameters);
             dogeforia = new Dogeforia(parameters);
             vumarks = dogeforia.loadTrackablesFromAsset("18-19_rover_ruckus");
@@ -157,7 +157,8 @@ public class Navigation{
         if(cubePos != CubePosition.UNKNOWN) return false;
 
         detector = new SamplingOrderDetector();
-        detector.init(hardwareGetter.hardwareMap.appContext, CameraViewDisplay.getInstance(),1,false);
+        dogeforia.setDogeCVDetector(detector);
+        detector.init(hardwareGetter.hardwareMap.appContext, CameraViewDisplay.getInstance(),1,useVuforia);
         detector.useDefaults();
 
         detector.downscale = 0.4; // How much to downscale the input frames
@@ -171,6 +172,7 @@ public class Navigation{
         detector.ratioScorer.perfectRatio = 1.0;
 
         detector.enable();
+        dogeforia.start();
 
         SamplingOrderDetector.GoldLocation position = detector.getCurrentOrder();
 
