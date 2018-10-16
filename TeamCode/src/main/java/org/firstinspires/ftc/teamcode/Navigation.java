@@ -56,7 +56,7 @@ public class Navigation{
 
     //-----internal values-----//
     private org.firstinspires.ftc.robotcore.external.Telemetry telemetry;
-  //  private VuforiaLocalizer vuforia;
+    private VuforiaLocalizer vuforia;
     private Dogeforia dogeforia;
     private VuforiaTrackables vumarks;
     private Location[] vumarkLocations = new Location[4];
@@ -95,9 +95,8 @@ public class Navigation{
             VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
             parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
             parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
-            //vuforia = ClassFactory.createVuforiaLocalizer(parameters);
-            dogeforia = new Dogeforia(parameters);
-            vumarks = dogeforia.loadTrackablesFromAsset("18-19_rover_ruckus");
+            vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+            vumarks = vuforia.loadTrackablesFromAsset("18-19_rover_ruckus");
             vumarkLocations[0] = new Location(0f, 5.75f, 71.5f, 180f); //east
             vumarkLocations[1] = new Location(-71.5f, 5.75f, 0f, 270f); //north
             vumarkLocations[2] = new Location(0f, 5.75f, -71.5f, 0f); //west
@@ -173,7 +172,7 @@ public class Navigation{
 
         detector = new SamplingOrderDetector();
         dogeforia.setDogeCVDetector(detector);
-        detector.init(hardwareGetter.hardwareMap.appContext, CameraViewDisplay.getInstance(),1,useVuforia);
+        detector.init(hardwareGetter.hardwareMap.appContext, CameraViewDisplay.getInstance(),1,useAnyCV);
         detector.useDefaults();
 
         detector.downscale = 0.4; // How much to downscale the input frames
