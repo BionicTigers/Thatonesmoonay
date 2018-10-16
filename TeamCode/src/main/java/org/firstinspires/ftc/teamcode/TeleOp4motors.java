@@ -62,13 +62,12 @@ public class TeleOp4motors extends OpMode {
             driveMode = 2;
         }
 
+        //Speed Offsets
+        coarseDiff = .7;
+        fineDiff = .4;
+
         if (driveMode == 0) {
             //////////////////////////////////// ARCADE DRIVE //////////////////////////////////////
-
-            //Speed Offsets
-            coarseDiff = .75;
-            fineDiff = .45;
-
             leftStick = gamepad1.left_stick_y;
             rightStick = -gamepad1.right_stick_x;
 
@@ -97,7 +96,7 @@ public class TeleOp4motors extends OpMode {
             if (driveSpeed % 2 == 0) {
                 telemetry.addData("Mode: ", "ARCADE");
                 telemetry.addData("Speed: ", "NORMAL");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + "R = " + round(rightStick, 3));
+                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
@@ -108,7 +107,7 @@ public class TeleOp4motors extends OpMode {
             } else {
                 telemetry.addData("Mode: ", "ARCADE");
                 telemetry.addData("Speed: ", "SLOW");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + "R = " + round(rightStick, 3));
+                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
@@ -119,18 +118,13 @@ public class TeleOp4motors extends OpMode {
             }
         } else if (driveMode == 1) {
             ///////////////////////////////////// TANK DRIVE ///////////////////////////////////////
-
-            //Speed Offsets
-            coarseDiff = .75;
-            fineDiff = .45;
-
             leftPower = gamepad1.left_stick_y;
             rightPower = gamepad1.right_stick_y;
 
             if (driveSpeed % 2 == 0) {
                 telemetry.addData("Mode: ", "TANK");
                 telemetry.addData("Speed: ", "NORMAL");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + "R = " + round(rightStick, 3));
+                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
@@ -141,7 +135,7 @@ public class TeleOp4motors extends OpMode {
             } else {
                 telemetry.addData("Mode: ", "TANK");
                 telemetry.addData("Speed: ", "SLOW");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + "R = " + round(rightStick, 3));
+                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
@@ -152,14 +146,9 @@ public class TeleOp4motors extends OpMode {
             }
         } else if (driveMode == 2) {
             ////////////////////////////////// ACKERMAN DRIVE //////////////////////////////////////
-
-            //Speed Offsets
-            coarseDiff = .75;
-            fineDiff = .45;
-
             leftStick = (-gamepad1.left_stick_x);
 
-            gasPedal = (gamepad1.right_trigger - gamepad1.left_trigger);
+            gasPedal = (gamepad1.left_trigger - gamepad1.right_trigger);
 
             //Left Side
             if (Math.abs(leftStick) > 0.5) {
@@ -175,18 +164,18 @@ public class TeleOp4motors extends OpMode {
             //Right Side
             if (Math.abs(leftStick) > 0.5) {
                 if (Math.abs(gasPedal) > 0.5) {
-                    leftPower = (gasPedal / 2 - leftStick / 2);
+                    rightPower = (gasPedal / 2 - leftStick / 2);
                 } else {
-                    leftPower = (gasPedal - leftStick);
+                    rightPower = (gasPedal - leftStick);
                 }
             } else {
-                leftPower = gasPedal;
+                rightPower = gasPedal;
             }
 
             if (driveSpeed % 2 == 0) {
                 telemetry.addData("Mode: ", "ACKERMAN");
                 telemetry.addData("Speed: ", "NORMAL");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + "G: " + round(gasPedal, 3));
+                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", G: " + round(gasPedal, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
@@ -197,7 +186,7 @@ public class TeleOp4motors extends OpMode {
             } else {
                 telemetry.addData("Mode: ", "ACKERMAN");
                 telemetry.addData("Speed: ", "SLOW");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + "G: " + round(gasPedal, 3));
+                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", G: " + round(gasPedal, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower / fineDiff, 3) + ", R = " + round(rightPower / fineDiff, 3));
                 telemetry.update();
 
