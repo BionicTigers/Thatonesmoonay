@@ -21,6 +21,7 @@ public class TeleOp4motors extends OpMode {
     //Variables//
     private double leftStick, rightStick;
     private double leftPower, rightPower;
+    private double gasPedal;
     private double coarseDiff, fineDiff, calibToggle;
     private int driveSpeed, driveMode;
 
@@ -61,13 +62,12 @@ public class TeleOp4motors extends OpMode {
             driveMode = 2;
         }
 
+        //Speed Offsets
+        coarseDiff = .7;
+        fineDiff = .4;
+
         if (driveMode == 0) {
             //////////////////////////////////// ARCADE DRIVE //////////////////////////////////////
-
-            //Speed Offsets
-            coarseDiff = .75;
-            fineDiff = .45;
-
             leftStick = gamepad1.left_stick_y;
             rightStick = -gamepad1.right_stick_x;
 
@@ -92,81 +92,109 @@ public class TeleOp4motors extends OpMode {
             } else {
                 rightPower = leftStick;
             }
+
+            if (driveSpeed % 2 == 0) {
+                telemetry.addData("Mode: ", "ARCADE");
+                telemetry.addData("Speed: ", "NORMAL");
+                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
+                telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
+                telemetry.update();
+
+                backLeft.setPower(leftPower * coarseDiff);
+                backRight.setPower(rightPower * coarseDiff);
+                frontLeft.setPower(leftPower * coarseDiff);
+                frontRight.setPower(rightPower * coarseDiff);
+            } else {
+                telemetry.addData("Mode: ", "ARCADE");
+                telemetry.addData("Speed: ", "SLOW");
+                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
+                telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
+                telemetry.update();
+
+                backLeft.setPower(leftPower * fineDiff);
+                backRight.setPower(rightPower * fineDiff);
+                frontLeft.setPower(leftPower * fineDiff);
+                frontRight.setPower(rightPower * fineDiff);
+            }
         } else if (driveMode == 1) {
             ///////////////////////////////////// TANK DRIVE ///////////////////////////////////////
-
-            //Speed Offsets
-            coarseDiff = .75;
-            fineDiff = .45;
-
             leftPower = gamepad1.left_stick_y;
             rightPower = gamepad1.right_stick_y;
+
+            if (driveSpeed % 2 == 0) {
+                telemetry.addData("Mode: ", "TANK");
+                telemetry.addData("Speed: ", "NORMAL");
+                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
+                telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
+                telemetry.update();
+
+                backLeft.setPower(leftPower * coarseDiff);
+                backRight.setPower(rightPower * coarseDiff);
+                frontLeft.setPower(leftPower * coarseDiff);
+                frontRight.setPower(rightPower * coarseDiff);
+            } else {
+                telemetry.addData("Mode: ", "TANK");
+                telemetry.addData("Speed: ", "SLOW");
+                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
+                telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
+                telemetry.update();
+
+                backLeft.setPower(leftPower * fineDiff);
+                backRight.setPower(rightPower * fineDiff);
+                frontLeft.setPower(leftPower * fineDiff);
+                frontRight.setPower(rightPower * fineDiff);
+            }
         } else if (driveMode == 2) {
             ////////////////////////////////// ACKERMAN DRIVE //////////////////////////////////////
+            leftStick = (-gamepad1.left_stick_x);
 
-            //Speed Offsets
-            coarseDiff = .75;
-            fineDiff = .45;
+            gasPedal = (gamepad1.left_trigger - gamepad1.right_trigger);
 
-            leftStick = (gamepad1.left_stick_y);
-            double gasPedal = gamepad1.right_trigger;
-            double backPedal = gamepad1.left_trigger;
-            rightStick = 1;
-
-            if (gasPedal > 0.15) {
-                if (Math.abs(rightStick) > 0.5) {
-                    leftPower = leftStick / 2 + gasPedal;
+            //Left Side
+            if (Math.abs(leftStick) > 0.5) {
+                if (Math.abs(gasPedal) > 0.5) {
+                    leftPower = (gasPedal / 2 + leftStick / 2);
                 } else {
-                    leftPower = gasPedal;
-                }
-                if (Math.abs(rightStick) > 0.5) {
-                    rightPower = leftStick / 2 - gasPedal;
-                } else {
-                    rightPower = gasPedal;
-                }
-            } else if (backPedal > 0.15) {
-                if (Math.abs(rightStick) > 0.5) {
-                    leftPower = leftStick / 2 - backPedal;
-                } else {
-                    leftPower = backPedal;
-                }
-                if (Math.abs(rightStick) > 0.5) {
-                    rightPower = leftStick / 2 + backPedal;
-                } else {
-                    rightPower = backPedal;
+                    leftPower = (gasPedal + leftStick);
                 }
             } else {
-                leftPower = 0;
-                rightPower = 0;
+                leftPower = gasPedal;
             }
-        }
 
-        if (driveSpeed % 2 == 0) { //Coarse Drive Mode
-            leftPower = Math.pow(leftPower, 3) * coarseDiff;
-            rightPower = Math.pow(rightPower, 3) * coarseDiff;
+            //Right Side
+            if (Math.abs(leftStick) > 0.5) {
+                if (Math.abs(gasPedal) > 0.5) {
+                    rightPower = (gasPedal / 2 - leftStick / 2);
+                } else {
+                    rightPower = (gasPedal - leftStick);
+                }
+            } else {
+                rightPower = gasPedal;
+            }
 
-            telemetry.addData("Mode: ", "COARSE");
-            telemetry.addData("Stick: ", "Y = " + round(leftStick, 3) + ", X = " + round(rightStick, 3));
-            telemetry.addData("Power: ", "L = " + round(leftPower / coarseDiff, 3) + ", R = " + round(rightPower / coarseDiff, 3));
-            telemetry.update();
+            if (driveSpeed % 2 == 0) {
+                telemetry.addData("Mode: ", "ACKERMAN");
+                telemetry.addData("Speed: ", "NORMAL");
+                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", G: " + round(gasPedal, 3));
+                telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
+                telemetry.update();
 
-            backLeft.setPower(leftPower * coarseDiff);
-            backRight.setPower(rightPower * coarseDiff);
-            frontLeft.setPower(leftPower * coarseDiff);
-            frontRight.setPower(rightPower * coarseDiff);
-        } else { //Fine Drive Mode
-            leftPower = Math.pow(leftPower, 3) * fineDiff;
-            rightPower = Math.pow(rightPower, 3) * fineDiff;
+                backLeft.setPower(leftPower * coarseDiff);
+                backRight.setPower(rightPower * coarseDiff);
+                frontLeft.setPower(leftPower * coarseDiff);
+                frontRight.setPower(rightPower * coarseDiff);
+            } else {
+                telemetry.addData("Mode: ", "ACKERMAN");
+                telemetry.addData("Speed: ", "SLOW");
+                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", G: " + round(gasPedal, 3));
+                telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
+                telemetry.update();
 
-            telemetry.addData("Mode: ", "FINE");
-            telemetry.addData("Stick: ", "Y = " + round(leftStick, 3) + ", X = " + round(rightStick, 3));
-            telemetry.addData("Power: ", "L = " + round(leftPower / fineDiff, 3) + ", R = " + round(rightPower / fineDiff, 3));
-            telemetry.update();
-
-            backLeft.setPower(leftPower * fineDiff);
-            backRight.setPower(rightPower * fineDiff);
-            frontLeft.setPower(leftPower * fineDiff);
-            frontRight.setPower(rightPower * fineDiff);
+                backLeft.setPower(leftPower * fineDiff);
+                backRight.setPower(rightPower * fineDiff);
+                frontLeft.setPower(leftPower * fineDiff);
+                frontRight.setPower(rightPower * fineDiff);
+            }
         }
     }
 
