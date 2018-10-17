@@ -340,7 +340,7 @@ public class Navigation{
      */
     public void rotateTo(float rot, float linearSlowdownDistance, float precision) {
         float minimumPower = 0.05f;
-        float maximumPower = 1.0f;
+        float maximumPower = 0.5f;
 
         float rota = (rot - pos.getLocation(3)) % 360f;
         float rotb = -(360f - rota);
