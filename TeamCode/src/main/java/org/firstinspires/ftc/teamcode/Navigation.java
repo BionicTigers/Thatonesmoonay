@@ -65,15 +65,15 @@ public class Navigation{
      * @param hardwareGetter used to calls for motors, sensors, cameras, etc.
      * @param telemetry used to output motor values to telemetry
      * @param nothingButDrive if true, init only drive motors
-     * @param twoWheels if true, init frontLeft and frontRight only, does not ever call rear motors
+     * @param twoDriveWheels if true, init frontLeft and frontRight only, does not ever call rear motors
      * @param useAnyCV if true, init Vuforia and OpenCV
      * @param useTelemetry if true, will output motor values to telemetry
      */
-    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean nothingButDrive, boolean twoWheels, boolean useAnyCV, boolean useTelemetry) {
+    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean nothingButDrive, boolean twoDriveWheels, boolean useAnyCV, boolean useTelemetry) {
         this.hardwareGetter = hardwareGetter;
         this.telemetry = telemetry;
         this.nothingButDrive = nothingButDrive;
-        this.twoDriveWheels = twoWheels;
+        this.twoDriveWheels = twoDriveWheels;
         this.useAnyCV = useAnyCV;
         this.useTelemetry = useTelemetry;
 
@@ -82,7 +82,7 @@ public class Navigation{
         frontRight = hardwareGetter.hardwareMap.dcMotor.get("frontRight");
         frontRight.setDirection(DcMotor.Direction.REVERSE);
 
-        if(!twoWheels) {
+        if(!twoDriveWheels) {
             backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
             backRight = hardwareGetter.hardwareMap.dcMotor.get("backRight");
             backRight.setDirection(DcMotor.Direction.REVERSE);
