@@ -3,10 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.disnodeteam.dogecv.CameraViewDisplay;
 import com.disnodeteam.dogecv.DogeCV;
 import com.disnodeteam.dogecv.Dogeforia;
-import com.disnodeteam.dogecv.detectors.roverrukus.GoldDetector;
 import com.disnodeteam.dogecv.detectors.roverrukus.SamplingOrderDetector;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -16,18 +14,17 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import com.vuforia.Image;
 
 /**
- * A class for all movement methods for Rover Ruckus!
+ * A class for all movement and calculation methods for Rover Ruckus!
  */
 public class Navigation{
 
     //-----tweak values-----//
-    private float maximumMotorPower = 1f;           //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
-    private float minimumMotorPower = 0.2f;
-    private float liftPower = 0.3f;                 //power the lift will run at
-    private float encoderCountsPerRev = 537.6f;     //encoder ticks per one revolution
+    private float liftPower = 0.3f;                 //power at which the lift will run
+    private float encoderCountsPerRev = 537.6f;     //encoder ticks per one revolution (NevRest 20)
     private boolean useTelemetry = false;           //display motor values when running etc
-    private boolean nothingButDrive = false;
-    private boolean twoWheels = false;
+    private boolean nothingButDrive = false;        //use only drive motors (for testing)
+    private boolean twoDriveWheels = false;         //use two drive motors instead of four (for "prototype" bot)
+    private DcMotor encoderMotor;                   //motor to use in encoder-based methods
 
     //------game element locations-----//
     public static final Location cargoBlueGold = new Location(-8.31f,27f,-8.31f,0f);
@@ -63,12 +60,20 @@ public class Navigation{
     private boolean useAnyCV;
     private SamplingOrderDetector detector;
 
-
+    /**
+     * Constructs and initializes a Navigation class
+     * @param hardwareGetter used to calls for motors, sensors, cameras, etc.
+     * @param telemetry used to output motor values to telemetry
+     * @param nothingButDrive if true, init only drive motors
+     * @param twoWheels if true, init frontLeft and frontRight only, does not ever call rear motors
+     * @param useAnyCV if true, init Vuforia and OpenCV
+     * @param useTelemetry if true, will output motor values to telemetry
+     */
     public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean nothingButDrive, boolean twoWheels, boolean useAnyCV, boolean useTelemetry) {
         this.hardwareGetter = hardwareGetter;
         this.telemetry = telemetry;
         this.nothingButDrive = nothingButDrive;
-        this.twoWheels = twoWheels;
+        this.twoDriveWheels = twoWheels;
         this.useAnyCV = useAnyCV;
         this.useTelemetry = useTelemetry;
 
@@ -88,6 +93,7 @@ public class Navigation{
             lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
 
+        this.encoderMotor = frontLeft;
         driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         if(useAnyCV) {
@@ -128,6 +134,10 @@ public class Navigation{
         return false;
     }
 
+    /**
+     * Gets the position variable of the robot
+     * @return Location, robot's position in inches from the origin. Rotation in degrees.
+     */
     public Location getPos() {
         return pos;
     }
@@ -153,6 +163,10 @@ public class Navigation{
         return true;
     }
 
+    /**
+     * Gets the robot team enumerator.
+     * @return Team, the robot's current team.
+     */
     public Team getTeam() {
         return team;
     }
@@ -207,6 +221,10 @@ public class Navigation{
         return true;
     }
 
+    /**
+     * Gets the enumerator for the cube position.
+     * @return CubePosition, the position of the cube.
+     */
     public CubePosition getCubePos() {
         return cubePos;
     }
@@ -219,7 +237,7 @@ public class Navigation{
     public void drivePower(float left, float right) {
         frontLeft.setPower(left);
         frontRight.setPower(right);
-        if(!twoWheels) {
+        if(!twoDriveWheels) {
             backLeft.setPower(left);
             backRight.setPower(right);
         }
@@ -233,7 +251,7 @@ public class Navigation{
     public void drivePosition(int left, int right) {
         frontLeft.setTargetPosition(left);
         frontRight.setTargetPosition(right);
-        if(!twoWheels) {
+        if(!twoDriveWheels) {
             backLeft.setTargetPosition(left);
             backRight.setTargetPosition(right);
         }
@@ -246,7 +264,7 @@ public class Navigation{
     public void driveMode(DcMotor.RunMode r) {
         frontLeft.setMode(r);
         frontRight.setMode(r);
-        if(!twoWheels) {
+        if(!twoDriveWheels) {
             backLeft.setMode(r);
             backRight.setMode(r);
         }
@@ -258,7 +276,7 @@ public class Navigation{
     public void driveEncoderReset() {
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        if(!twoWheels) {
+        if(!twoDriveWheels) {
             backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
@@ -275,31 +293,73 @@ public class Navigation{
     /**
      * Pseudo PID to drive the given distance. Will slow down from maximumMotorPower to minimumMotorPower starting at [slowdown] behind target.
      * @param distance Distance to drive forward in inches.
-     * @param slowdown Distance to start linearly slowing down before target position.
+     * @param linearSlowdownDistance Distance to start linearly slowing down before target position.
+     * @param precision Distance from target with which the program can stop execution.
      */
-    public void goDistance(float distance, float slowdown) {
+    public void goDistance(float distance, float linearSlowdownDistance, float precision) {
+        float minimumPower = 0.2f;
+        float maximumPower = 1.0f;
 
-        driveMethodComplex(distance, slowdown, 0f, frontLeft, 1f, 1f, false, minimumMotorPower, maximumMotorPower);
+        int initEncoder = encoderMotor.getCurrentPosition();
+        int finalEncoder = (int)(distance / (wheelDiameter * Math.PI) * encoderCountsPerRev) + initEncoder;
+        int slowdownEncoder = (int)(linearSlowdownDistance / (wheelDiameter * Math.PI) * encoderCountsPerRev);
+        int precisionEncoder = (int)(precision / (wheelDiameter * Math.PI) * encoderCountsPerRev);
+
+        driveMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        while(Math.abs(finalEncoder-encoderMotor.getCurrentPosition()) > precisionEncoder) {
+            float uncappedPower = (slowdownEncoder != 0) ? (finalEncoder - encoderMotor.getCurrentPosition()) / slowdownEncoder : 1f;
+            float cappedPower = (Math.min(maximumPower, Math.max(minimumPower, Math.abs(uncappedPower)))) * ((uncappedPower < 0) ? -1f : 1f);
+            drivePower(cappedPower, cappedPower);
+            if(useTelemetry) {
+                telemetryMethod();
+            }
+        }
 
         pos.translateLocal(distance);
         updatePos();
     }
 
     /**
+     * Pseudo PID to drive the distance to the given point. Will slow down from maximumMotorPower to minimumMotorPower starting at [slowdown] behind target.
+     * ---Will drive distance in straight line, not guaranteed to have proper rotation---
+     * @param targetPosition Location to drive distance to.
+     * @param linearSlowdownDistance Distance to start linearly slowing down before target position.
+     * @param precision Distance from target with which the program can stop execution.
+     */
+    public void goDistance(Location targetPosition, float linearSlowdownDistance, float precision) {
+        float distance = (float)Math.sqrt(Math.pow(pos.getLocation(0)-targetPosition.getLocation(0),2) + Math.pow(pos.getLocation(2)-targetPosition.getLocation(2),2));
+        goDistance(distance,linearSlowdownDistance,precision);
+    }
+
+    /**
      * Pseudo PID to rotate the given rotation. Will slow down from maximumMotorPower to minimumMotorPower starting at [slowdown] behind target azimuth.
      * Precision will stop making adjustments once it is within given degrees of target azimuth.
      * @param rot Target azimuth in degrees
-     * @param slowdown Degrees behind target rotation to slow down
+     * @param linearSlowdownDistance Degrees behind target rotation to slow down
      * @param precision Degrees of imprecision in rotation value
      */
-    public void rotateTo(float rot, float slowdown, float precision) {
+    public void rotateTo(float rot, float linearSlowdownDistance, float precision) {
+        float minimumPower = 0.05f;
+        float maximumPower = 1.0f;
+
         float rota = (rot - pos.getLocation(3)) % 360f;
         float rotb = -(360f - rota);
         float optimalRotation = (Math.abs(rota) < Math.abs(rotb) ? rota : rotb); //selects shorter rotation
-        float distance = (float)(Math.toRadians(optimalRotation) * wheelDistance); //arc length of turn (radians * radius)
-        slowdown = (float)(Math.toRadians(slowdown) * wheelDistance);
 
-        driveMethodComplex(distance, slowdown, precision, frontLeft, 1f, -1f, true, 0.05f, maximumMotorPower);
+        int initEncoder = encoderMotor.getCurrentPosition();
+        int finalEncoder = (int)(Math.toRadians(optimalRotation) * wheelDistance / (wheelDiameter * Math.PI) * encoderCountsPerRev) + initEncoder;
+        int slowdownEncoder = (int)(Math.toRadians(linearSlowdownDistance) * wheelDistance / (wheelDiameter * Math.PI) * encoderCountsPerRev);
+        int precisionEncoder = (int)(precision / (wheelDiameter * Math.PI) * encoderCountsPerRev);
+
+        driveMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        while(Math.abs(finalEncoder-encoderMotor.getCurrentPosition()) > precisionEncoder) {
+            float uncappedPower = (slowdownEncoder != 0) ? (finalEncoder - encoderMotor.getCurrentPosition()) / slowdownEncoder : 1f;
+            float cappedPower = (Math.min(maximumPower, Math.max(minimumPower, Math.abs(uncappedPower)))) * ((uncappedPower < 0) ? -1f : 1f);
+            drivePower(cappedPower, -cappedPower);
+            if(useTelemetry) {
+                telemetryMethod();
+            }
+        }
 
         pos.setRotation(rot);
         updatePos();
@@ -328,23 +388,9 @@ public class Navigation{
         }
     }
 
-    private void driveMethodComplex(float distance, float slowdown, float precision, DcMotor encoderMotor, float lModifier, float rModifier, boolean doubleBack, float minPower, float maxPower) {
-        distance *= lModifier;
-
-        int initEncoder = encoderMotor.getCurrentPosition();
-        int targetEncoder = (int)(distance / (wheelDiameter * Math.PI) * encoderCountsPerRev) + initEncoder;
-        int slowdownEncoder = (int)(slowdown / (wheelDiameter * Math.PI) * encoderCountsPerRev);
-        int premodifier = (targetEncoder > 0) ? 1 : -1;
-        driveMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        while ((!doubleBack && (targetEncoder - encoderMotor.getCurrentPosition())*premodifier > precision) || (doubleBack && Math.abs(targetEncoder - encoderMotor.getCurrentPosition()) > precision)) {
-            float uncappedPower = (targetEncoder - encoderMotor.getCurrentPosition()) / (float)slowdownEncoder;
-            float power = (uncappedPower < 0 ? -1:1) * Math.min(maxPower, Math.max(minPower, Math.abs(uncappedPower)));
-            drivePower(power*lModifier, power*rModifier);
-            if(useTelemetry) telemetryMethod();
-        }
-        driveEncoderReset();
-    }
-
+    /**
+     * Method to use built-in PID to drive given distance, using Matt's system. JoJo wanted this. Untested.
+     */
     private void driveMethodSimple(float distanceL, float distanceR, float LPower, float RPower) {
         driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         int l = (int)(distanceL / (wheelDiameter * Math.PI) * encoderCountsPerRev);
@@ -360,11 +406,12 @@ public class Navigation{
      * A simple method to output the status of all motors and other variables to telemetry.
      */
     private void telemetryMethod() {
-        if(!twoWheels) {
-            String motorString = "FL-" + frontLeft.getCurrentPosition() + " BL-" + backLeft.getCurrentPosition() + " FR-" + frontRight.getCurrentPosition() + " BR-" + backRight.getCurrentPosition();
-            telemetry.addData("Drive", motorString);
-        }
+        String motorString = "FL-" + frontLeft.getCurrentPosition() + " FR-" + frontRight.getCurrentPosition();
+        if(!twoDriveWheels) motorString += " BL-" + backLeft.getCurrentPosition() + " BR-" + backRight.getCurrentPosition();
+        telemetry.addData("Drive", motorString);
+
         if(!nothingButDrive) telemetry.addData("Lift",lift.getCurrentPosition());
+
         telemetry.addData("Pos",pos);
         telemetry.addData("Team",team);
         telemetry.addData("CubePos",cubePos);

@@ -40,7 +40,7 @@ public class TeamAuto extends LinearOpMode {
         sleep(100);
 //        //Start lift down motors(2) go down, need method (note to self), reverse one motor
         nav.rotateTo(0f, 200f, 40f);
-        nav.goDistance(30f,50f);
+        nav.goDistance(30f,50f,2f);
 
 
         //try determine vision stuff
