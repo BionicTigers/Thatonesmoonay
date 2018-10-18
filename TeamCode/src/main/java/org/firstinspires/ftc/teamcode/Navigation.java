@@ -34,6 +34,7 @@ public class Navigation{
     private boolean useTelemetry = false;           //display motor values when running etc
     private boolean nothingButDrive = false;        //use only drive motors (for testing)
     private boolean twoDriveWheels = false;         //use two drive motors instead of four (for "prototype" bot)
+    private boolean useAnyCV;                       //use any openCV or Vuforia methods (for when Chris is dying but we need to run code)
     private DcMotor encoderMotor;                   //motor to use in encoder-based methods
 
     //------game element locations-----//
@@ -67,7 +68,6 @@ public class Navigation{
     private Dogeforia dogeforia;
     private VuforiaTrackables vumarks;
     private Location[] vumarkLocations = new Location[4];
-    private boolean useAnyCV;
     private SamplingOrderDetector detector;
 
     /**
@@ -122,7 +122,7 @@ public class Navigation{
     }
 
     /**
-     * Updates the Robot's position using Vuforia. Value is in inches from center of map (see ccoordinate_diagram.png). Access using [nav].pos.
+     * Updates the Robot's position using Vuforia. Value is in inches from center of map (see ccoordinate_diagram.png).
      * @return boolean, true if updated, false otherwise
      */
     public boolean updatePos() {
@@ -153,7 +153,7 @@ public class Navigation{
     }
 
     /**
-     * Updates the robot team enumerator using the current position. Will not overwrite old data. Access using [nav].team.
+     * Updates the robot team enumerator using the current position. Will not overwrite old data.
      * @return boolean, true if updated, false if not updated or was updated in past.
      */
     public boolean updateTeam() {
@@ -182,11 +182,16 @@ public class Navigation{
     }
 
     /**
-     * Updates the cube location enumerator using OpenCV. Will not overwrite old data. Access using [nav].cubePos.
+     * Updates the cube location enumerator using OpenCV. Will not overwrite old data.
      * @return boolean, true if updated, false if not updated or was updated in past.
      */
     public boolean updateCubePos() {
         if(cubePos != CubePosition.UNKNOWN || !useAnyCV) return false;
+
+        //completed using these tutorials:
+        //
+        // Init and syntax --- https://github.com/bchay/ftc_app/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/VuMarkReader.java
+        // Yellow identification --- http://aishack.in/tutorials/tracking-colored-objects-opencv/
 
         //tweaks
         Scalar minHSV = new Scalar(20, 100, 100);
@@ -194,7 +199,7 @@ public class Navigation{
         int scaledWidth = 300;
         int scaledHeight = 100;
 
-        //inside a try catch because Vuforia is so unconfident in their image extraction method that it is required
+        //inside a try-catch because Vuforia is so unconfident in their image extraction method that it is required
         try {
             VuforiaLocalizer.CloseableFrame frame = vuforia.getFrameQueue().take();     //returns "list" of all export images
             Image image = frame.getImage(0);
@@ -211,7 +216,7 @@ public class Navigation{
             Mat resizeMat = new Mat(scaledWidth, scaledHeight, cvMat.type());
             Imgproc.resize(cvMat,resizeMat,resizeMat.size(),0,0,Imgproc.INTER_NEAREST); //resize with nearest neighbor interpolation (doesn't lose any color data)
 
-            Imgproc.cvtColor(resizeMat,resizeMat,Imgproc.COLOR_RGB2HSV);    //converting to HSV as shown in this tutorial: http://aishack.in/tutorials/tracking-colored-objects-opencv/
+            Imgproc.cvtColor(resizeMat,resizeMat,Imgproc.COLOR_RGB2HSV);    //converting to HSV
 
             Mat thresholdMat = new Mat();   //info - HSV (hue, saturation, value). OpenCV uses hues from 0-179, so any 255 hue system needs to be *180/240.
             Core.inRange(resizeMat, minHSV, maxHSV, thresholdMat);  //outputs yellow(20-30) objects to b/w binary mat
