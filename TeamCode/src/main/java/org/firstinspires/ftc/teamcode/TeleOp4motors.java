@@ -43,6 +43,10 @@ public class TeleOp4motors extends OpMode {
         calibToggle = 0;
         driveSpeed = 0;
         driveMode = 0;
+
+        //Speed Offsets
+        coarseDiff = .6;
+        fineDiff = .3;
     }
 
 
@@ -62,10 +66,6 @@ public class TeleOp4motors extends OpMode {
             driveMode = 2;
         }
 
-        //Speed Offsets
-        coarseDiff = .7;
-        fineDiff = .4;
-
         if (driveMode == 0) {
             //////////////////////////////////// ARCADE DRIVE //////////////////////////////////////
             leftStick = gamepad1.left_stick_y;
@@ -73,24 +73,16 @@ public class TeleOp4motors extends OpMode {
 
             //Left Side
             if (Math.abs(rightStick) > 0.5) {
-                if (Math.abs(leftStick) > 0.5) {
-                    leftPower = leftStick / 2 + rightStick / 2;
-                } else {
-                    leftPower = leftStick + rightStick;
-                }
+                leftPower = leftStick / 2 + rightStick / 2;
             } else {
-                leftPower = leftStick;
+                leftPower = leftStick + rightStick/2;
             }
 
             //Right Side
             if (Math.abs(rightStick) > 0.5) {
-                if (Math.abs(leftStick) > 0.5) {
-                    rightPower = leftStick / 2 - rightStick / 2;
-                } else {
-                    rightPower = leftStick - rightStick;
-                }
+                rightPower = leftStick / 2 + rightStick / 2;
             } else {
-                rightPower = leftStick;
+                rightPower = leftStick + rightStick/2;
             }
 
             if (driveSpeed % 2 == 0) {
@@ -151,25 +143,17 @@ public class TeleOp4motors extends OpMode {
             gasPedal = (gamepad1.left_trigger - gamepad1.right_trigger);
 
             //Left Side
-            if (Math.abs(leftStick) > 0.5) {
-                if (Math.abs(gasPedal) > 0.5) {
-                    leftPower = (gasPedal / 2 + leftStick / 2);
-                } else {
-                    leftPower = (gasPedal + leftStick);
-                }
+            if (Math.abs(rightStick) > 0.5) {
+                leftPower = gasPedal / 2 + rightStick / 2;
             } else {
-                leftPower = gasPedal;
+                leftPower = gasPedal + rightStick/2;
             }
 
             //Right Side
-            if (Math.abs(leftStick) > 0.5) {
-                if (Math.abs(gasPedal) > 0.5) {
-                    rightPower = (gasPedal / 2 - leftStick / 2);
-                } else {
-                    rightPower = (gasPedal - leftStick);
-                }
+            if (Math.abs(rightStick) > 0.5) {
+                rightPower = gasPedal / 2 + rightStick / 2;
             } else {
-                rightPower = gasPedal;
+                rightPower = gasPedal + rightStick/2;
             }
 
             if (driveSpeed % 2 == 0) {
