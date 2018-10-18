@@ -192,6 +192,7 @@ public class Navigation{
         //
         // Init and syntax --- https://github.com/bchay/ftc_app/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/VuMarkReader.java
         // Yellow identification --- http://aishack.in/tutorials/tracking-colored-objects-opencv/
+        // Centroid locator --- https://www.learnopencv.com/find-center-of-blob-centroid-using-opencv-cpp-python/
 
         //tweaks
         Scalar minHSV = new Scalar(20, 100, 100);
@@ -229,8 +230,14 @@ public class Navigation{
             double moment01 = moments.m01;
             double area = moments.m00;
 
-            int posX = (int)(moment10/area); //moment10/area gives camera x coordinate
-            int posY = (int)(moment01/area); //moment01/area gives camera y coordinate
+            //accounting for not seeing any cubes
+            if(area == 0) {
+                cubePos = CubePosition.UNKNOWN;
+                return false;
+            }
+
+            int posX = (int) (moment10 / area); //moment10/area gives camera x coordinate
+            int posY = (int) (moment01 / area); //moment01/area gives camera y coordinate
 
             //This may need some work
             if(posX < scaledWidth/3) cubePos = CubePosition.LEFT;
