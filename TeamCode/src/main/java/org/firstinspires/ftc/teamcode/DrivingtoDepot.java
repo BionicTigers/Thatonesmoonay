@@ -29,6 +29,9 @@
 //EXIST
 package org.firstinspires.ftc.teamcode;
 
+import com.disnodeteam.dogecv.CameraViewDisplay;
+import com.disnodeteam.dogecv.DogeCV;
+import com.disnodeteam.dogecv.detectors.roverrukus.GoldAlignDetector;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -52,6 +55,9 @@ public class DrivingtoDepot extends LinearOpMode {
     public int target, calibToggle;
     private Servo liftrawrh;
     private ElapsedTime runtime = new ElapsedTime();
+    private GoldAlignDetector detector;
+
+
 
     @Override
     public void runOpMode() {
@@ -62,68 +68,70 @@ public class DrivingtoDepot extends LinearOpMode {
         //frontRight = hardwareMap.dcMotor.get("frontRight"); //Right Front
         evangelino = hardwareMap.dcMotor.get("lift");
         //collector = hardwareMap.dcMotor.get("collector");
-        teamMarker = hardwareMap.servo.get("teamMarker");
+        //teamMarker = hardwareMap.servo.get("teamMarker");
         backRight.setDirection(DcMotor.Direction.REVERSE);
         liftrawrh = hardwareMap.servo.get("liftrawrh");
         //frontRight.setDirection(DcMotor.Direction.REVERSE);
-        flickyWrist = hardwareMap.servo.get("flicky");
-        collector = hardwareMap.dcMotor.get("collector");
+        //flickyWrist = hardwareMap.servo.get("flicky");
+       // collector = hardwareMap.dcMotor.get("collector");
 
         liftrawrh.setPosition(1.0);
-        flickyWrist.setPosition(0.5);
+       // flickyWrist.setPosition(0.5);
         //Variables//
         calibToggle = 0;
         int target = 0;
         double speed = 0;
+        telemetry.addData("Status", "DogeCV 2018.0 - Gold Align Example");
 
+        detector = new GoldAlignDetector();
+        detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance(),1,false);
+        detector.useDefaults();
 
-        // Wait for the game to start (driver presses PLAY)
+        // Optional Tuning
+        detector.alignSize = 100; // How wide (in pixels) is the range in which the gold object will be aligned. (Represented by green bars in the preview)
+        detector.alignPosOffset = 0; // How far from center frame to offset this alignment zone.
+        detector.downscale = 0.4; // How much to downscale the input frames
+
+        detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
+        //detector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
+        detector.maxAreaScorer.weight = 0.005;
+
+        detector.ratioScorer.weight = 5;
+        detector.ratioScorer.perfectRatio = 1.0;
+
+        detector.enable();
+
         waitForStart();
-
         // Step through each leg of the path, ensuring that the Auto mode has not been stopped along the way
 
-        // Step 1:  Drive forward for 3 seconds
+        // Step 1:  should get you unhooked
         evangelino.setPower(0.1);
         liftrawrh.setPosition(0.3);
         runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < 2)) {
-            telemetry.addData("Path", "Forward", runtime.seconds());
-            telemetry.update();
-        }
-        backLeft.setPower(-.5);
-        runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < 1)) {
+
+        while (opModeIsActive() && (runtime.seconds() < .5)) {
             telemetry.addData("Path", "Forward", runtime.seconds());
             telemetry.update();
 
-            backLeft.setPower(-.5);
-            //frontLeft.setPower(-.5);
-            backRight.setPower(-.5);
-            //frontRight.setPower(-.5);
-            runtime.reset();
-            while (opModeIsActive() && (runtime.seconds() < 3)) {
-                telemetry.addData("Path", "Forward", runtime.seconds());
-                telemetry.update();
-            }
-            //teamMarker.setPosition(0.5);
+
 
             backLeft.setPower(0);
             backRight.setPower(0);
-            // frontRight.setPower(0);
-            // frontLeft.setPower(0.0);
-
             backLeft.setPower(.25);
             backRight.setPower(-.25);
-            // frontRight.setPower(-.25);
-            //frontLeft.setPower(.25);
-            runtime.reset();
-            while (opModeIsActive() && (runtime.seconds() < 1)) {
-                telemetry.addData("Path", "Backward", runtime.seconds());
-                telemetry.update();
-            }
-            backLeft.setPower(0);
-            backRight.setPower(0);
 
-            sleep(1000);
         }
-    }}
+
+        runtime.reset();
+        //more stuff to get away from the lander that u need to code :)
+
+        while (opModeIsActive() && !detector.getAligned()) {
+            telemetry.addData("Path", "Backward", runtime.seconds());
+            // add code here to have the bot rotate when it is aligned with the gold mineral it will stop
+        }
+        // drive forward and nock the mineral off the thingy
+
+
+    }
+
+}
