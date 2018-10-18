@@ -120,20 +120,23 @@ public class DrivingtoDepot extends LinearOpMode {
             backRight.setPower(0);
             backLeft.setPower(.25);
             backRight.setPower(-.25);
+            //once again yes its sloppy sorry
+            sleep (250);
+            evangelino.setPower(-.25);
 
         }
         // yes i know this is terrible please dont hate me :):):):):):):):):):):):):::):):P)P:D
         otherstuff = true;
         runtime.reset();
-        //more stuff to get away from the lander that u need to code :)
 
         while (opModeIsActive() && !detector.getAligned() && otherstuff) {
             telemetry.addData("Path", "we samplin bois", runtime.seconds());
             // this code should rotate the bot until it is aligned with the mineral
+            evangelino.setPower(-.25);
             backLeft.setPower(0);
             backRight.setPower(0);
-            backLeft.setPower(.25);
-            backRight.setPower(-.25);
+            backLeft.setPower(-.25);
+            backRight.setPower(.25);
         }
         // this code should drive forward
         while (opModeIsActive() && detector.getAligned()){
