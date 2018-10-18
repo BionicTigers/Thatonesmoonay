@@ -7,7 +7,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
+/* Alright JoJo, so what you need to do is test this drive code.
+Use A to switch speeds, XYB to switch driveModes.
+play with Arcade and Ackerman to make sure you can steer well.
+Take notes of anything that feels wierd.
+*/
 
 @TeleOp(name="4Motors", group="BTBT")
 public class TeleOp4motors extends OpMode {
