@@ -56,6 +56,7 @@ public class DrivingtoDepot extends LinearOpMode {
     private Servo liftrawrh;
     private ElapsedTime runtime = new ElapsedTime();
     private GoldAlignDetector detector;
+    private boolean otherstuff = false;
 
 
 
@@ -121,15 +122,28 @@ public class DrivingtoDepot extends LinearOpMode {
             backRight.setPower(-.25);
 
         }
-
+        // yes i know this is terrible please dont hate me :):):):):):):):):):):):):::):):P)P:D
+        otherstuff = true;
         runtime.reset();
         //more stuff to get away from the lander that u need to code :)
 
-        while (opModeIsActive() && !detector.getAligned()) {
-            telemetry.addData("Path", "Backward", runtime.seconds());
-            // add code here to have the bot rotate when it is aligned with the gold mineral it will stop
+        while (opModeIsActive() && !detector.getAligned() && otherstuff) {
+            telemetry.addData("Path", "we samplin bois", runtime.seconds());
+            // this code should rotate the bot until it is aligned with the mineral
+            backLeft.setPower(0);
+            backRight.setPower(0);
+            backLeft.setPower(.25);
+            backRight.setPower(-.25);
         }
-        // drive forward and nock the mineral off the thingy
+        // this code should drive forward
+        while (opModeIsActive() && detector.getAligned()){
+            telemetry.addData("Path", "drive at the gold boi", runtime.seconds());
+            backLeft.setPower(0);
+            backRight.setPower(0);
+            backLeft.setPower(.25);
+            backRight.setPower(.25);
+        }
+
 
 
     }
