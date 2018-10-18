@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 //EXIST
+import android.graphics.Bitmap;
+import android.graphics.PixelFormat;
+
 import com.disnodeteam.dogecv.CameraViewDisplay;
 import com.disnodeteam.dogecv.DogeCV;
 import com.disnodeteam.dogecv.Dogeforia;
@@ -11,6 +14,13 @@ import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.opencv.android.Utils;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
+
 import com.vuforia.Image;
 
 /**
@@ -178,11 +188,60 @@ public class Navigation{
     public boolean updateCubePos() {
         if(cubePos != CubePosition.UNKNOWN || !useAnyCV) return false;
 
-        //gets the most recent Frame from the queue.
-        VuforiaLocalizer.CloseableFrame frame = vuforia.getFrameQueue().element();
-        Image image = frame.getImage(0);
+        //tweaks
+        Scalar minHSV = new Scalar(20, 100, 100);
+        Scalar maxHSV = new Scalar(30, 255, 255);
+        int scaledWidth = 300;
+        int scaledHeight = 100;
 
-        //TODO Use this frame output as an input value for OpenCV. I will try to help.
+        //inside a try catch because Vuforia is so unconfident in their image extraction method that it is required
+        try {
+            VuforiaLocalizer.CloseableFrame frame = vuforia.getFrameQueue().take();     //returns "list" of all export images
+            Image image = frame.getImage(0);
+
+            for(int i = 1; image.getFormat() != PixelFormat.RGB_565; i++) {             //finds RGB_565 output image in "list"
+                image = frame.getImage(i);
+            }
+
+            Bitmap bitmapImage = Bitmap.createBitmap(image.getWidth(),image.getHeight(),Bitmap.Config.RGB_565); //convert to bitmap
+
+            Mat cvMat = new Mat();
+            Utils.bitmapToMat(bitmapImage,cvMat);   //convert bitmap to mat for OpenCV
+
+            Mat resizeMat = new Mat(scaledWidth, scaledHeight, cvMat.type());
+            Imgproc.resize(cvMat,resizeMat,resizeMat.size(),0,0,Imgproc.INTER_NEAREST); //resize with nearest neighbor interpolation (doesn't lose any color data)
+
+            Imgproc.cvtColor(resizeMat,resizeMat,Imgproc.COLOR_RGB2HSV);    //converting to HSV as shown in this tutorial: http://aishack.in/tutorials/tracking-colored-objects-opencv/
+
+            Mat thresholdMat = new Mat();   //info - HSV (hue, saturation, value). OpenCV uses hues from 0-179, so any 255 hue system needs to be *180/240.
+            Core.inRange(resizeMat, minHSV, maxHSV, thresholdMat);  //outputs yellow(20-30) objects to b/w binary mat
+
+            cvMat.release();
+            resizeMat.release();
+
+            Moments moments = Imgproc.moments(thresholdMat,true);
+            double moment10 = moments.m10;
+            double moment01 = moments.m01;
+            double area = moments.m00;
+
+            int posX = (int)(moment10/area); //moment10/area gives camera x coordinate
+            int posY = (int)(moment01/area); //moment01/area gives camera y coordinate
+
+            //This may need some work
+            if(posX < scaledWidth/3) cubePos = CubePosition.LEFT;
+            else if(posX > (scaledWidth/3) * 2) cubePos=CubePosition.RIGHT;
+            else cubePos = CubePosition.MIDDLE;
+
+            if(useTelemetry) telemetryMethod();
+
+            return true;
+        }
+        catch (InterruptedException e) {
+            cubePos = CubePosition.UNKNOWN;
+            return false;
+        }
+
+        /*
 
         detector = new SamplingOrderDetector();
         dogeforia.setDogeCVDetector(detector);
@@ -219,6 +278,7 @@ public class Navigation{
         }
 
         return true;
+        */
     }
 
     /**
