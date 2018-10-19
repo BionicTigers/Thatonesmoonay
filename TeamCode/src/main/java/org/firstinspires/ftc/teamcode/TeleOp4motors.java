@@ -79,14 +79,14 @@ public class TeleOp4motors extends OpMode {
             if (Math.abs(rightStick) > 0.5) {
                 leftPower = leftStick / 2 + rightStick / 2;
             } else {
-                leftPower = leftStick + rightStick/2;
+                leftPower = leftStick + rightStick / 2;
             }
 
             //Right Side
             if (Math.abs(rightStick) > 0.5) {
-                rightPower = leftStick / 2 + rightStick / 2;
+                rightPower = leftStick / 2 - rightStick / 2;
             } else {
-                rightPower = leftStick + rightStick/2;
+                rightPower = leftStick - rightStick / 2;
             }
 
             if (driveSpeed % 2 == 0) {
@@ -150,14 +150,14 @@ public class TeleOp4motors extends OpMode {
             if (Math.abs(rightStick) > 0.5) {
                 leftPower = gasPedal / 2 + rightStick / 2;
             } else {
-                leftPower = gasPedal + rightStick/2;
+                leftPower = gasPedal + rightStick / 2;
             }
 
             //Right Side
             if (Math.abs(rightStick) > 0.5) {
-                rightPower = gasPedal / 2 + rightStick / 2;
+                rightPower = gasPedal / 2 - rightStick / 2;
             } else {
-                rightPower = gasPedal + rightStick/2;
+                rightPower = gasPedal - rightStick / 2;
             }
 
             if (driveSpeed % 2 == 0) {
