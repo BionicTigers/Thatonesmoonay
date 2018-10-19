@@ -76,6 +76,10 @@ public class Navigation{
         frontLeft = hardwareGetter.hardwareMap.dcMotor.get("frontLeft");
         frontRight = hardwareGetter.hardwareMap.dcMotor.get("frontRight");
         frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
+        backRight = hardwareGetter.hardwareMap.dcMotor.get("backRight");
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+
 
         if(!twoWheels) {
             backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
@@ -246,6 +250,7 @@ public class Navigation{
     public void driveMode(DcMotor.RunMode r) {
         frontLeft.setMode(r);
         frontRight.setMode(r);
+
         if(!twoWheels) {
             backLeft.setMode(r);
             backRight.setMode(r);
@@ -345,7 +350,7 @@ public class Navigation{
         driveEncoderReset();
     }
 
-    private void driveMethodSimple(float distanceL, float distanceR, float LPower, float RPower) {
+    public void driveMethodSimple(float distanceL, float distanceR, float LPower, float RPower) {
         driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         int l = (int)(distanceL / (wheelDiameter * Math.PI) * encoderCountsPerRev);
         int r = (int)(distanceR / (wheelDiameter * Math.PI) * encoderCountsPerRev);
