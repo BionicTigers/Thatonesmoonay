@@ -7,7 +7,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
+/* Alright JoJo, so what you need to do is test this drive code.
+Use A to switch speeds, XYB to switch driveModes.
+play with Arcade and Ackerman to make sure you can steer well.
+Take notes of anything that feels wierd.
+*/
 
 @TeleOp(name="4Motors", group="BTBT")
 public class TeleOp4motors extends OpMode {
@@ -43,6 +47,10 @@ public class TeleOp4motors extends OpMode {
         calibToggle = 0;
         driveSpeed = 0;
         driveMode = 0;
+
+        //Speed Offsets
+        coarseDiff = .6;
+        fineDiff = .3;
     }
 
 
@@ -62,10 +70,6 @@ public class TeleOp4motors extends OpMode {
             driveMode = 2;
         }
 
-        //Speed Offsets
-        coarseDiff = .7;
-        fineDiff = .4;
-
         if (driveMode == 0) {
             //////////////////////////////////// ARCADE DRIVE //////////////////////////////////////
             leftStick = gamepad1.left_stick_y;
@@ -73,30 +77,22 @@ public class TeleOp4motors extends OpMode {
 
             //Left Side
             if (Math.abs(rightStick) > 0.5) {
-                if (Math.abs(leftStick) > 0.5) {
-                    leftPower = leftStick / 2 + rightStick / 2;
-                } else {
-                    leftPower = leftStick + rightStick;
-                }
+                leftPower = leftStick / 2 + rightStick / 2;
             } else {
-                leftPower = leftStick;
+                leftPower = leftStick + rightStick / 2;
             }
 
             //Right Side
             if (Math.abs(rightStick) > 0.5) {
-                if (Math.abs(leftStick) > 0.5) {
-                    rightPower = leftStick / 2 - rightStick / 2;
-                } else {
-                    rightPower = leftStick - rightStick;
-                }
+                rightPower = leftStick / 2 - rightStick / 2;
             } else {
-                rightPower = leftStick;
+                rightPower = leftStick - rightStick / 2;
             }
 
             if (driveSpeed % 2 == 0) {
                 telemetry.addData("Mode: ", "ARCADE");
                 telemetry.addData("Speed: ", "NORMAL");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
+                telemetry.addData("Stick: ", "X = " + round(rightStick, 3) + ", Y = " + round(leftStick, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
@@ -107,7 +103,7 @@ public class TeleOp4motors extends OpMode {
             } else {
                 telemetry.addData("Mode: ", "ARCADE");
                 telemetry.addData("Speed: ", "SLOW");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
+                telemetry.addData("Stick: ", "X = " + round(rightStick, 3) + ", Y = " + round(leftStick, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
@@ -124,7 +120,7 @@ public class TeleOp4motors extends OpMode {
             if (driveSpeed % 2 == 0) {
                 telemetry.addData("Mode: ", "TANK");
                 telemetry.addData("Speed: ", "NORMAL");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
+                telemetry.addData("Stick: ", "X = " + round(rightStick, 3) + ", Y = " + round(leftStick, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
@@ -135,7 +131,7 @@ public class TeleOp4motors extends OpMode {
             } else {
                 telemetry.addData("Mode: ", "TANK");
                 telemetry.addData("Speed: ", "SLOW");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
+                telemetry.addData("Stick: ", "X = " + round(rightStick, 3) + ", Y = " + round(leftStick, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
@@ -151,31 +147,23 @@ public class TeleOp4motors extends OpMode {
             gasPedal = (gamepad1.left_trigger - gamepad1.right_trigger);
 
             //Left Side
-            if (Math.abs(leftStick) > 0.5) {
-                if (Math.abs(gasPedal) > 0.5) {
-                    leftPower = (gasPedal / 2 + leftStick / 2);
-                } else {
-                    leftPower = (gasPedal + leftStick);
-                }
+            if (Math.abs(rightStick) > 0.5) {
+                leftPower = gasPedal / 2 + rightStick / 2;
             } else {
-                leftPower = gasPedal;
+                leftPower = gasPedal + rightStick / 2;
             }
 
             //Right Side
-            if (Math.abs(leftStick) > 0.5) {
-                if (Math.abs(gasPedal) > 0.5) {
-                    rightPower = (gasPedal / 2 - leftStick / 2);
-                } else {
-                    rightPower = (gasPedal - leftStick);
-                }
+            if (Math.abs(rightStick) > 0.5) {
+                rightPower = gasPedal / 2 - rightStick / 2;
             } else {
-                rightPower = gasPedal;
+                rightPower = gasPedal - rightStick / 2;
             }
 
             if (driveSpeed % 2 == 0) {
                 telemetry.addData("Mode: ", "ACKERMAN");
                 telemetry.addData("Speed: ", "NORMAL");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", G: " + round(gasPedal, 3));
+                telemetry.addData("Stick: ", "X = " + round(leftStick, 3) + ", G: " + round(gasPedal, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
