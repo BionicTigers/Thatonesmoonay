@@ -92,7 +92,7 @@ public class TeleOp4motors extends OpMode {
             if (driveSpeed % 2 == 0) {
                 telemetry.addData("Mode: ", "ARCADE");
                 telemetry.addData("Speed: ", "NORMAL");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
+                telemetry.addData("Stick: ", "X = " + round(rightStick, 3) + ", Y = " + round(leftStick, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
@@ -103,7 +103,7 @@ public class TeleOp4motors extends OpMode {
             } else {
                 telemetry.addData("Mode: ", "ARCADE");
                 telemetry.addData("Speed: ", "SLOW");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
+                telemetry.addData("Stick: ", "X = " + round(rightStick, 3) + ", Y = " + round(leftStick, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
@@ -120,7 +120,7 @@ public class TeleOp4motors extends OpMode {
             if (driveSpeed % 2 == 0) {
                 telemetry.addData("Mode: ", "TANK");
                 telemetry.addData("Speed: ", "NORMAL");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
+                telemetry.addData("Stick: ", "X = " + round(rightStick, 3) + ", Y = " + round(leftStick, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
@@ -131,7 +131,7 @@ public class TeleOp4motors extends OpMode {
             } else {
                 telemetry.addData("Mode: ", "TANK");
                 telemetry.addData("Speed: ", "SLOW");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", R = " + round(rightStick, 3));
+                telemetry.addData("Stick: ", "X = " + round(rightStick, 3) + ", Y = " + round(leftStick, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
@@ -163,7 +163,7 @@ public class TeleOp4motors extends OpMode {
             if (driveSpeed % 2 == 0) {
                 telemetry.addData("Mode: ", "ACKERMAN");
                 telemetry.addData("Speed: ", "NORMAL");
-                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", G: " + round(gasPedal, 3));
+                telemetry.addData("Stick: ", "X = " + round(leftStick, 3) + ", G: " + round(gasPedal, 3));
                 telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
                 telemetry.update();
 
