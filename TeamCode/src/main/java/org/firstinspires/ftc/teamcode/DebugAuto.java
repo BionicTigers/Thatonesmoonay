@@ -14,17 +14,16 @@ public class DebugAuto extends LinearOpMode {
 
     @Override public void runOpMode() {
         //initialization
-        Navigation nav = new Navigation(this,telemetry, true,false, true,true);
+        Navigation nav = new Navigation(this,telemetry, true,true, true,true);
 
         waitForStart();
 
-        nav.goDistance(100f,50f,2f);
-        nav.rotateTo(100f, 200f, 10f);
-        nav.rotateTo(270f, 200f, 10f);
-        nav.rotateTo(0f, 200f, 10f);
-        nav.rotateTo(200f, 200f, 10f);
+        while(!nav.updateCubePos()) {
+        }
 
-        nav.stopAllMotors();
+        telemetry.addData("pos",nav.getCubePos());
+
+        sleep(5000);
 
     }
 

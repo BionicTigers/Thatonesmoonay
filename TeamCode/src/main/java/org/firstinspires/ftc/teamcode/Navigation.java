@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 //EXIST
+import android.graphics.Bitmap;
+import android.graphics.PixelFormat;
+
 import com.disnodeteam.dogecv.CameraViewDisplay;
-import com.disnodeteam.dogecv.DogeCV;
-import com.disnodeteam.dogecv.Dogeforia;
 import com.disnodeteam.dogecv.detectors.roverrukus.GoldDetector;
 import com.disnodeteam.dogecv.detectors.roverrukus.SamplingOrderDetector;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,6 +14,13 @@ import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.opencv.android.Utils;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
+
 import com.vuforia.Image;
 
 /**
@@ -57,7 +65,6 @@ public class Navigation{
     //-----internal values-----//
     private org.firstinspires.ftc.robotcore.external.Telemetry telemetry;
     private VuforiaLocalizer vuforia;
-    private Dogeforia dogeforia;
     private VuforiaTrackables vumarks;
     private Location[] vumarkLocations = new Location[4];
     private boolean useAnyCV;
@@ -168,47 +175,70 @@ public class Navigation{
     public boolean updateCubePos() {
         if(cubePos != CubePosition.UNKNOWN || !useAnyCV) return false;
 
-        //gets the most recent Frame from the queue.
-        VuforiaLocalizer.CloseableFrame frame = vuforia.getFrameQueue().element();
-        Image image = frame.getImage(0);
+        //completed using these tutorials:
+        //
+        // Init and syntax --- https://github.com/bchay/ftc_app/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/VuMarkReader.java
+        // Yellow identification --- http://aishack.in/tutorials/tracking-colored-objects-opencv/
+        // Centroid locator --- https://www.learnopencv.com/find-center-of-blob-centroid-using-opencv-cpp-python/
 
-        //TODO Use this frame output as an input value for OpenCV. I will try to help.
+        //tweaks
+        Scalar minHSV = new Scalar(20, 100, 100);
+        Scalar maxHSV = new Scalar(30, 255, 255);
+        int scaledWidth = 300;
+        int scaledHeight = 100;
 
-        detector = new SamplingOrderDetector();
-        dogeforia.setDogeCVDetector(detector);
-        detector.init(hardwareGetter.hardwareMap.appContext, CameraViewDisplay.getInstance(),1,useAnyCV);
-        detector.useDefaults();
+        //inside a try-catch because Vuforia is so unconfident in their image extraction method that it is required
+        try {
+            VuforiaLocalizer.CloseableFrame frame = vuforia.getFrameQueue().take();     //returns "list" of all export images
+            Image image = frame.getImage(0);
 
-        detector.downscale = 0.4; // How much to downscale the input frames
+            for(int i = 1; image.getFormat() != PixelFormat.RGB_565; i++) {             //finds RGB_565 output image in "list"
+                image = frame.getImage(i);
+            }
 
-        // Optional Tuning
-        detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
-        //detector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
-        detector.maxAreaScorer.weight = 0.001;
+            Bitmap bitmapImage = Bitmap.createBitmap(image.getWidth(),image.getHeight(),Bitmap.Config.RGB_565); //convert to bitmap
 
-        detector.ratioScorer.weight = 15;
-        detector.ratioScorer.perfectRatio = 1.0;
+            Mat cvMat = new Mat();
+            Utils.bitmapToMat(bitmapImage,cvMat);   //convert bitmap to mat for OpenCV
 
-        detector.enable();
-        dogeforia.start();
+            Mat resizeMat = new Mat(scaledWidth, scaledHeight, cvMat.type());
+            Imgproc.resize(cvMat,resizeMat,resizeMat.size(),0,0,Imgproc.INTER_NEAREST); //resize with nearest neighbor interpolation (doesn't lose any color data)
 
-        SamplingOrderDetector.GoldLocation position = detector.getCurrentOrder();
+            Imgproc.cvtColor(resizeMat,resizeMat,Imgproc.COLOR_RGB2HSV);    //converting to HSV
 
+            Mat thresholdMat = new Mat();   //info - HSV (hue, saturation, value). OpenCV uses hues from 0-179, so any 255 hue system needs to be *180/240.
+            Core.inRange(resizeMat, minHSV, maxHSV, thresholdMat);  //outputs yellow(20-30) objects to b/w binary mat
 
-        if(position == SamplingOrderDetector.GoldLocation.UNKNOWN) return false;
-        switch (position) {
-            case LEFT:
-                cubePos = CubePosition.LEFT;
-                break;
-            case CENTER:
-                cubePos = CubePosition.MIDDLE;
-                break;
-            case RIGHT:
-                cubePos = CubePosition.RIGHT;
-                break;
+            cvMat.release();
+            resizeMat.release();
+
+            Moments moments = Imgproc.moments(thresholdMat,true);
+            double moment10 = moments.m10;
+            double moment01 = moments.m01;
+            double area = moments.m00;
+
+            //accounting for not seeing any cubes
+            if(area == 0) {
+                cubePos = CubePosition.UNKNOWN;
+                return false;
+            }
+
+            int posX = (int) (moment10 / area); //moment10/area gives camera x coordinate
+            int posY = (int) (moment01 / area); //moment01/area gives camera y coordinate
+
+            //This may need some work
+            if(posX < scaledWidth/3) cubePos = CubePosition.LEFT;
+            else if(posX > (scaledWidth/3) * 2) cubePos=CubePosition.RIGHT;
+            else cubePos = CubePosition.MIDDLE;
+
+            if(useTelemetry) telemetryMethod();
+
+            return true;
         }
-
-        return true;
+        catch (InterruptedException e) {
+            cubePos = CubePosition.UNKNOWN;
+            return false;
+        }
     }
 
     public CubePosition getCubePos() {
@@ -364,7 +394,7 @@ public class Navigation{
     /**
      * A simple method to output the status of all motors and other variables to telemetry.
      */
-    private void telemetryMethod() {
+    public void telemetryMethod() {
         if(!twoWheels) {
             String motorString = "FL-" + frontLeft.getCurrentPosition() + " BL-" + backLeft.getCurrentPosition() + " FR-" + frontRight.getCurrentPosition() + " BR-" + backRight.getCurrentPosition();
             telemetry.addData("Drive", motorString);
