@@ -1,106 +1,181 @@
 package org.firstinspires.ftc.teamcode;
-//EXIST
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="TeleOp", group="BTBT")
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+@TeleOp(name="BionicTeleOp", group="BTBT")
 
 public class BionicTeleOp extends OpMode {
     //Drivetrain Motors//
-    private DcMotor backLeft; //left motor back
-    //private DcMotor frontLeft; //left motor front (Ladies first)ot
-    private DcMotor backRight; //right motor back
-    //private DcMotor frontRight; //right motor front (Ladies first)
+    private DcMotor backLeft;
+    private DcMotor backRight;
+
+    //Other Motors
     private DcMotor collector;
     private DcMotor evangelino;
-    private Servo teamMarker;
+
+    //Servos
     private Servo flickyWrist;
-///////
-    //Variables//
-    private double yValue;
-    private double xValue;
-    private double leftPower;
-    private double rightPower;
-    public int calibToggle;
-    public int target;
-    private double speed;
     private Servo liftrawrh;
 
-    //HardwareCatBot robot;
+    //Variables//
+    private double leftStick, rightStick;
+    private double leftPower, rightPower;
+    private double gasPedal;
+    private double coarseDiff, fineDiff, calibToggle;
+    private int driveSpeed, driveMode;
+
+    //Objects//
+    public ElapsedTime runtime = new ElapsedTime();
 
 
     public void init() {
         //Motors//
-        backLeft = hardwareMap.dcMotor.get("backLeft"); //Left Back
-        //frontLeft = hardwareMap.dcMotor.get("frontLeft"); //Left Front
-        backRight = hardwareMap.dcMotor.get("backRight"); //Right Back
-        //frontRight = hardwareMap.dcMotor.get("frontRight"); //Right Front
+        backLeft = hardwareMap.dcMotor.get("backLeft");
+        backRight = hardwareMap.dcMotor.get("backRight");
         evangelino = hardwareMap.dcMotor.get("lift");
-        //collector = hardwareMap.dcMotor.get("collector");
-        teamMarker = hardwareMap.servo.get("teamMarker");
-        backRight.setDirection(DcMotor.Direction.REVERSE);
         liftrawrh = hardwareMap.servo.get("liftrawrh");
-        //frontRight.setDirection(DcMotor.Direction.REVERSE);
         flickyWrist = hardwareMap.servo.get("flicky");
         collector = hardwareMap.dcMotor.get("collector");
 
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+
         //Variables//
         calibToggle = 0;
-        int target = 0;
-        double speed = 0;}
+        driveSpeed = 0;
+        driveMode = 0;
+
+        //Speed Offsets
+        coarseDiff = .6;
+        fineDiff = .3;
+    }
+
 
     public void loop() {
-
-        //robot = new Hardware_Pushbot();
-        if (gamepad1.a) {
-            calibToggle = 1; //One stick
-        } else if (gamepad1.b) {
-            calibToggle = 0;
-        } //JoyStick
-
-        if (calibToggle == 0) { //A
-            yValue = gamepad1.left_stick_y;
-            xValue = gamepad1.right_stick_x;
-
-            leftPower = yValue - xValue;
-            rightPower = yValue + xValue;
-
-            backLeft.setPower(Range.clip(leftPower, -0.5, 0.5));
-            backRight.setPower(Range.clip(rightPower, -0.5, 0.5));
-            //frontLeft.setPower(Range.clip(leftPower, -0.6, 0.6));
-            //frontRight.setPower(Range.clip(rightPower, -0.6, 0.6));
-
-            telemetry.addData("Mode", "running");
-            telemetry.addData("stick", "  y=" + yValue + "  x=" + xValue);
-            telemetry.addData("power", "  left=" + leftPower + "  right=" + rightPower);
-            telemetry.update();
-//            backLeft.setPower(gamepad1.left_stick_y / 2);    //Tank Drive
-//            frontLeft.setPower(gamepad1.left_stick_y / 2);
-//            backRight.setPower(gamepad1.right_stick_y / 2);
-//            frontRight.setPower(gamepad1.right_stick_y / 2);
-        } else if (calibToggle == 1) { //B
-            yValue = gamepad1.left_stick_y;
-            xValue = gamepad1.right_stick_x;
-
-            leftPower = yValue - xValue;
-            rightPower = yValue + xValue;
-
-            backLeft.setPower(Range.clip(leftPower, -0.6, 0.6));
-            backRight.setPower(Range.clip(rightPower, -0.6, 0.6));
-            //frontLeft.setPower(Range.clip(leftPower, -0.6, 0.6));
-            //frontRight.setPower(Range.clip(rightPower, -0.6, 0.6));
-
-            telemetry.addData("Mode", "running");
-            telemetry.addData("stick", "  y=" + yValue + "  x=" + xValue);
-            telemetry.addData("power", "  left=" + leftPower + "  right=" + rightPower);
-            telemetry.update();
+        // TOGGLE BUETONS //
+        if (gamepad1.a && (runtime.seconds() > calibToggle)) {
+            calibToggle = runtime.seconds() + 1;
+            ++driveSpeed;
         }
-        //
+        if (gamepad1.x && (runtime.seconds() > calibToggle)) {
+            driveMode = 0;
+        }
+        if (gamepad1.y && (runtime.seconds() > calibToggle)) {
+            driveMode = 1;
+        }
+        if (gamepad1.b && (runtime.seconds() > calibToggle)) {
+            driveMode = 2;
+        }
+
+        if (driveMode == 0) {
+            //////////////////////////////////// ARCADE DRIVE //////////////////////////////////////
+            leftStick = gamepad1.left_stick_y;
+            rightStick = -gamepad1.right_stick_x;
+
+            //Left Side
+            if (Math.abs(rightStick) > 0.5) {
+                leftPower = leftStick / 2 + rightStick / 2;
+            } else {
+                leftPower = leftStick + rightStick / 2;
+            }
+
+            //Right Side
+            if (Math.abs(rightStick) > 0.5) {
+                rightPower = leftStick / 2 - rightStick / 2;
+            } else {
+                rightPower = leftStick - rightStick / 2;
+            }
+
+            if (driveSpeed % 2 == 0) {
+                telemetry.addData("Mode: ", "ARCADE");
+                telemetry.addData("Speed: ", "NORMAL");
+                telemetry.addData("Stick: ", "X = " + round(rightStick, 3) + ", Y = " + round(leftStick, 3));
+                telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
+                telemetry.update();
+
+                backLeft.setPower(leftPower * coarseDiff);
+                backRight.setPower(rightPower * coarseDiff);
+            } else {
+                telemetry.addData("Mode: ", "ARCADE");
+                telemetry.addData("Speed: ", "SLOW");
+                telemetry.addData("Stick: ", "X = " + round(rightStick, 3) + ", Y = " + round(leftStick, 3));
+                telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
+                telemetry.update();
+
+                backLeft.setPower(leftPower * fineDiff);
+                backRight.setPower(rightPower * fineDiff);
+            }
+        } else if (driveMode == 1) {
+            ///////////////////////////////////// TANK DRIVE ///////////////////////////////////////
+            leftPower = gamepad1.left_stick_y;
+            rightPower = gamepad1.right_stick_y;
+
+            if (driveSpeed % 2 == 0) {
+                telemetry.addData("Mode: ", "TANK");
+                telemetry.addData("Speed: ", "NORMAL");
+                telemetry.addData("Stick: ", "X = " + round(rightStick, 3) + ", Y = " + round(leftStick, 3));
+                telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
+                telemetry.update();
+
+                backLeft.setPower(leftPower * coarseDiff);
+                backRight.setPower(rightPower * coarseDiff);
+            } else {
+                telemetry.addData("Mode: ", "TANK");
+                telemetry.addData("Speed: ", "SLOW");
+                telemetry.addData("Stick: ", "X = " + round(rightStick, 3) + ", Y = " + round(leftStick, 3));
+                telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
+                telemetry.update();
+
+                backLeft.setPower(leftPower * fineDiff);
+                backRight.setPower(rightPower * fineDiff);
+            }
+        } else if (driveMode == 2) {
+            ////////////////////////////////// ACKERMAN DRIVE //////////////////////////////////////
+            leftStick = (-gamepad1.left_stick_x);
+
+            gasPedal = (gamepad1.left_trigger - gamepad1.right_trigger);
+
+            //Left Side
+            if (Math.abs(rightStick) > 0.5) {
+                leftPower = gasPedal / 2 + rightStick / 2;
+            } else {
+                leftPower = gasPedal + rightStick / 2;
+            }
+
+            //Right Side
+            if (Math.abs(rightStick) > 0.5) {
+                rightPower = gasPedal / 2 - rightStick / 2;
+            } else {
+                rightPower = gasPedal - rightStick / 2;
+            }
+
+            if (driveSpeed % 2 == 0) {
+                telemetry.addData("Mode: ", "ACKERMAN");
+                telemetry.addData("Speed: ", "NORMAL");
+                telemetry.addData("Stick: ", "X = " + round(leftStick, 3) + ", G: " + round(gasPedal, 3));
+                telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
+                telemetry.update();
+
+                backLeft.setPower(leftPower * coarseDiff);
+                backRight.setPower(rightPower * coarseDiff);
+            } else {
+                telemetry.addData("Mode: ", "ACKERMAN");
+                telemetry.addData("Speed: ", "SLOW");
+                telemetry.addData("Stick: ", "L = " + round(leftStick, 3) + ", G: " + round(gasPedal, 3));
+                telemetry.addData("Power: ", "L = " + round(leftPower, 3) + ", R = " + round(rightPower, 3));
+                telemetry.update();
+
+                backLeft.setPower(leftPower * fineDiff);
+                backRight.setPower(rightPower * fineDiff);
+            }
+        }
+
         evangelino.setPower(-gamepad2.right_stick_y/2);
 
         if (gamepad2.dpad_up) {
@@ -111,23 +186,27 @@ public class BionicTeleOp extends OpMode {
             collector.setPower(0.00);
         }
 
-
-        if (gamepad2.right_bumper) { //rightb - up righttrigger down
+        if (gamepad2.right_bumper) {
             liftrawrh.setPosition(0.3);
         } else if (gamepad2.right_trigger > 0.7) {
             liftrawrh.setPosition(1.0);
         }
 
-        //y-up b- a-
-        if (gamepad2.y) { //rightb - up righttrigger down
+        if (gamepad2.y) {
             flickyWrist.setPosition(0.3);
         } else if (gamepad2.b) {
             flickyWrist.setPosition(0.62);
         }
-            else if (gamepad2.a) {
+        else if (gamepad2.a) {
             flickyWrist.setPosition(0.65);
-
         }
-        }
-
     }
+
+    public static double round(double value, int places) { //Allows telemetry to display nicely
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
+}

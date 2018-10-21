@@ -74,10 +74,10 @@ public class DrivingtoDepot extends LinearOpMode {
         liftrawrh = hardwareMap.servo.get("liftrawrh");
         //frontRight.setDirection(DcMotor.Direction.REVERSE);
         //flickyWrist = hardwareMap.servo.get("flicky");
-       // collector = hardwareMap.dcMotor.get("collector");
+        // collector = hardwareMap.dcMotor.get("collector");
 
         liftrawrh.setPosition(1.0);
-       // flickyWrist.setPosition(0.5);
+        // flickyWrist.setPosition(0.5);
         //Variables//
         calibToggle = 0;
         int target = 0;
@@ -85,11 +85,11 @@ public class DrivingtoDepot extends LinearOpMode {
         telemetry.addData("Status", "DogeCV 2018.0 - Gold Align Example");
 
         detector = new GoldAlignDetector();
-        detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance(),1,false);
+        detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance(), 1, false);
         detector.useDefaults();
 
         // Optional Tuning
-        detector.alignSize = 100; // How wide (in pixels) is the range in which the gold object will be aligned. (Represented by green bars in the preview)
+        detector.alignSize = 110; // How wide (in pixels) is the range in which the gold object will be aligned. (Represented by green bars in the preview)
         detector.alignPosOffset = 0; // How far from center frame to offset this alignment zone.
         detector.downscale = 0.4; // How much to downscale the input frames
 
@@ -106,46 +106,45 @@ public class DrivingtoDepot extends LinearOpMode {
         // Step through each leg of the path, ensuring that the Auto mode has not been stopped along the way
 
         // Step 1:  should get you unhooked
-        evangelino.setPower(0.1);
-        liftrawrh.setPosition(0.3);
         runtime.reset();
-
-        while (opModeIsActive() && (runtime.seconds() < .5)) {
-            telemetry.addData("Path", "Forward", runtime.seconds());
-            telemetry.update();
-
-
-
-            backLeft.setPower(0);
-            backRight.setPower(0);
-            backLeft.setPower(.25);
-            backRight.setPower(-.25);
-            //once again yes its sloppy sorry
-            sleep (250);
-            evangelino.setPower(-.25);
+        while (opModeIsActive() && runtime.seconds() < .25) {
+            liftrawrh.setPosition(0);
+            backLeft.setPower(.4);
+              backRight.setPower(-.4);
 
         }
-        // yes i know this is terrible please dont hate me :):):):):):):):):):):):):::):):P)P:D
-        otherstuff = true;
+
+
+//        while (opModeIsActive() && runtime.seconds() < .75) {
+//            liftrawrh.setPosition(0);
+//            backLeft.setPower(.4);
+//            backRight.setPower(-.4);
+//        }
+
+
+
+
+
+        sleep(1000);
         runtime.reset();
+            while (opModeIsActive() && !detector.getAligned()) {
+                telemetry.addData("Path", "we samplin bois", runtime.seconds());
+                // this code should rotate the bot until it is aligned with the mineral
+                backLeft.setPower(0);
+                backRight.setPower(0);
 
-        while (opModeIsActive() && !detector.getAligned() && otherstuff) {
-            telemetry.addData("Path", "we samplin bois", runtime.seconds());
-            // this code should rotate the bot until it is aligned with the mineral
-            evangelino.setPower(-.25);
-            backLeft.setPower(0);
-            backRight.setPower(0);
-            backLeft.setPower(-.25);
-            backRight.setPower(.25);
-        }
-        // this code should drive forward
-        while (opModeIsActive() && detector.getAligned()){
-            telemetry.addData("Path", "drive at the gold boi", runtime.seconds());
-            backLeft.setPower(0);
-            backRight.setPower(0);
-            backLeft.setPower(.25);
-            backRight.setPower(.25);
-        }
+                evangelino.setPower(-.25);
+                backLeft.setPower(-.35);
+                backRight.setPower(.35);
+            }
+            // this code should drive forward
+            while (opModeIsActive()) {
+                telemetry.addData("Path", "drive at the gold boi", runtime.seconds());
+                backLeft.setPower(0);
+                backRight.setPower(0);
+                backLeft.setPower(-.55);
+                backRight.setPower(-.55);
+            }
 
 
 

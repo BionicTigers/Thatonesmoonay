@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 //EXIST
+import com.disnodeteam.dogecv.CameraViewDisplay;
+import com.disnodeteam.dogecv.DogeCV;
+import com.disnodeteam.dogecv.detectors.roverrukus.GoldAlignDetector;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -20,8 +23,26 @@ public class TeamAuto extends LinearOpMode {
     public float rotate;
     public float depotDrive;
     public float craterDrive;
+    private GoldAlignDetector detector;
 
     @Override public void runOpMode() {
+        detector = new GoldAlignDetector();
+        detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance(), 1, false);
+        detector.useDefaults();
+
+        // Optional Tuning
+        detector.alignSize = 200; // How wide (in pixels) is the range in which the gold object will be aligned. (Represented by green bars in the preview)
+        detector.alignPosOffset = 0; // How far from center frame to offset this alignment zone.
+        detector.downscale = 0.4; // How much to downscale the input frames
+
+        detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
+        //detector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
+        detector.maxAreaScorer.weight = 0.005;
+
+        detector.ratioScorer.weight = 5;
+        detector.ratioScorer.perfectRatio = 1.0;
+
+        detector.enable();
         //initialization
         //liftrawrh = hardwareMap.servo.get("liftrawrh");
         //flickyWrist = hardwareMap.servo.get("flicky");
@@ -136,6 +157,16 @@ public class TeamAuto extends LinearOpMode {
 //        nav.goDistance(-49,100);
 
         //FULL CODE//
+        for (int i=0; i++ <3;) {
+            if (detector.getAligned()) {
+                setter = i;
+                i+=5000;
+            } else {
+                turnLeft1 = 110f;
+                sleep(500);
+            }
+        }
+
         nav.driveEncoderReset();
         if (setter == 0) { //right
              ralph= 33f; //One stick
