@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 // Make 4 methods, 1 for each number of motors to run, such as cruiseOneMotor, cruiseTwoMotor, etc.
 // How do we accomodate for all the different motors there are?
 
-@Autonomous(name="CruiseControl", group="Cruisin")
+@Autonomous(name="CruiseControl", group="Cruisin")//czx nkhgsd,mn aXZnm
 
 public class CruiseControl extends OpMode{
 
