@@ -15,9 +15,15 @@ android {
         }
     }
     repositories{
+        flatDir {
+            dirs '../libs'
+        }
         google()
+        jcenter()
     }
 }
 
 dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation (name: 'RobotCore-release', ext: 'aar')
 }

@@ -15,6 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -223,8 +224,19 @@ public class Navigation{
         int scaledWidth = 300;
         int scaledHeight = 100;
 
+        telemetry.addData("library","loaded");
+        try {
+            System.loadLibrary("opencv_java3");
+        } catch (UnsatisfiedLinkError e) {
+            // pass
+            telemetry.addData("library","didn't load");
+        }
+        telemetry.update();
+
+
         //inside a try-catch because Vuforia is so unconfident in their image extraction method that it is required
         try {
+
             VuforiaLocalizer.CloseableFrame frame = vuforia.getFrameQueue().take();     //returns "list" of all export images
             Image image = frame.getImage(0);
 
@@ -255,12 +267,18 @@ public class Navigation{
 
             //accounting for not seeing any cubes
             if(area == 0) {
+                telemetry.addData("curent place","not found");
+                telemetry.update();
+
                 cubePos = CubePosition.UNKNOWN;
                 return false;
             }
 
             int posX = (int) (moment10 / area); //moment10/area gives camera x coordinate
             int posY = (int) (moment01 / area); //moment01/area gives camera y coordinate
+
+            telemetry.addData("curent place",posX + " "+posY);
+            telemetry.update();
 
             //This may need some work
             if(posX < scaledWidth/3) cubePos = CubePosition.LEFT;
