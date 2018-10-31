@@ -89,7 +89,7 @@ public class DrivingtoDepot extends LinearOpMode {
         detector.useDefaults();
 
         // Optional Tuning
-        detector.alignSize = 110; // How wide (in pixels) is the range in which the gold object will be aligned. (Represented by green bars in the preview)
+        detector.alignSize = 150; // How wide (in pixels) is the range in which the gold object will be aligned. (Represented by green bars in the preview)
         detector.alignPosOffset = 0; // How far from center frame to offset this alignment zone.
         detector.downscale = 0.4; // How much to downscale the input frames
 
@@ -107,10 +107,11 @@ public class DrivingtoDepot extends LinearOpMode {
 
         // Step 1:  should get you unhooked
         runtime.reset();
-        while (opModeIsActive() && runtime.seconds() < .25) {
+        while (opModeIsActive() && runtime.seconds() < .5) {
             liftrawrh.setPosition(0);
             backLeft.setPower(.4);
               backRight.setPower(-.4);
+              evangelino.setPower(.25);
 
         }
 
@@ -133,7 +134,7 @@ public class DrivingtoDepot extends LinearOpMode {
                 backLeft.setPower(0);
                 backRight.setPower(0);
 
-                evangelino.setPower(-.25);
+                evangelino.setPower(0);
                 backLeft.setPower(-.35);
                 backRight.setPower(.35);
             }
@@ -142,8 +143,8 @@ public class DrivingtoDepot extends LinearOpMode {
                 telemetry.addData("Path", "drive at the gold boi", runtime.seconds());
                 backLeft.setPower(0);
                 backRight.setPower(0);
-                backLeft.setPower(-.55);
-                backRight.setPower(-.55);
+                backLeft.setPower(.55);
+                backRight.setPower(.55);
             }
 
 
