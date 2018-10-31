@@ -10,8 +10,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 
-@TeleOp(name="Quilly TeleOp", group="BTBT")
-public class QuillyTeleOp extends OpMode {
+@TeleOp(name="Selene TeleOp", group="BTBT")
+public class SeleneTeleOp extends OpMode {
 
     //Drivetrain Motors//
     private DcMotor frontLeft;
@@ -25,8 +25,8 @@ public class QuillyTeleOp extends OpMode {
     private DcMotor liftyJr;
 
     //Servos//
-    private Servo flicky;
-    private Servo liftyLock;
+//    private Servo flicky;
+//    private Servo liftyLock;
     private Servo collecty;
     private Servo droppy;
     private Servo droppyJr;
@@ -64,8 +64,8 @@ public class QuillyTeleOp extends OpMode {
         liftyJr.setDirection(DcMotor.Direction.REVERSE);
 
         //Servos//
-        flicky = hardwareMap.servo.get("flicky");
-        liftyLock = hardwareMap.servo.get("liftyLock");
+//        flicky = hardwareMap.servo.get("flicky");
+//        liftyLock = hardwareMap.servo.get("liftyLock");
         collecty = hardwareMap.servo.get("collecty");
         droppy = hardwareMap.servo.get("droppy");
         droppyJr = hardwareMap.servo.get("droppyJr");
@@ -224,19 +224,19 @@ public class QuillyTeleOp extends OpMode {
             collecty.setPosition(colPos - 0.1);
         }
 
-        //Lift Lock// - DPadUp= Lock Lift | DPadDown= Unlock Lift
-        if (gamepad2.dpad_up) {
-            liftyLock.setPosition(1.0);
-        } else if (gamepad2.dpad_down) {
-            liftyLock.setPosition(0.3);
-        }
+//        //Lift Lock// - DPadUp= Lock Lift | DPadDown= Unlock Lift
+//        if (gamepad2.dpad_up) {
+//            liftyLock.setPosition(1.0);
+//        } else if (gamepad2.dpad_down) {
+//            liftyLock.setPosition(0.3);
+//        }
 
-        //Team Marker Deployer// - DPadRight= Deploy | DPadLeft= Retract
-        if (gamepad2.dpad_right) {
-            flicky.setPosition(0.3);
-        } else if (gamepad2.dpad_left) {
-            flicky.setPosition(0.65);
-        }
+//        //Team Marker Deployer// - DPadRight= Deploy | DPadLeft= Retract
+//        if (gamepad2.dpad_right) {
+//            flicky.setPosition(0.3);
+//        } else if (gamepad2.dpad_left) {
+//            flicky.setPosition(0.65);
+//        }
 
         //Collection Extension// - RightTrigger= Deploy | LeftTrigger= Retract
         if (gamepad2.right_trigger > 0.5) {
