@@ -7,10 +7,14 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.function.Consumer;
+import org.firstinspires.ftc.robotcore.external.function.Continuation;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -18,12 +22,21 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
+import com.qualcomm.robotcore.util.RobotLog;
+import com.qualcomm.robotcore.util.ThreadPool;
+import com.vuforia.Frame;
 import com.vuforia.Image;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Locale;
 
 /**
  * A class for all movement methods for Rover Ruckus!
  */
 public class Navigation{
+    public static final String TAG = "Vuforia Navigation Sample";
 
     //-----tweak values-----//
     private float maximumMotorPower = 1f;           //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
@@ -65,9 +78,12 @@ public class Navigation{
     private VuforiaTrackables vumarks;
     private Location[] vumarkLocations = new Location[4];
     private boolean useAnyCV;
+    private WebcamName webcamName;
+    private int captureCounter = 0;
+    private File captureDirectory= AppUtil.ROBOT_DATA_DIR;
 
 
-    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean nothingButDrive, boolean twoWheels, boolean useAnyCV, boolean useTelemetry) {
+    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean nothingButDrive, boolean twoWheels, boolean useAnyCV, boolean useTelemetry, boolean useWebcam) {
         this.hardwareGetter = hardwareGetter;
         this.telemetry = telemetry;
         this.nothingButDrive = nothingButDrive;
@@ -97,7 +113,29 @@ public class Navigation{
 
         driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        if(useAnyCV) {
+        if(useAnyCV && useWebcam) {
+            WebcamName webcamName;
+            webcamName = hardwareGetter.hardwareMap.get(WebcamName.class, "Webcam 1");
+            int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
+            VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+            parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
+            //parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
+            parameters.cameraName = webcamName;
+            //vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+            // is decrepet
+            // hope nothin is broke :)
+            vuforia = ClassFactory.getInstance().createVuforia(parameters);
+            vuforia.enableConvertFrameToBitmap();
+            AppUtil.getInstance().ensureDirectoryExists(captureDirectory);
+            vumarks = vuforia.loadTrackablesFromAsset("18-19_rover_ruckus");
+            vumarkLocations[0] = new Location(0f, 5.75f, 71.5f, 180f); //east
+            vumarkLocations[1] = new Location(-71.5f, 5.75f, 0f, 270f); //north
+            vumarkLocations[2] = new Location(0f, 5.75f, -71.5f, 0f); //west
+            vumarkLocations[3] = new Location(71.5f, 5.75f, 0f, 90f); //south
+            vumarks.activate();
+
+        }
+        if(useAnyCV && !useWebcam) {
             int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
             VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
             parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
@@ -109,6 +147,8 @@ public class Navigation{
             vumarkLocations[2] = new Location(0f, 5.75f, -71.5f, 0f); //west
             vumarkLocations[3] = new Location(71.5f, 5.75f, 0f, 90f); //south
             vumarks.activate();
+
+
         }
     }
 
@@ -400,5 +440,28 @@ public class Navigation{
         telemetry.addData("Team",team);
         telemetry.addData("CubePos",cubePos);
         telemetry.update();
+    }
+    void captureFrameToFile() {
+        vuforia.getFrameOnce(Continuation.create(ThreadPool.getDefault(), new Consumer<Frame>()
+        {
+            @Override public void accept(Frame frame)
+            {
+                Bitmap bitmap = vuforia.convertFrameToBitmap(frame);
+                if (bitmap != null) {
+                    File file = new File(captureDirectory, String.format(Locale.getDefault(), "VuforiaFrame-%d.png", captureCounter++));
+                    try {
+                        FileOutputStream outputStream = new FileOutputStream(file);
+                        try {
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                        } finally {
+                            outputStream.close();
+                            telemetry.log().add("captured %s", file.getName());
+                        }
+                    } catch (IOException e) {
+                        RobotLog.ee(TAG, e, "exception in captureFrameToFile()");
+                    }
+                }
+            }
+        }));
     }
 }

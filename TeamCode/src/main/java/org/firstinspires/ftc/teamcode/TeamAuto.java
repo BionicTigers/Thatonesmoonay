@@ -309,6 +309,7 @@ import com.disnodeteam.dogecv.detectors.roverrukus.GoldAlignDetector;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
@@ -330,7 +331,7 @@ public class TeamAuto extends LinearOpMode {
 
     @Override public void runOpMode() {
         detector = new GoldAlignDetector();
-        detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance(), 1, false);
+        detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance(), 2, false);
         detector.useDefaults();
 
         // Tuning
@@ -352,7 +353,7 @@ public class TeamAuto extends LinearOpMode {
 
         //liftrawrh.setPosition(1.0);
         //flickyWrist.setPosition(0.5);
-        Navigation nav = new Navigation(this,telemetry, true, false, false, true);
+        Navigation nav = new Navigation(this,telemetry, true, false, false, true,true);
         setter = 2;
         waitForStart();
 
