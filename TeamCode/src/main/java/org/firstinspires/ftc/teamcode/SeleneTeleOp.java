@@ -39,12 +39,6 @@ public class SeleneTeleOp extends OpMode {
     private double calibToggle;
     private int driveSpeed, driveMode;
 
-    //Servo Position Storage//
-    private double colPos;
-    private double colJrPos;
-    private double dropPos;
-    private double dropJrPos;
-
     //Objects//
     public ElapsedTime runtime = new ElapsedTime();
 
@@ -80,11 +74,6 @@ public class SeleneTeleOp extends OpMode {
         calibToggle = 0;
         driveSpeed = 0;
         driveMode = 0;
-
-        //Servo Position Storage//
-        colPos = collecty.getPosition();
-        dropPos = droppy.getPosition();
-        dropJrPos = droppyJr.getPosition();
 
         //Speed Offsets//
         coarseDiff = .6;
@@ -240,11 +229,9 @@ public class SeleneTeleOp extends OpMode {
 
         //Collector// - A= Intake | B= Outtake
         if (gamepad2.a) {
-            colPos += 0.1;
-            collecty.setPosition(colPos);
+            collecty.setPosition(collecty.getPosition() + 0.1);
         } else if (gamepad2.b) {
-            colPos -= 0.1;
-            collecty.setPosition(colPos);
+            collecty.setPosition(collecty.getPosition() - 0.1);
         }
 
         //Hopper Storage Gate// - X= Open | Y= Close
@@ -265,15 +252,11 @@ public class SeleneTeleOp extends OpMode {
 
         //Collector Dropper// - RightBumper= Drop Dropper | LeftBumper= Lift Dropper
         if (gamepad2.right_bumper) {
-            dropPos -= 0.05;
-            dropJrPos -= 0.05;
-            droppy.setPosition(dropPos);
-            droppyJr.setPosition(dropJrPos);
+            droppy.setPosition(droppy.getPosition() + 0.05);
+            droppyJr.setPosition(droppyJr.getPosition() + 0.05);
         } else if (gamepad2.left_bumper) {
-            dropPos += 0.05;
-            dropJrPos += 0.05;
-            droppy.setPosition(dropPos);
-            droppyJr.setPosition(dropJrPos);
+            droppy.setPosition(droppy.getPosition() - 0.05);
+            droppyJr.setPosition(droppyJr.getPosition() - 0.05);
         }
     }
 
