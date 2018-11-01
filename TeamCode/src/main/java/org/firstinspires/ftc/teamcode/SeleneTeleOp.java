@@ -28,6 +28,7 @@ public class SeleneTeleOp extends OpMode {
 //    private Servo flicky;
 //    private Servo liftyLock;
     private Servo collecty;
+    private Servo trappy;
     private Servo droppy;
     private Servo droppyJr;
 
@@ -40,7 +41,9 @@ public class SeleneTeleOp extends OpMode {
 
     //Servo Position Storage//
     private double colPos;
+    private double colJrPos;
     private double dropPos;
+    private double dropJrPos;
 
     //Objects//
     public ElapsedTime runtime = new ElapsedTime();
@@ -67,8 +70,11 @@ public class SeleneTeleOp extends OpMode {
 //        flicky = hardwareMap.servo.get("flicky");
 //        liftyLock = hardwareMap.servo.get("liftyLock");
         collecty = hardwareMap.servo.get("collecty");
+        trappy = hardwareMap.servo.get("trappy");
         droppy = hardwareMap.servo.get("droppy");
         droppyJr = hardwareMap.servo.get("droppyJr");
+
+        droppyJr.setDirection(Servo.Direction.REVERSE);
 
         //Variables//
         calibToggle = 0;
@@ -76,8 +82,9 @@ public class SeleneTeleOp extends OpMode {
         driveMode = 0;
 
         //Servo Position Storage//
-        colPos = 0;
-        dropPos = 0;
+        colPos = collecty.getPosition();
+        dropPos = droppy.getPosition();
+        dropJrPos = droppyJr.getPosition();
 
         //Speed Offsets//
         coarseDiff = .6;
@@ -217,13 +224,6 @@ public class SeleneTeleOp extends OpMode {
         lifty.setPower(gamepad2.left_stick_y / 2);
         liftyJr.setPower(gamepad2.left_stick_y / 2);
 
-        //Collector// - A= Intake | B= Outtake
-        if (gamepad2.a) {
-            collecty.setPosition(colPos - 0.1);
-        } else if (gamepad2.b) {
-            collecty.setPosition(colPos - 0.1);
-        }
-
 //        //Lift Lock// - DPadUp= Lock Lift | DPadDown= Unlock Lift
 //        if (gamepad2.dpad_up) {
 //            liftyLock.setPosition(1.0);
@@ -238,6 +238,22 @@ public class SeleneTeleOp extends OpMode {
 //            flicky.setPosition(0.65);
 //        }
 
+        //Collector// - A= Intake | B= Outtake
+        if (gamepad2.a) {
+            colPos += 0.1;
+            collecty.setPosition(colPos);
+        } else if (gamepad2.b) {
+            colPos -= 0.1;
+            collecty.setPosition(colPos);
+        }
+
+        //Hopper Storage Gate// - X= Open | Y= Close
+        if (gamepad2.x) {
+            trappy.setPosition(1);
+        } else if (gamepad2.y) {
+            trappy.setPosition(0);
+        }
+
         //Collection Extension// - RightTrigger= Deploy | LeftTrigger= Retract
         if (gamepad2.right_trigger > 0.5) {
             extendy.setPower(0.6);
@@ -247,13 +263,17 @@ public class SeleneTeleOp extends OpMode {
             extendy.setPower(0);
         }
 
-        //Collector Dropper// - X= Drop Dropper | Y= Lift Dropper
-        if (gamepad2.x) {
-            droppy.setPosition(dropPos - 0.05);
-            droppyJr.setPosition(dropPos + 0.05);
-        } else if (gamepad2.y) {
-            droppy.setPosition(dropPos + 0.05);
-            droppyJr.setPosition(dropPos - 0.05);
+        //Collector Dropper// - RightBumper= Drop Dropper | LeftBumper= Lift Dropper
+        if (gamepad2.right_bumper) {
+            dropPos -= 0.05;
+            dropJrPos -= 0.05;
+            droppy.setPosition(dropPos);
+            droppyJr.setPosition(dropJrPos);
+        } else if (gamepad2.left_bumper) {
+            dropPos += 0.05;
+            dropJrPos += 0.05;
+            droppy.setPosition(dropPos);
+            droppyJr.setPosition(dropJrPos);
         }
     }
 
