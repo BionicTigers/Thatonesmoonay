@@ -31,6 +31,9 @@ public class Navigation{
     //-----enums-----//
     public enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
     private CubePosition cubePos = CubePosition.UNKNOWN;
+    public enum CollectorHeight {UPPER, LOWER}
+    public enum LiftHeight {LOWER, PARK, SCORE}
+    public enum CollectorExtension {IN, OUT}
 
     //-----robot hardware, position, and dimensions-----//
     private com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter;
@@ -89,9 +92,9 @@ public class Navigation{
 
         //Other Motors//
         extendy = hardwareGetter.hardwareMap.dcMotor.get("extendy");
+        extendy.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lifty = hardwareGetter.hardwareMap.dcMotor.get("lifty");
         liftyJr = hardwareGetter.hardwareMap.dcMotor.get("liftyJr");
-
         liftyJr.setDirection(DcMotor.Direction.REVERSE);
 
         //Servos//
@@ -240,19 +243,66 @@ public class Navigation{
 
     /**
      * Sets lift motor to given encoder position
-     * @param pos Encoder ticks for lift motor
+     * @param position Encoder ticks for lift motor
      */
-    public void setLift(int pos) {
+    public void setLiftHeight(int position) {
         lifty.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         liftyJr.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        lifty.setTargetPosition(pos);
-        liftyJr.setTargetPosition(pos);
+        lifty.setTargetPosition(position);
+        liftyJr.setTargetPosition(position);
         lifty.setPower(liftPower);
         liftyJr.setPower(liftPower);
     }
 
+    //TODO test values for accurate height
+    public void setLiftHeight(LiftHeight position) {
+        switch(position) {
+            case LOWER:
+                setLiftHeight(0);
+                break;
+            case PARK:
+                setLiftHeight(1);
+                break;
+            case SCORE:
+                setLiftHeight(2);
+                break;
+        }
+    }
+
     public void setCollectionSweeper(float power) {
         collecty.setPower(power);
+    }
+
+    public void setCollectorHeight(float position) {
+        droppy.setPosition(position);
+        droppyJr.setPosition(position);
+    }
+
+    //TODO test values for accurate height
+    public void setCollectorHeight(CollectorHeight position) {
+        switch(position) {
+            case LOWER:
+                setCollectorHeight(0f);
+                break;
+            case UPPER:
+                setCollectorHeight(10f);
+        }
+    }
+
+    public void setCollectorExtension(int position) {
+        extendy.setTargetPosition(position);
+    }
+
+    //TODO test values for accurate extension
+    public void setCollectorExtension(CollectorExtension position) {
+        switch (position){
+            case IN:
+                setCollectorExtension(0);
+                break;
+            case OUT:
+                setCollectorExtension(100);
+                break;
+        }
     }
 
     private void driveMethodComplex(float distance, float slowdown, float precision, DcMotor encoderMotor, float lModifier, float rModifier, boolean doubleBack, float minPower, float maxPower) {
@@ -290,6 +340,7 @@ public class Navigation{
         String motorString = "FL-" + frontLeft.getCurrentPosition() + " BL-" + backLeft.getCurrentPosition() + " FR-" + frontRight.getCurrentPosition() + " BR-" + backRight.getCurrentPosition();
         telemetry.addData("Drive", motorString);
         telemetry.addData("Lift",lifty.getCurrentPosition()+" " +liftyJr.getCurrentPosition());
+        telemetry.addData("Collector L/E/S/T",lifty.getCurrentPosition()+" "+extendy.getCurrentPosition()+" "+collecty.getPower()+" "+trappy.getPower());
         telemetry.addData("CubePos",cubePos);
         telemetry.update();
     }
