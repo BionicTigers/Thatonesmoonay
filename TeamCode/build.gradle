@@ -16,6 +16,9 @@ dependencies {
     implementation project(':openCVLibrary3')
 }
 repositories{
+    flatDir {
+        dirs '../libs'
+    }
     google()
 }
 

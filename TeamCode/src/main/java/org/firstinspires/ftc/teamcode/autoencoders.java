@@ -16,7 +16,7 @@ public class autoencoders extends LinearOpMode {
 
         //liftrawrh.setPosition(1.0);
         //flickyWrist.setPosition(0.5);
-        Navigation nav = new Navigation(this,telemetry, true, false, false, true, false);
+        Navigation nav = new Navigation(this,telemetry, true);
 
         waitForStart();
         nav.updateCubePos();

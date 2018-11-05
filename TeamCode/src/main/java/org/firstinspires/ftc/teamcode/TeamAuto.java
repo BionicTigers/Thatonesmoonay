@@ -353,7 +353,7 @@ public class TeamAuto extends LinearOpMode {
 
         //liftrawrh.setPosition(1.0);
         //flickyWrist.setPosition(0.5);
-        Navigation nav = new Navigation(this,telemetry, true, false, false, true,true);
+        Navigation nav = new Navigation(this,telemetry, true);
         setter = 2;
         waitForStart();
 

@@ -34,7 +34,7 @@ public class ChrisNavTesting extends LinearOpMode{
 
         //liftrawrh.setPosition(1.0);
         //flickyWrist.setPosition(0.5);
-        Navigation nav = new Navigation(this,telemetry, false, false, false, true,true);
+        Navigation nav = new Navigation(this,telemetry, false);
 
         waitForStart();
 
