@@ -20,17 +20,17 @@ public class SeleneTeleOp extends OpMode {
     private DcMotor backRight;
 
     //Other Motors//
-    private DcMotor extendy;
-    private DcMotor lifty;
-    private DcMotor liftyJr;
+    private DcMotor extendy; //collector extension
+    private DcMotor lifty;  //collector lift a
+    private DcMotor liftyJr; //collector lift b
 
     //Servos//
-//    private Servo flicky;
+//    private Servo flicky;   //
 //    private Servo liftyLock;
-    private Servo collecty;
-    private Servo trappy;
-    private Servo droppy;
-    private Servo droppyJr;
+    private Servo collecty;  //collection sweeper
+    private Servo trappy;  //collector trapdoor
+    private Servo droppy;  //lift motor a
+    private Servo droppyJr; //lift motor b
 
     //Variables//
     private double leftPower, rightPower;

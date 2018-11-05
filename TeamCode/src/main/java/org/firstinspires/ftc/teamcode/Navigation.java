@@ -4,6 +4,10 @@ import com.disnodeteam.dogecv.CameraViewDisplay;
 import com.disnodeteam.dogecv.DogeCV;
 import com.disnodeteam.dogecv.detectors.roverrukus.SamplingOrderDetector;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.CRServo;
+
+import java.util.Timer;
 
 /**
  * A class for all movement methods for Rover Ruckus!
@@ -16,9 +20,7 @@ public class Navigation{
     private float minimumMotorPower = 0.2f;
     private float liftPower = 0.3f;                 //power the lift will run at
     private float encoderCountsPerRev = 537.6f;     //encoder ticks per one revolution
-    private boolean useTelemetry = false;           //display motor values when running etc
-    private boolean nothingButDrive = false;
-    private boolean twoWheels = false;
+    private boolean useTelemetry;
 
     //------game element locations-----//
     public static final Location cargoBlueGold = new Location(-8.31f,27f,-8.31f,0f);
@@ -33,14 +35,28 @@ public class Navigation{
     //-----robot hardware, position, and dimensions-----//
     private com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter;
     private org.firstinspires.ftc.robotcore.external.Telemetry telemetry;
-    private DcMotor frontLeft;
-    private DcMotor backLeft;
-    private DcMotor frontRight;
-    private DcMotor backRight;
-    private DcMotor lift;
     private float wheelDistance = 6;                //distance from center of robot to center of wheel (inches)
     private float wheelDiameter = 4;                //diameter of wheel (inches)
     private Location pos = new Location();           //location of robot as [x,y,z,rot] (inches / degrees)
+
+    //Drivetrain Motors//
+    private DcMotor frontLeft;
+    private DcMotor frontRight;
+    private DcMotor backLeft;
+    private DcMotor backRight;
+
+    //Other Motors//
+    private DcMotor extendy; //collector extension
+    private DcMotor lifty;  //collector lift a
+    private DcMotor liftyJr; //collector lift b
+
+    //Servos//
+    //private Servo flicky;   //
+    //private Servo liftyLock;
+    private CRServo collecty;  //collection sweeper
+    private CRServo trappy;  //collector trapdoor
+    private Servo droppy;  //lift motor a
+    private Servo droppyJr; //lift motor b
 
     //-----internal values-----//
     /*
@@ -62,18 +78,33 @@ public class Navigation{
         this.useTelemetry = useTelemetry;
 
 
+        //Drivetrain Motors//
         frontLeft = hardwareGetter.hardwareMap.dcMotor.get("frontLeft");
         frontRight = hardwareGetter.hardwareMap.dcMotor.get("frontRight");
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
         backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
         backRight = hardwareGetter.hardwareMap.dcMotor.get("backRight");
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
         driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        lift = hardwareGetter.hardwareMap.dcMotor.get("lift");
-        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //Other Motors//
+        extendy = hardwareGetter.hardwareMap.dcMotor.get("extendy");
+        lifty = hardwareGetter.hardwareMap.dcMotor.get("lifty");
+        liftyJr = hardwareGetter.hardwareMap.dcMotor.get("liftyJr");
 
+        liftyJr.setDirection(DcMotor.Direction.REVERSE);
 
+        //Servos//
+        //flicky = hardwareGetter.hardwareMap.servo.get("flicky");
+        //liftyLock = hardwareGetter.hardwareMap.servo.get("liftyLock");
+        collecty = hardwareGetter.hardwareMap.crservo.get("collecty");
+        trappy = hardwareGetter.hardwareMap.crservo.get("trappy");
+        droppy = hardwareGetter.hardwareMap.servo.get("droppy");
+        droppyJr = hardwareGetter.hardwareMap.servo.get("droppyJr");
+
+        droppyJr.setDirection(Servo.Direction.REVERSE);
+
+        //DOGE CV
         detector = new SamplingOrderDetector();
         detector.init(hardwareGetter.hardwareMap.appContext,CameraViewDisplay.getInstance(),0,false);
         detector.useDefaults();
@@ -121,10 +152,8 @@ public class Navigation{
     public void drivePower(float left, float right) {
         frontLeft.setPower(left);
         frontRight.setPower(right);
-        if(!twoWheels) {
-            backLeft.setPower(left);
-            backRight.setPower(right);
-        }
+        backLeft.setPower(left);
+        backRight.setPower(right);
     }
 
     /**
@@ -135,10 +164,8 @@ public class Navigation{
     public void drivePosition(int left, int right) {
         frontLeft.setTargetPosition(left);
         frontRight.setTargetPosition(right);
-        if(!twoWheels) {
-            backLeft.setTargetPosition(left);
-            backRight.setTargetPosition(right);
-        }
+        backLeft.setTargetPosition(left);
+        backRight.setTargetPosition(right);
     }
 //a
     /**
@@ -148,11 +175,8 @@ public class Navigation{
     public void driveMode(DcMotor.RunMode r) {
         frontLeft.setMode(r);
         frontRight.setMode(r);
-
-        if(!twoWheels) {
-            backLeft.setMode(r);
-            backRight.setMode(r);
-        }
+        backLeft.setMode(r);
+        backRight.setMode(r);
     }
 
     /**
@@ -161,10 +185,8 @@ public class Navigation{
     public void driveEncoderReset() {
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        if(!twoWheels) {
-            backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        }
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     /**
@@ -221,11 +243,16 @@ public class Navigation{
      * @param pos Encoder ticks for lift motor
      */
     public void setLift(int pos) {
-        if(!nothingButDrive) {
-            lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            lift.setTargetPosition(pos);
-            lift.setPower(liftPower);
-        }
+        lifty.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftyJr.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lifty.setTargetPosition(pos);
+        liftyJr.setTargetPosition(pos);
+        lifty.setPower(liftPower);
+        liftyJr.setPower(liftPower);
+    }
+
+    public void setCollectionSweeper(float power) {
+        collecty.setPower(power);
     }
 
     private void driveMethodComplex(float distance, float slowdown, float precision, DcMotor encoderMotor, float lModifier, float rModifier, boolean doubleBack, float minPower, float maxPower) {
@@ -260,11 +287,9 @@ public class Navigation{
      * A simple method to output the status of all motors and other variables to telemetry.
      */
     public void telemetryMethod() {
-        if(!twoWheels) {
-            String motorString = "FL-" + frontLeft.getCurrentPosition() + " BL-" + backLeft.getCurrentPosition() + " FR-" + frontRight.getCurrentPosition() + " BR-" + backRight.getCurrentPosition();
-            telemetry.addData("Drive", motorString);
-        }
-        if(!nothingButDrive) telemetry.addData("Lift",lift.getCurrentPosition());
+        String motorString = "FL-" + frontLeft.getCurrentPosition() + " BL-" + backLeft.getCurrentPosition() + " FR-" + frontRight.getCurrentPosition() + " BR-" + backRight.getCurrentPosition();
+        telemetry.addData("Drive", motorString);
+        telemetry.addData("Lift",lifty.getCurrentPosition()+" " +liftyJr.getCurrentPosition());
         telemetry.addData("CubePos",cubePos);
         telemetry.update();
     }
