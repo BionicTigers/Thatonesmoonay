@@ -12,41 +12,38 @@ import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 
-public class TeamAutoRedDepot {
-//EXIST
+@Autonomous(name="AutoRedDepot", group="Auto")
+public class AutoRedDepot extends LinearOpMode {
+    private Servo liftrawrh;
+    private Servo flickyWrist;
+    int ralph;
+    @Override public void runOpMode() {
+        //initialization
+        //liftrawrh = hardwareMap.servo.get("liftrawrh");
+        //flickyWrist = hardwareMap.servo.get("flicky");
 
-    @Autonomous(name="TeamAutoRedDepot")
-    public class TeamAuto extends LinearOpMode {
-        private Servo liftrawrh;
-        private Servo flickyWrist;
-        int ralph;
-        @Override public void runOpMode() {
-            //initialization
-            //liftrawrh = hardwareMap.servo.get("liftrawrh");
-            //flickyWrist = hardwareMap.servo.get("flicky");
+        //liftrawrh.setPosition(1.0);
+        //flickyWrist.setPosition(0.5);
+        Navigation nav = new Navigation(this,telemetry, true);
 
-            //liftrawrh.setPosition(1.0);
-            //flickyWrist.setPosition(0.5);
-            Navigation nav = new Navigation(this,telemetry, true);
+        waitForStart();
 
-            waitForStart();
+        //try determine vision stuff
+        // nav.updatePos();
+        //nav.updateTeam();
 
-            //try determine vision stuff
-            // nav.updatePos();
-            //nav.updateTeam();
-
-            nav.updateCubePos();
+        nav.updateCubePos();
 
 
-            nav.getCubePos();
+        nav.getCubePos();
 
-            //try determine vision stuff
-            //nav.updatePos();
-            //nav.updateTeam();
-            nav.updateCubePos();
-            nav.driveEncoderReset();
+        //try determine vision stuff
+        //nav.updatePos();
+        //nav.updateTeam();
+        nav.updateCubePos();
+        nav.driveEncoderReset();
 
-            //landing motor commands
+        //landing motor commands
 //        liftrawrh.setPosition(0.3);
 //          Start lift down motors(2) go down, need method (note to self), reverse one motor
 
@@ -107,9 +104,9 @@ public class TeamAutoRedDepot {
 
 //In order to face front towards crater//goes to right mineral//red crater
 
-            nav.rotateTo(100f,200,40f);
-            sleep(100);
-            nav.rotateTo(350f,200f,40f);
+        nav.rotateTo(100f,200,40f);
+        sleep(100);
+        nav.rotateTo(350f,200f,40f);
 
 //        //nav.rotateTo(f,200,40f);
 //        sleep(100);
@@ -131,39 +128,38 @@ public class TeamAutoRedDepot {
 
 
 /* lower, turn out of hook, turn to recenter, read CV: get which one is the yellow guy.
-        divide to four different options,
-            turn to where you need to go
-            go forward to the square mineral, knock it off the square
-            go backwards
-            turn towards wall
-            run certain distance to wall
-        turn using same/similar angle to turn towards depot
-        run forwards to crater
-        place collector in?
- */
+    divide to four different options,
+        turn to where you need to go
+        go forward to the square mineral, knock it off the square
+        go backwards
+        turn towards wall
+        run certain distance to wall
+    turn using same/similar angle to turn towards depot
+    run forwards to crater
+    place collector in?
+*/
 
 
 
-            //try determine vision stuff
-            //nav.updatePos();
+        //try determine vision stuff
+        //nav.updatePos();
 
 //        nav.updateTeam();
 //        nav.updateCubePos();
 
-            //go to cube
-            // nav.setLift(100);
-            //collect/nudge
+        //go to cube
+        // nav.setLift(100);
+        //collect/nudge
 
-            //goto depot
+        //goto depot
 
-            //deploy team marker thing
+        //deploy team marker thing
 
-            //go to appropriate crater
+        //go to appropriate crater
 
-            //begin collection
+        //begin collection
 
-            //parking
-        }
+        //parking
     }
-
 }
+

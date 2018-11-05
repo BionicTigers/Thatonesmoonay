@@ -38,8 +38,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="DrivingtoDepot", group="Pushbot")
-public class DrivingtoDepot extends LinearOpMode {
+@Autonomous(name="AutoDrivingtoDepot", group="Auto")
+public class AutoDrivingtoDepot extends LinearOpMode {
 
     private DcMotor backLeft; //left motor back
     //private DcMotor frontLeft; //left motor front (Ladies first)ot

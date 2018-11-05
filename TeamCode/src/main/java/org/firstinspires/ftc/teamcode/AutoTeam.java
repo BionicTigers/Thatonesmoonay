@@ -315,8 +315,8 @@ import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 
-@Autonomous(name="Team Autonomous")
-public class TeamAuto extends LinearOpMode {
+@Autonomous(name="Auto Team", group="Auto")
+public class AutoTeam extends LinearOpMode {
     private Servo liftrawrh;
     private Servo flickyWrist;
     public float ralph;

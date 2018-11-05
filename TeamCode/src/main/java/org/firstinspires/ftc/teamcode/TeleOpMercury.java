@@ -20,10 +20,10 @@ import java.io.File;
 import java.util.Locale;
 
 
-@TeleOp(name="Not So Flat Stanley", group="KidsCode")
+@TeleOp(name="TeleOp Mercury", group="TeleOp")
 
 
-public class MercuryKidsCode extends OpMode {
+public class TeleOpMercury extends OpMode {
 
     //DRIVETRAIN\\
     public DcMotor motorFrontRight;

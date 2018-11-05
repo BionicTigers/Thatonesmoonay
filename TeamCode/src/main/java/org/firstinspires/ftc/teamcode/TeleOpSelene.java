@@ -10,8 +10,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 
-@TeleOp(name="Selene TeleOp", group="BTBT")
-public class SeleneTeleOp extends OpMode {
+@TeleOp(name="TeleOp Selene", group="TeleOp")
+public class TeleOpSelene extends OpMode {
 
     //Drivetrain Motors//
     private DcMotor frontLeft;

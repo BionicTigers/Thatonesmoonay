@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
-@Autonomous(name="chris Autonomous")
-public class ChrisNavTesting extends LinearOpMode{
+@Autonomous(name="Test Chris Autonomous", group="Test")
+public class TestChrisNav extends LinearOpMode{
     private GoldAlignDetector detector;
     @Override public void runOpMode() {
         detector = new GoldAlignDetector();

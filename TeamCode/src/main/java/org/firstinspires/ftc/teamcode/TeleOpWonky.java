@@ -9,9 +9,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-@TeleOp(name="Wonky TeleOp", group="BTBT")
+@TeleOp(name="TeleOp Wonky", group="TeleOp")
 
-public class WonkyTeleOp extends OpMode {
+public class TeleOpWonky extends OpMode {
     //Drivetrain Motors//
     private DcMotor backLeft;
     private DcMotor backRight;
