@@ -51,6 +51,6 @@ public class TestChrisNav extends LinearOpMode{
         //nav.updatePos();
         //nav.updateTeam();
         nav.updateCubePos();
-        nav.driveEncoderReset();}
+        }
 
     }

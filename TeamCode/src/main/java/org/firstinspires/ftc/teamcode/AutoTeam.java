@@ -370,7 +370,6 @@ public class AutoTeam extends LinearOpMode {
         //nav.updatePos();
         //nav.updateTeam();
         nav.updateCubePos();
-        nav.driveEncoderReset();
 
         //landing motor commands
 //        liftrawrh.setPosition(0.3);
@@ -471,8 +470,6 @@ public class AutoTeam extends LinearOpMode {
             }
         }
 
-
-        nav.driveEncoderReset();
 
 
         //all//

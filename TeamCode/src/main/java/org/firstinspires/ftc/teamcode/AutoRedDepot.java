@@ -41,7 +41,6 @@ public class AutoRedDepot extends LinearOpMode {
         //nav.updatePos();
         //nav.updateTeam();
         nav.updateCubePos();
-        nav.driveEncoderReset();
 
         //landing motor commands
 //        liftrawrh.setPosition(0.3);
