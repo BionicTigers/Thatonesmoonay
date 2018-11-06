@@ -104,9 +104,9 @@ public class AutoRedDepot extends LinearOpMode {
 
 //In order to face front towards crater//goes to right mineral//red crater
 
-        nav.rotateTo(100f,200,40f);
+        nav.pointTurn(100f,200,40f);
         sleep(100);
-        nav.rotateTo(350f,200f,40f);
+        nav.pointTurn(350f,200f,40f);
 
 //        //nav.rotateTo(f,200,40f);
 //        sleep(100);

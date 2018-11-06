@@ -477,10 +477,10 @@ public class AutoTeam extends LinearOpMode {
 
         //all//
         if (detector.getAligned()){setter=1;}
-        nav.rotateTo(55f, 200f, 40f);
+        nav.pointTurn(55f, 200f, 40f);
         if (detector.getAligned()){setter=2;}else {setter=0;}//get off hook by going to the front
         sleep(100);
-        nav.rotateTo(55f,200f,40f);
+        nav.pointTurn(55f,200f,40f);
         sleep(100);
         if (setter == 0) { //right
             ralph= 33f; //One stick
@@ -508,18 +508,18 @@ public class AutoTeam extends LinearOpMode {
             depotDrive = -35f;
             craterDrive = 65f;
         }
-        nav.rotateTo(0f, 200f, 40f); //turn back to straighten self out
+        nav.pointTurn(0f, 200f, 40f); //turn back to straighten self out
         sleep(100);
-        nav.rotateTo(ralph,200f,40f);
+        nav.pointTurn(ralph,200f,40f);
         nav.goDistance(driveForward1,50f); //go to the middle spot at sampling
         sleep(100);
         nav.goDistance(-10f,150); //back up, after hitting the sampling in the middle
         sleep(100);
-        nav.rotateTo(turnLeft1,300f,40f); //turn left to face wall
+        nav.pointTurn(turnLeft1,300f,40f); //turn left to face wall
         sleep(100);
         nav.goDistance(-43f,150f); // drive towards wall and get close enough to it
         sleep(100);
-        nav.rotateTo(rotate,400f,40f); //turn right to face depot and square up with wall
+        nav.pointTurn(rotate,400f,40f); //turn right to face depot and square up with wall
         sleep(100);
         nav.goDistance(depotDrive,150f); //drive to depot to drop off teamMarker
         sleep(100);

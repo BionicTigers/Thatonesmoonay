@@ -4,6 +4,7 @@ import com.disnodeteam.dogecv.CameraViewDisplay;
 import com.disnodeteam.dogecv.DogeCV;
 import com.disnodeteam.dogecv.detectors.roverrukus.SamplingOrderDetector;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 
@@ -33,7 +34,7 @@ public class Navigation{
     private CubePosition cubePos = CubePosition.UNKNOWN;
     public enum CollectorHeight {UPPER, LOWER}
     public enum LiftHeight {LOWER, PARK, SCORE}
-    public enum CollectorExtension {IN, OUT}
+    public enum CollectorExtension {PARK, DUMP, OUT}
 
     //-----robot hardware, position, and dimensions-----//
     private com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter;
@@ -92,10 +93,15 @@ public class Navigation{
 
         //Other Motors//
         extendy = hardwareGetter.hardwareMap.dcMotor.get("extendy");
+        extendy.setDirection(DcMotorSimple.Direction.REVERSE);
+        extendy.setPower(0.5f);
+        extendy.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         extendy.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lifty = hardwareGetter.hardwareMap.dcMotor.get("lifty");
+        lifty.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         liftyJr = hardwareGetter.hardwareMap.dcMotor.get("liftyJr");
         liftyJr.setDirection(DcMotor.Direction.REVERSE);
+        liftyJr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //Servos//
         //flicky = hardwareGetter.hardwareMap.servo.get("flicky");
@@ -104,7 +110,6 @@ public class Navigation{
         trappy = hardwareGetter.hardwareMap.crservo.get("trappy");
         droppy = hardwareGetter.hardwareMap.servo.get("droppy");
         droppyJr = hardwareGetter.hardwareMap.servo.get("droppyJr");
-
         droppyJr.setDirection(Servo.Direction.REVERSE);
 
         //DOGE CV
@@ -218,7 +223,7 @@ public class Navigation{
      * @param slowdown Degrees behind target rotation to slow down
      * @param precision Degrees of imprecision in rotation value
      */
-    public void rotateTo(float rot, float slowdown, float precision) {
+    public void pointTurn(float rot, float slowdown, float precision) {
         float rota = (rot - pos.getLocation(3)) % 360f;
         float rotb = -(360f - rota);
         float optimalRotation = (Math.abs(rota) < Math.abs(rotb) ? rota : rotb); //selects shorter rotation
@@ -237,8 +242,12 @@ public class Navigation{
      * @param slowdown Degrees behind target rotation to slow down
      * @param precision Degrees of imprecision in rotation value
      */
-    public void rotateTo(Location loc, float slowdown, float precision) {
-        rotateTo((float) Math.toDegrees(Math.atan2(loc.getLocation(2) - pos.getLocation(2), loc.getLocation(0) - pos.getLocation(0))), slowdown, precision);
+    public void pointTurn(Location loc, float slowdown, float precision) {
+        pointTurn((float) Math.toDegrees(Math.atan2(loc.getLocation(2) - pos.getLocation(2), loc.getLocation(0) - pos.getLocation(0))), slowdown, precision);
+    }
+
+    public void pointTurnRelative(float rot, float slowdown, float precision) {
+        pointTurn(pos.getLocation(3)+rot,slowdown,precision);
     }
 
     /**
@@ -296,11 +305,14 @@ public class Navigation{
     //TODO test values for accurate extension
     public void setCollectorExtension(CollectorExtension position) {
         switch (position){
-            case IN:
+            case PARK:
                 setCollectorExtension(0);
                 break;
+            case DUMP:
+                setCollectorExtension(550);
+                break;
             case OUT:
-                setCollectorExtension(100);
+                setCollectorExtension(1600);
                 break;
         }
     }
