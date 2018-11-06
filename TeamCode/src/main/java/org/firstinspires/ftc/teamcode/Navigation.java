@@ -126,8 +126,8 @@ public class Navigation{
     }
 
     /**
-     * Updates the cube location enumerator using OpenCV. Will not overwrite old data. Access using [nav].cubePos.
-     * @return boolean, true if updated, false if not updated or was updated in past.
+     * Updates the cube location enumerator using OpenCV. Access using [nav].cubePos.
+     * @return boolean, true if updated, false if not updated.
      */
     public boolean updateCubePos() {
 
@@ -187,15 +187,6 @@ public class Navigation{
         backRight.setMode(r);
     }
 
-    /**
-     * Calls DcMotor.RunMode.STOP_AND_RESET_ENCODER for drive motors.
-     */
-    public void driveEncoderReset() {
-        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
 
     /**
      * Stops all drive motors and resets encoders.
@@ -211,7 +202,6 @@ public class Navigation{
      * @param slowdown Distance to start linearly slowing down before target position.
      */
     public void goDistance(float distance, float slowdown) {
-
         driveMethodComplex(distance, slowdown, 0f, frontLeft, 1f, 1f, false, minimumMotorPower, maximumMotorPower);
         pos.translateLocal(distance);
     }
@@ -302,7 +292,6 @@ public class Navigation{
         extendy.setTargetPosition(position);
     }
 
-    //TODO test values for accurate extension
     public void setCollectorExtension(CollectorExtension position) {
         switch (position){
             case PARK:
@@ -331,7 +320,7 @@ public class Navigation{
             drivePower(power*lModifier, power*rModifier);
             if(useTelemetry) telemetryMethod();
         }
-        driveEncoderReset();
+        driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void driveMethodSimple(float distanceL, float distanceR, float LPower, float RPower) {
@@ -352,7 +341,8 @@ public class Navigation{
         String motorString = "FL-" + frontLeft.getCurrentPosition() + " BL-" + backLeft.getCurrentPosition() + " FR-" + frontRight.getCurrentPosition() + " BR-" + backRight.getCurrentPosition();
         telemetry.addData("Drive", motorString);
         telemetry.addData("Lift",lifty.getCurrentPosition()+" " +liftyJr.getCurrentPosition());
-        telemetry.addData("Collector L/E/S/T",lifty.getCurrentPosition()+" "+extendy.getCurrentPosition()+" "+collecty.getPower()+" "+trappy.getPower());
+        telemetry.addData("Collector L/E/Sw/T",lifty.getCurrentPosition()+" "+extendy.getCurrentPosition()+" "+collecty.getPower()+" "+trappy.getPower());
+        telemetry.addData("Pos",pos);
         telemetry.addData("CubePos",cubePos);
         telemetry.update();
     }
