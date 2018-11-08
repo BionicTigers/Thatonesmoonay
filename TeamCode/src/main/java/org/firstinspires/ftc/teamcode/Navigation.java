@@ -14,8 +14,7 @@ import java.util.Timer;
  * A class for all movement methods for Rover Ruckus.
  */
 public class Navigation{
-    public static final String TAG = "Vuforia Navigation Sample";
-
+    
     //-----tweak values-----//
     private float maximumMotorPower = 1f;           //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
     private float minimumMotorPower = 0.2f;

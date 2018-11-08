@@ -38,7 +38,7 @@ public class AutoRedCrater extends LinearOpMode {
         nav.driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //landing motor commands
-        nav.setLiftyLock(0.5f);
+        nav.setLiftLock(0.5f);
         nav.setLiftHeight(300);
 
         waitForStart();

@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 
-@TeleOp(name="MONGOOSE", group="BTBT")
+@TeleOp(name="TeleOp Selene", group="TeleOp")
 public class TeleOpSelene extends OpMode {
 
     //Drivetrain Motors//
