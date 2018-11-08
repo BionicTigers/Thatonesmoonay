@@ -14,7 +14,7 @@ import java.util.Timer;
  * A class for all movement methods for Rover Ruckus.
  */
 public class Navigation{
-    
+
     //-----tweak values-----//
     private float maximumMotorPower = 1f;           //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
     private float minimumMotorPower = 0.2f;
@@ -258,10 +258,10 @@ public class Navigation{
                 setLiftHeight(0);
                 break;
             case PARK:
-                setLiftHeight(1);
+                setLiftHeight(0);
                 break;
             case SCORE:
-                setLiftHeight(2);
+                setLiftHeight(-9000);
                 break;
         }
     }
@@ -310,10 +310,10 @@ public class Navigation{
                 setCollectorExtension(0);
                 break;
             case DUMP:
-                setCollectorExtension(550);
+                setCollectorExtension(-500);
                 break;
             case OUT:
-                setCollectorExtension(1600);
+                setCollectorExtension(-1600);
                 break;
         }
     }

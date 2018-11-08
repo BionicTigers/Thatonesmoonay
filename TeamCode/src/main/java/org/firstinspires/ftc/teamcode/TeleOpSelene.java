@@ -58,8 +58,8 @@ public class TeleOpSelene extends OpMode {
         extendy = hardwareMap.dcMotor.get("extendy");
         lifty = hardwareMap.dcMotor.get("lifty");
         liftyJr = hardwareMap.dcMotor.get("liftyJr");
+        lifty.setDirection(DcMotor.Direction.REVERSE);
 
-        //liftyJr.setDirection(DcMotor.Direction.REVERSE);
         trappyJo = 0;
         trappyJoJo = 0;
         //bvariable = 0;
@@ -217,6 +217,7 @@ public class TeleOpSelene extends OpMode {
         //Lift// - LeftStickUp= Lift Up | LeftStickDown= Lift Down
         lifty.setPower(gamepad2.left_stick_y / 2);
         liftyJr.setPower(gamepad2.left_stick_y / 2);
+        telemetry.addData("Lift",lifty.getCurrentPosition() + "/" + liftyJr.getCurrentPosition());
 
         //Lift Lock// - DPadUp= Lock Lift | DPadDown= Unlock Lift
         if (gamepad2.dpad_up) {
@@ -243,6 +244,7 @@ public class TeleOpSelene extends OpMode {
         }else{
             collecty.setPower(0);
         }
+        telemetry.addData("Collector power",collecty.getPower());
 
         //Hopper Storage Gate// - X= Open | x= Close //vexmotor
         if (gamepad2.x && (runtime.seconds() > trappyJo)){
@@ -256,9 +258,9 @@ public class TeleOpSelene extends OpMode {
         } else{
             trappy.setPower(0);
         }
+        telemetry.addData("Trapdoor",trappy.getPower());
 
-
-        //Collection Extension motor// - RightTrigger= Deploy | LeftTrigger= Retract
+        //Collection Extension motor// - LeftBumper= Deploy | LeftTrigger= Retract
         if (gamepad2.left_bumper) {
             extendy.setPower(-1);
         } else if (gamepad2.left_trigger > 0.05) {
@@ -266,6 +268,7 @@ public class TeleOpSelene extends OpMode {
         } else {
             extendy.setPower(0);
         }
+        telemetry.addData("Extension",extendy.getCurrentPosition());
 
         //Collector Dropper// - RightBumper= Drop Dropper | LeftBumper= Lift Dropper
 //        if (gamepad2.y) {
@@ -288,6 +291,9 @@ public class TeleOpSelene extends OpMode {
             droppy.setPosition(0.9);
             droppyJr.setPosition(0.9);
         }
+        telemetry.addData("Collector Drop",droppy.getPosition() + "/" + droppyJr.getPosition());
+
+        telemetry.update();
     }
 
 
