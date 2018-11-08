@@ -10,10 +10,8 @@ import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 
-@Autonomous(name="RedDepot") //goes around the samples and lines up wall, very similar to red crater
+@Autonomous(name="AutoRedDepot",group="Auto") //goes around the samples and lines up wall, very similar to red crater
 public class AutoRedDepot extends LinearOpMode {
-    private Servo liftrawrh;
-    private Servo flickyWrist;
     public float ralph;
     public float driveForward1;
     public float turnLeft1;
@@ -23,18 +21,6 @@ public class AutoRedDepot extends LinearOpMode {
     public float depotDrive;
     public float craterDrive;
 
-    //Other Motors//
-    private DcMotor extendy;
-    private DcMotor lifty;
-    private DcMotor liftyJr;
-
-    //Servos//
-    private Servo flicky;
-    private Servo liftyLock;
-    private Servo collecty;
-    private Servo droppy;
-    private Servo droppyJr;
-
     //Servo Position Storage//
     private double colPos;
     private double dropPos;
@@ -43,21 +29,6 @@ public class AutoRedDepot extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        //initialization
-
-
-        //Other Motors//
-        extendy = hardwareMap.dcMotor.get("extendy");
-        lifty = hardwareMap.dcMotor.get("lifty");
-        liftyJr = hardwareMap.dcMotor.get("liftyJr");
-        liftyJr.setDirection(DcMotor.Direction.REVERSE);
-
-        //Servos//
-        flicky = hardwareMap.servo.get("flicky");
-        liftyLock = hardwareMap.servo.get("liftyLock");
-        // collecty = hardwareMap.servo.get("collecty");
-        droppy = hardwareMap.servo.get("droppy");
-        droppyJr = hardwareMap.servo.get("droppyJr");
 
         //Servo Position Storage//
         colPos = 0;
@@ -65,16 +36,6 @@ public class AutoRedDepot extends LinearOpMode {
 
         Navigation nav = new Navigation(this, telemetry, true);
         setter = 1;
-        waitForStart();
-
-        //try determine vision stuff
-        // nav.updatePos();
-        //nav.updateTeam();
-
-        liftyLock.setPosition(0.3);
-        droppy.setPosition(0.3);
-        droppyJr.setPosition(0.7);
-
 
         nav.updateCubePos();
         nav.getCubePos();
@@ -96,9 +57,6 @@ public class AutoRedDepot extends LinearOpMode {
 
 
             nav.driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            liftyLock.setPosition(0.3);
-            droppy.setPosition(0.3);
-            droppyJr.setPosition(0.7);
 
             if (setter == 0) { //right
                 ralph = 33f; //One stick

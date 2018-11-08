@@ -10,8 +10,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
 
     @Autonomous(name="BlueDepot") //Goes through the depot and sampling
     public class AutoDepotDrive extends LinearOpMode {
-        private Servo liftrawrh;
-        private Servo flickyWrist;
         public float ralph;
         public float driveForward1;
         public float turnLeft1;
@@ -22,12 +20,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
         public float craterDrive;
 
         @Override public void runOpMode() {
-            //initialization
-            //liftrawrh = hardwareMap.servo.get("liftrawrh");
-            //flickyWrist = hardwareMap.servo.get("flicky");
 
-            //liftrawrh.setPosition(1.0);
-            //flickyWrist.setPosition(0.5);
             Navigation nav = new Navigation(this, telemetry, true);
             setter = 1;
             waitForStart();

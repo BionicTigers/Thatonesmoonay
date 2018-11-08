@@ -55,8 +55,7 @@ public class Navigation{
     private DcMotor liftyJr; //collector lift b
 
     //Servos//
-    //private Servo flicky;   //
-    //private Servo liftyLock;
+    private Servo liftyLock;
     private CRServo collecty;  //collection sweeper
     private CRServo trappy;  //collector trapdoor
     private Servo droppy;  //lift motor a
@@ -104,8 +103,7 @@ public class Navigation{
         liftyJr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //Servos//
-        //flicky = hardwareGetter.hardwareMap.servo.get("flicky");
-        //liftyLock = hardwareGetter.hardwareMap.servo.get("liftyLock");
+        liftyLock = hardwareGetter.hardwareMap.servo.get("liftyLock");
         collecty = hardwareGetter.hardwareMap.crservo.get("collecty");
         trappy = hardwareGetter.hardwareMap.crservo.get("trappy");
         droppy = hardwareGetter.hardwareMap.servo.get("droppy");
@@ -304,6 +302,10 @@ public class Navigation{
                 setCollectorExtension(1600);
                 break;
         }
+    }
+
+    public void setLiftyLock(float position) {
+        liftyLock.setPosition(position);
     }
 
     private void driveMethodComplex(float distance, float slowdown, float precision, DcMotor encoderMotor, float lModifier, float rModifier, boolean doubleBack, float minPower, float maxPower) {
