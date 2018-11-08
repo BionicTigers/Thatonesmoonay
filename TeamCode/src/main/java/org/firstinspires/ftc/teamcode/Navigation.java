@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import java.util.Timer;
 
 /**
- * A class for all movement methods for Rover Ruckus!
+ * A class for all movement methods for Rover Ruckus.
  */
 public class Navigation{
     public static final String TAG = "Vuforia Navigation Sample";
