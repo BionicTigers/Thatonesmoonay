@@ -1,164 +1,167 @@
 package org.firstinspires.ftc.teamcode;
-
+//EXIST
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
-
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 
-@Autonomous(name="AutoRedDepot", group="Auto")
+@Autonomous(name="RedDepot") //goes around the samples and lines up wall, very similar to red crater
 public class AutoRedDepot extends LinearOpMode {
     private Servo liftrawrh;
     private Servo flickyWrist;
-    int ralph;
-    @Override public void runOpMode() {
+    public float ralph;
+    public float driveForward1;
+    public float turnLeft1;
+    public float driveBackward1;
+    public int setter;
+    public float rotate;
+    public float depotDrive;
+    public float craterDrive;
+
+    //Other Motors//
+    private DcMotor extendy;
+    private DcMotor lifty;
+    private DcMotor liftyJr;
+
+    //Servos//
+    private Servo flicky;
+    private Servo liftyLock;
+    private Servo collecty;
+    private Servo droppy;
+    private Servo droppyJr;
+
+    //Servo Position Storage//
+    private double colPos;
+    private double dropPos;
+
+    private ElapsedTime runtime = new ElapsedTime();
+
+    @Override
+    public void runOpMode() {
         //initialization
-        //liftrawrh = hardwareMap.servo.get("liftrawrh");
-        //flickyWrist = hardwareMap.servo.get("flicky");
 
-        //liftrawrh.setPosition(1.0);
-        //flickyWrist.setPosition(0.5);
-        Navigation nav = new Navigation(this,telemetry, true);
 
+        //Other Motors//
+        extendy = hardwareMap.dcMotor.get("extendy");
+        lifty = hardwareMap.dcMotor.get("lifty");
+        liftyJr = hardwareMap.dcMotor.get("liftyJr");
+        liftyJr.setDirection(DcMotor.Direction.REVERSE);
+
+        //Servos//
+        flicky = hardwareMap.servo.get("flicky");
+        liftyLock = hardwareMap.servo.get("liftyLock");
+        // collecty = hardwareMap.servo.get("collecty");
+        droppy = hardwareMap.servo.get("droppy");
+        droppyJr = hardwareMap.servo.get("droppyJr");
+
+        //Servo Position Storage//
+        colPos = 0;
+        dropPos = 0;
+
+        Navigation nav = new Navigation(this, telemetry, true);
+        setter = 1;
         waitForStart();
 
         //try determine vision stuff
         // nav.updatePos();
         //nav.updateTeam();
 
+        liftyLock.setPosition(0.3);
+        droppy.setPosition(0.3);
+        droppyJr.setPosition(0.7);
+
+
         nav.updateCubePos();
-
-
         nav.getCubePos();
 
         //try determine vision stuff
         //nav.updatePos();
         //nav.updateTeam();
         nav.updateCubePos();
+        nav.driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //landing motor commands
-//        liftrawrh.setPosition(0.3);
+        waitForStart();
+
 //          Start lift down motors(2) go down, need method (note to self), reverse one motor
 
 
-//        if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
-//            telemetry.addData("VuMark", "%s visible", vuMark);
-//            OpenGLMatrix pose = ((VuforiaTrackableDefaultListener) relicTemplate.getListener()).getPose();
-//
-//            if (vuMark == RelicRecoveryVuMark.RIGHT) {
-//                ralph = 470;
-//            } else if (vuMark == RelicRecoveryVuMark.CENTER) {
-//                ralph = 540;
-//            } else if (vuMark == RelicRecoveryVuMark.LEFT) {
-//                ralph = 620;
-//            } else {
-//                ralph = 540;
-//            }
-
-// faces back towards crater// goes to middle postition //red crater
-//        nav.rotateTo(110f, 200f, 40f); //get off hook by going to the front
-//        sleep(100);
-//        nav.rotateTo(0f, 200f, 40f); //turn back to straighten self out
-//        sleep(100);
-//        nav.goDistance(25f,50f); //go to the middle spot at sampling
-//        sleep(100);
-//        nav.goDistance(-10f,150); //back up, after hitting the sampling in the middle
-//        nav.rotateTo(240f,300f,40f); //turn right to get to wall
-//        sleep(100);
-//        nav.goDistance(40f,150f); // drive towards wall and get close enough to it
-//        sleep(100);
-//        nav.rotateTo(185f,400f,40f); //turn left to face depot and square up with wall
-//        sleep(100);
-//        nav.goDistance(40f,75f); //drive to depot to drop off teamMarker
-//        sleep(100);
-//        //some type of servo to drop off the teamMarker, notetoJOJO, ask build about teamMarker
-//        nav.goDistance(-65f,75f); //go the backwards toward the crater and park in front of it
-
-//In order to face front towards crater// Goes to middle position//red crater
-//        nav.rotateTo(110f, 200f, 40f); //get off hook by going to the front
-//        sleep(100);
-//        nav.rotateTo(0f, 200f, 40f); //turn back to straighten self out
-//        sleep(100);
-//        nav.goDistance(25f,50f); //go to the middle spot at sampling
-//        sleep(100);
-//        nav.goDistance(-10f,150); //back up, after hitting the sampling in the middle
-//        sleep(100);
-//        nav.rotateTo(115f,300f,40f); //turn left to face wall
-//        sleep(100);
-//        nav.goDistance(-43f,150f); // drive towards wall and get close enough to it
-//        sleep(100);
-//        nav.rotateTo(65f,400f,40f); //turn right to face depot and square up with wall
-//        sleep(100);
-//        nav.goDistance(-37f,150f); //drive to depot to drop off teamMarker
-//        sleep(100);
-//        //some type of servo to drop off the teamMarker, notetoJOJO, ask build about teamMarker
-//        nav.goDistance(65f,100f); //go the forwards toward the crater and park in front of it
+        while (opModeIsActive()) {
+            //FULL CODE//
 
 
-//In order to face front towards crater//goes to right mineral//red crater
+            nav.driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            liftyLock.setPosition(0.3);
+            droppy.setPosition(0.3);
+            droppyJr.setPosition(0.7);
 
-        nav.pointTurn(100f,200,40f);
-        sleep(100);
-        nav.pointTurn(350f,200f,40f);
+            if (setter == 0) { //right
+                ralph = 33f; //One stick
+                driveForward1 = 28f;
+                turnLeft1 = 110f;
+                driveBackward1 = -49f;
+                rotate = -50f;
+                depotDrive = 42f;
+                craterDrive = 65f;
+            } else if (setter == 1) { //middle
+                ralph = 0f;
+                driveForward1 = 25f;
+                turnLeft1 = 115f;
+                driveBackward1 = -35f;
+                rotate = 50f;
+                depotDrive = 42f;
+                craterDrive = -80f;
+            } else if (setter == 2) { //left
+                ralph = 325f;
+                driveForward1 = 28f;
+                turnLeft1 = 40f;
+                driveBackward1 = -32;
+                rotate = 340f;
+                depotDrive = 35f;
+                craterDrive = -65f;
+            }
 
-//        //nav.rotateTo(f,200,40f);
-//        sleep(100);
-//        nav.goDistance(25f,50f); //go to the left spot at sampling
-//        sleep(100);
-//        nav.goDistance(-10f,150); //back up, after hitting the sampling in the middle
-//        sleep(100);
-//        nav.rotateTo(355f,300f,40f); //turn left to face wall //subject to change
-//        sleep(100);
-//        nav.goDistance(-48f,150f); // drive towards wall and get close enough to it
-//        sleep(100);
+            nav.setLiftHeight(1);
 
-//Right Mineral// red corner
-//        nav.rotateTo(105f,200,40f);
-//        sleep(100);
-//        nav.rotateTo(25f,200f,40f);
-
-
+            nav.pointTurn(110f, 200f, 40f); //get off hook by going to the front
+            sleep(100);
+            nav.pointTurn(0f, 200f, 40f); //turn back to straighten self out
+            sleep(100);
+            //read CV sampling
+            nav.pointTurn(ralph, 200f, 40f);
+            nav.goDistance(driveForward1, 50f); //go to the middle spot at sampling
+            sleep(100);
+            nav.goDistance(-10f, 150); //back up, after hitting the sampling in the middle
+            sleep(100);
+            nav.pointTurn(turnLeft1, 300f, 40f); //turn left to face wall
+            sleep(100);
+            nav.goDistance(-43f, 150f); // drive towards wall and get close enough to it
+            sleep(100);
+            nav.pointTurn(rotate, 400f, 40f); //turn right to face depot and square up with wall
+            sleep(100);
+            nav.goDistance(depotDrive, 150f); //drive to depot to drop off teamMarker
+            sleep(100);
+            //some type of servo to drop off the teamMarker, notetoJOJO, ask build about teamMarker
+            nav.goDistance(craterDrive, 100f); //go the forwards toward the crater and park in front of it
 
 
 /* lower, turn out of hook, turn to recenter, read CV: get which one is the yellow guy.
-    divide to four different options,
-        turn to where you need to go
-        go forward to the square mineral, knock it off the square
-        go backwards
-        turn towards wall
-        run certain distance to wall
-    turn using same/similar angle to turn towards depot
-    run forwards to crater
-    place collector in?
-*/
+        divide to four different options,
+            turn to where you need to go
+            go forward to the square mineral, knock it off the square
+            go backwards
+            turn towards depot
+            run certain distance to depot
+        turn using same/similar angle to turn towards crater
+        run forwards to crater
+        place collector in?
+ */
 
-
-
-        //try determine vision stuff
-        //nav.updatePos();
-
-//        nav.updateTeam();
-//        nav.updateCubePos();
-
-        //go to cube
-        // nav.setLift(100);
-        //collect/nudge
-
-        //goto depot
-
-        //deploy team marker thing
-
-        //go to appropriate crater
-
-        //begin collection
-
-        //parking
+        }
     }
 }
-

@@ -5,12 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
+import com.qualcomm.robotcore.hardware.CRServo;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 
-@TeleOp(name="TeleOp Selene", group="TeleOp")
+@TeleOp(name="MONGOOSE", group="BTBT")
 public class TeleOpSelene extends OpMode {
 
     //Drivetrain Motors//
@@ -20,17 +20,16 @@ public class TeleOpSelene extends OpMode {
     private DcMotor backRight;
 
     //Other Motors//
-    private DcMotor extendy; //collector extension
-    private DcMotor lifty;  //collector lift a
-    private DcMotor liftyJr; //collector lift b
+    private DcMotor extendy;
+    private DcMotor lifty;
+    private DcMotor liftyJr;
 
     //Servos//
-//    private Servo flicky;   //
-//    private Servo liftyLock;
-    private Servo collecty;  //collection sweeper
-    private Servo trappy;  //collector trapdoor
-    private Servo droppy;  //lift motor a
-    private Servo droppyJr; //lift motor b
+    private Servo liftyLock;
+    private CRServo collecty;
+    private CRServo trappy;
+    private Servo droppy;
+    private Servo droppyJr;
 
     //Variables//
     private double leftPower, rightPower;
@@ -38,7 +37,9 @@ public class TeleOpSelene extends OpMode {
     private double coarseDiff, fineDiff;
     private double calibToggle;
     private int driveSpeed, driveMode;
-
+    private double trappyJo;
+    private int bvariable;
+    private int trappyJoJo;
     //Objects//
     public ElapsedTime runtime = new ElapsedTime();
 
@@ -58,13 +59,16 @@ public class TeleOpSelene extends OpMode {
         lifty = hardwareMap.dcMotor.get("lifty");
         liftyJr = hardwareMap.dcMotor.get("liftyJr");
 
-        liftyJr.setDirection(DcMotor.Direction.REVERSE);
+        //liftyJr.setDirection(DcMotor.Direction.REVERSE);
+        trappyJo = 0;
+        trappyJoJo = 0;
+        //bvariable = 0;
 
         //Servos//
-//        flicky = hardwareMap.servo.get("flicky");
-//        liftyLock = hardwareMap.servo.get("liftyLock");
-        collecty = hardwareMap.servo.get("collecty");
-        trappy = hardwareMap.servo.get("trappy");
+        liftyLock = hardwareMap.servo.get("liftyLock");
+
+        trappy = hardwareMap.crservo.get("trappy");
+        collecty = hardwareMap.crservo.get("collecty");
         droppy = hardwareMap.servo.get("droppy");
         droppyJr = hardwareMap.servo.get("droppyJr");
 
@@ -83,7 +87,7 @@ public class TeleOpSelene extends OpMode {
 
     public void loop() {
         //////////////////////////////////////// GAMEPAD 1 /////////////////////////////////////////
-        // TOGGLE BUETONS //
+        // TOGGLE BUTTONS //
         if (gamepad1.a && (runtime.seconds() > calibToggle)) {
             calibToggle = runtime.seconds() + 1;
             ++driveSpeed;
@@ -98,7 +102,8 @@ public class TeleOpSelene extends OpMode {
             driveMode = 2;
         }
 
-                                // DIFFERENT DRIVE MODES //
+        bvariable = 1;
+        // DIFFERENT DRIVE MODES //
         if (driveMode == 0) {
             // ARCADE DRIVE //
             leftStick = gamepad1.left_stick_y;
@@ -213,12 +218,12 @@ public class TeleOpSelene extends OpMode {
         lifty.setPower(gamepad2.left_stick_y / 2);
         liftyJr.setPower(gamepad2.left_stick_y / 2);
 
-//        //Lift Lock// - DPadUp= Lock Lift | DPadDown= Unlock Lift
-//        if (gamepad2.dpad_up) {
-//            liftyLock.setPosition(1.0);
-//        } else if (gamepad2.dpad_down) {
-//            liftyLock.setPosition(0.3);
-//        }
+        //Lift Lock// - DPadUp= Lock Lift | DPadDown= Unlock Lift
+        if (gamepad2.dpad_up) {
+            liftyLock.setPosition(0.7);
+        } else if (gamepad2.dpad_down) {
+            liftyLock.setPosition(0.2);
+        }
 
 //        //Team Marker Deployer// - DPadRight= Deploy | DPadLeft= Retract
 //        if (gamepad2.dpad_right) {
@@ -227,36 +232,61 @@ public class TeleOpSelene extends OpMode {
 //            flicky.setPosition(0.65);
 //        }
 
-        //Collector// - A= Intake | B= Outtake
-        if (gamepad2.a) {
-            collecty.setPosition(collecty.getPosition() + 0.1);
-        } else if (gamepad2.b) {
-            collecty.setPosition(collecty.getPosition() - 0.1);
+        //Collector// - A= Intake | B= Outtake //vexmotor
+        if (gamepad2.right_bumper) { //
+            collecty.setPower(0.5);
+
+            //collecty.setPosition(collecty.getPosition() + 0.1);
+        } else if (gamepad2.right_trigger >0.5) {
+            collecty.setPower(-0.5);
+            //collecty.setPosition(collecty.getPosition() - 0.1);
+        }else{
+            collecty.setPower(0);
         }
 
-        //Hopper Storage Gate// - X= Open | Y= Close
-        if (gamepad2.x) {
-            trappy.setPosition(1);
-        } else if (gamepad2.y) {
-            trappy.setPosition(0);
+        //Hopper Storage Gate// - X= Open | x= Close //vexmotor
+        if (gamepad2.x && (runtime.seconds() > trappyJo)){
+            trappy.setPower(-0.5);
+            trappyJo = runtime.seconds();
+            trappyJoJo = 0;
+        } else if (gamepad2.x && (runtime.seconds() > trappyJo)){
+            trappy.setPower(0.5);
+            trappyJo = runtime.seconds()+ 1;
+            trappyJoJo = 1;
+        } else{
+            trappy.setPower(0);
         }
 
-        //Collection Extension// - RightTrigger= Deploy | LeftTrigger= Retract
-        if (gamepad2.right_trigger > 0.5) {
-            extendy.setPower(0.6);
+
+        //Collection Extension motor// - RightTrigger= Deploy | LeftTrigger= Retract
+        if (gamepad2.left_bumper) {
+            extendy.setPower(-1);
         } else if (gamepad2.left_trigger > 0.05) {
-            extendy.setPower(-0.6);
+            extendy.setPower(1);
         } else {
             extendy.setPower(0);
         }
 
         //Collector Dropper// - RightBumper= Drop Dropper | LeftBumper= Lift Dropper
-        if (gamepad2.right_bumper) {
-            droppy.setPosition(droppy.getPosition() + 0.05);
-            droppyJr.setPosition(droppyJr.getPosition() + 0.05);
-        } else if (gamepad2.left_bumper) {
-            droppy.setPosition(droppy.getPosition() - 0.05);
-            droppyJr.setPosition(droppyJr.getPosition() - 0.05);
+//        if (gamepad2.y) {
+//            droppy.setPosition(droppy.getPosition() + 0.05);
+//            droppyJr.setPosition(droppyJr.getPosition() + 0.05);
+//        } else if (gamepad2.a) {
+//            droppy.setPosition(droppy.getPosition() - 0.05);
+//            droppyJr.setPosition(droppyJr.getPosition() - 0.05);
+//        } else if (gamepad2.b){
+//            droppy.setPosition(droppy.getPosition() - 0.05);
+//            droppyJr.setPosition(droppyJr.getPosition() - 0.05);
+//        }
+        if (gamepad2.y) {
+            droppy.setPosition(0.0);
+            droppyJr.setPosition(0.0);
+        } else if (gamepad2.b) {
+            droppy.setPosition(0.8);
+            droppyJr.setPosition(0.55);
+        } else if (gamepad2.a) {
+            droppy.setPosition(0.9);
+            droppyJr.setPosition(0.9);
         }
     }
 
