@@ -32,9 +32,11 @@ public class Navigation{
     //-----enums-----//
     public enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
     private CubePosition cubePos = CubePosition.UNKNOWN;
-    public enum CollectorHeight {UPPER, LOWER}
+    public enum CollectorHeight {LOWER, DUMP, PARK}
     public enum LiftHeight {LOWER, PARK, SCORE}
     public enum CollectorExtension {PARK, DUMP, OUT}
+    public enum LiftLock {LOCK,UNLOCK}
+    public enum CollectorSweeper {INTAKE,OUTTAKE}
 
     //-----robot hardware, position, and dimensions-----//
     private com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter;
@@ -251,7 +253,6 @@ public class Navigation{
         liftyJr.setPower(liftPower);
     }
 
-    //TODO test values for accurate height
     public void setLiftHeight(LiftHeight position) {
         switch(position) {
             case LOWER:
@@ -270,19 +271,33 @@ public class Navigation{
         collecty.setPower(power);
     }
 
+    public void setCollectionSweeper(CollectorSweeper power) {
+        switch(power) {
+            case INTAKE:
+                setCollectionSweeper(0.5f);
+                break;
+            case OUTTAKE:
+                setCollectionSweeper(-0.5f);
+                break;
+        }
+    }
+
     public void setCollectorHeight(float position) {
         droppy.setPosition(position);
         droppyJr.setPosition(position);
     }
 
-    //TODO test values for accurate height
     public void setCollectorHeight(CollectorHeight position) {
         switch(position) {
             case LOWER:
                 setCollectorHeight(0f);
                 break;
-            case UPPER:
-                setCollectorHeight(10f);
+            case DUMP:
+                setCollectorHeight(0.8f);
+                break;
+            case PARK:
+                setCollectorHeight(0.9f);
+                break;
         }
     }
 
@@ -304,8 +319,19 @@ public class Navigation{
         }
     }
 
-    public void setLiftyLock(float position) {
+    public void setLiftLock(float position) {
         liftyLock.setPosition(position);
+    }
+
+    public void setLiftLock(LiftLock position) {
+        switch(position) {
+            case LOCK:
+                setLiftLock(0.7f);
+                break;
+            case UNLOCK:
+                setLiftLock(0.2f);
+                break;
+        }
     }
 
     private void driveMethodComplex(float distance, float slowdown, float precision, DcMotor encoderMotor, float lModifier, float rModifier, boolean doubleBack, float minPower, float maxPower) {
