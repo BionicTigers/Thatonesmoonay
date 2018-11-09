@@ -29,13 +29,13 @@ public class Navigation{
     public static final Location cargoRedSilver = new Location(8.31f,27f,-8.31f,0f);
 
     //-----enums-----//
-    public enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
+    public static enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
     private CubePosition cubePos = CubePosition.UNKNOWN;
-    public enum CollectorHeight {LOWER, DUMP, PARK}
-    public enum LiftHeight {LOWER, PARK, SCORE}
-    public enum CollectorExtension {PARK, DUMP, OUT}
-    public enum LiftLock {LOCK,UNLOCK}
-    public enum CollectorSweeper {INTAKE,OUTTAKE}
+    public static enum CollectorHeight {LOWER, DUMP, PARK}
+    public static enum LiftHeight {LOWER, HOOK, SCORE}
+    public static enum CollectorExtension {PARK, DUMP, OUT}
+    public static enum LiftLock {LOCK,UNLOCK}
+    public static enum CollectorSweeper {INTAKE,OUTTAKE}
 
     //-----robot hardware, position, and dimensions-----//
     private com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter;
@@ -218,6 +218,7 @@ public class Navigation{
         float optimalRotation = (Math.abs(rota) < Math.abs(rotb) ? rota : rotb); //selects shorter rotation
         float distance = (float)(Math.toRadians(optimalRotation) * wheelDistance); //arc length of turn (radians * radius)
         slowdown = (float)(Math.toRadians(slowdown) * wheelDistance);
+        precision = (float) (Math.toRadians(slowdown) * wheelDistance);
 
         driveMethodComplex(distance, slowdown, precision, frontLeft, 1f, -1f, true, 0.05f, maximumMotorPower);
 
@@ -257,8 +258,8 @@ public class Navigation{
             case LOWER:
                 setLiftHeight(0);
                 break;
-            case PARK:
-                setLiftHeight(0);
+            case HOOK:
+                setLiftHeight(-7000);
                 break;
             case SCORE:
                 setLiftHeight(-9000);
