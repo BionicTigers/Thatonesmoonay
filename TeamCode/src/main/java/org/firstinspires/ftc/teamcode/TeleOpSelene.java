@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import static java.lang.Math.round;
+
 
 @TeleOp(name="TeleOp Selene", group="TeleOp")
 public class TeleOpSelene extends OpMode {
@@ -30,6 +32,7 @@ public class TeleOpSelene extends OpMode {
     private CRServo trappy;
     private Servo droppy;
     private Servo droppyJr;
+    private Servo teamMarker;
 
     //Variables//
     private double leftPower, rightPower;
@@ -71,6 +74,7 @@ public class TeleOpSelene extends OpMode {
         collecty = hardwareMap.crservo.get("collecty");
         droppy = hardwareMap.servo.get("droppy");
         droppyJr = hardwareMap.servo.get("droppyJr");
+        teamMarker = hardwareMap.servo.get("teamMarker");
 
         droppyJr.setDirection(Servo.Direction.REVERSE);
 
@@ -217,7 +221,7 @@ public class TeleOpSelene extends OpMode {
         //Lift// - LeftStickUp= Lift Up | LeftStickDown= Lift Down
         lifty.setPower(gamepad2.left_stick_y / 2);
         liftyJr.setPower(gamepad2.left_stick_y / 2);
-        telemetry.addData("Lift",lifty.getCurrentPosition() + "/" + liftyJr.getCurrentPosition());
+        telemetry.addData("Lift", lifty.getCurrentPosition() + "/" + liftyJr.getCurrentPosition());
 
         //Lift Lock// - DPadUp= Lock Lift | DPadDown= Unlock Lift
         if (gamepad2.dpad_up) {
@@ -232,45 +236,51 @@ public class TeleOpSelene extends OpMode {
 //        } else if (gamepad2.dpad_left) {
 //            flicky.setPosition(0.65);
 //        }
-
-        //Collector// - A= Intake | B= Outtake //vexmotor
-        if (gamepad2.right_bumper) { //
-            collecty.setPower(0.5);
+        if (gamepad1.dpad_left) { //
+            teamMarker.setPosition(0.3);
 
             //collecty.setPosition(collecty.getPosition() + 0.1);
-        } else if (gamepad2.right_trigger >0.5) {
-            collecty.setPower(-0.5);
-            //collecty.setPosition(collecty.getPosition() - 0.1);
-        }else{
-            collecty.setPower(0);
-        }
-        telemetry.addData("Collector power",collecty.getPower());
+        } else if (gamepad1.right_trigger > 0.5) {
+            teamMarker.setPosition(0.7);
 
-        //Hopper Storage Gate// - X= Open | x= Close //vexmotor
-        if (gamepad2.x && (runtime.seconds() > trappyJo)){
-            trappy.setPower(-0.5);
-            trappyJo = runtime.seconds();
-            trappyJoJo = 0;
-        } else if (gamepad2.x && (runtime.seconds() > trappyJo)){
-            trappy.setPower(0.5);
-            trappyJo = runtime.seconds()+ 1;
-            trappyJoJo = 1;
-        } else{
-            trappy.setPower(0);
-        }
-        telemetry.addData("Trapdoor",trappy.getPower());
+            //Collector// - A= Intake | B= Outtake //vexmotor
+            if (gamepad2.right_bumper) { //
+                collecty.setPower(0.5);
 
-        //Collection Extension motor// - LeftBumper= Deploy | LeftTrigger= Retract
-        if (gamepad2.left_bumper) {
-            extendy.setPower(-1);
-        } else if (gamepad2.left_trigger > 0.05) {
-            extendy.setPower(1);
-        } else {
-            extendy.setPower(0);
-        }
-        telemetry.addData("Extension",extendy.getCurrentPosition());
+                //collecty.setPosition(collecty.getPosition() + 0.1);
+            } else if (gamepad2.right_trigger > 0.5) {
+                collecty.setPower(-0.5);
+                //collecty.setPosition(collecty.getPosition() - 0.1);
+            } else {
+                collecty.setPower(0);
+            }
+            telemetry.addData("Collector power", collecty.getPower());
 
-        //Collector Dropper// - RightBumper= Drop Dropper | LeftBumper= Lift Dropper
+            //Hopper Storage Gate// - X= Open | x= Close //vexmotor
+            if (gamepad2.x && (runtime.seconds() > trappyJo)) {
+                trappy.setPower(-0.5);
+                trappyJo = runtime.seconds();
+                trappyJoJo = 0;
+            } else if (gamepad2.x && (runtime.seconds() > trappyJo)) {
+                trappy.setPower(0.5);
+                trappyJo = runtime.seconds() + 1;
+                trappyJoJo = 1;
+            } else {
+                trappy.setPower(0);
+            }
+            telemetry.addData("Trapdoor", trappy.getPower());
+
+            //Collection Extension motor// - LeftBumper= Deploy | LeftTrigger= Retract
+            if (gamepad2.left_bumper) {
+                extendy.setPower(-1);
+            } else if (gamepad2.left_trigger > 0.05) {
+                extendy.setPower(1);
+            } else {
+                extendy.setPower(0);
+            }
+            telemetry.addData("Extension", extendy.getCurrentPosition());
+
+            //Collector Dropper// - RightBumper= Drop Dropper | LeftBumper= Lift Dropper
 //        if (gamepad2.y) {
 //            droppy.setPosition(droppy.getPosition() + 0.05);
 //            droppyJr.setPosition(droppyJr.getPosition() + 0.05);
@@ -281,25 +291,25 @@ public class TeleOpSelene extends OpMode {
 //            droppy.setPosition(droppy.getPosition() - 0.05);
 //            droppyJr.setPosition(droppyJr.getPosition() - 0.05);
 //        }
-        if (gamepad2.y) {
-            droppy.setPosition(0.0);
-            droppyJr.setPosition(0.0);
-        } else if (gamepad2.b) {
-            droppy.setPosition(0.8);
-            droppyJr.setPosition(0.55);
-        } else if (gamepad2.a) {
-            droppy.setPosition(0.9);
-            droppyJr.setPosition(0.9);
+            if (gamepad2.y) {
+                droppy.setPosition(0.0);
+                droppyJr.setPosition(0.0);
+            } else if (gamepad2.b) {
+                droppy.setPosition(0.8);
+                droppyJr.setPosition(0.55);
+            } else if (gamepad2.a) {
+                droppy.setPosition(0.9);
+                droppyJr.setPosition(0.9);
+            }
+            telemetry.addData("Collector Drop", droppy.getPosition() + "/" + droppyJr.getPosition());
+
+            telemetry.update();
         }
-        telemetry.addData("Collector Drop",droppy.getPosition() + "/" + droppyJr.getPosition());
-
-        telemetry.update();
-    }
 
 
-    private static double round(double value) { //Allows telemetry to display nicely
-        BigDecimal bd = new BigDecimal(value);
-        bd = bd.setScale(3, RoundingMode.HALF_UP);
-        return bd.doubleValue();
-    }
-}
+//    private static double Math.round(double value) { //Allows telemetry to display nicely
+//        BigDecimal bd = new BigDecimal(value);
+//        bd = bd.setScale(3, RoundingMode.HALF_UP);
+//        return bd.doubleValue();
+//    }
+    }}
