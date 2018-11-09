@@ -9,9 +9,8 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-
-@TeleOp(name="TeleOp Selene", group="TeleOp")
-public class TeleOpSelene extends OpMode {
+@TeleOp(name="TeleOp Mongoose", group="TeleOp")
+public class TeleOpMongoose extends OpMode {
 
     //Drivetrain Motors//
     private DcMotor frontLeft;
