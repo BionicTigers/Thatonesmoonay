@@ -1,4 +1,4 @@
-package com.disnodeteam.dogecv;
+package org.firstinspires.ftc.teamcode;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -7,6 +7,7 @@ import android.os.Debug;
 import android.util.Log;
 import android.view.Surface;
 
+import com.disnodeteam.dogecv.DrawViewSource;
 import com.disnodeteam.dogecv.detectors.DogeCVDetector;
 import com.qualcomm.robotcore.util.ThreadPool;
 import com.vuforia.CameraDevice;
