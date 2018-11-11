@@ -262,7 +262,7 @@ public class Navigation{
                 setLiftHeight(-7000);
                 break;
             case SCORE:
-                setLiftHeight(-9000);
+                setLiftHeight(-8000);
                 break;
         }
     }
