@@ -104,6 +104,7 @@ public class Navigation{
     private List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
     private Location[] vumarkLocations = new Location[4];
 
+    //private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
     public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean useTelemetry) {
         this.hardwareGetter = hardwareGetter;
         this.telemetry = telemetry;
@@ -212,14 +213,17 @@ public class Navigation{
 
         //DOGE CV
         detector = new SamplingOrderDetector();
-        detector.init(hardwareGetter.hardwareMap.appContext,CameraViewDisplay.getInstance(),0,false);
+        detector.init(hardwareGetter.hardwareMap.appContext,CameraViewDisplay.getInstance(), 0, true);
         detector.useDefaults();
         detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
         //detector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
-        detector.maxAreaScorer.weight = 0.001;
-        detector.ratioScorer.weight = 15;
-        detector.ratioScorer.perfectRatio = 1.0;
-        detector.enable();
+        detector.downscale = 0.8;
+
+        // Set the detector
+        vuforia.setDogeCVDetector(detector);
+        vuforia.enableDogeCV();
+        vuforia.showDebug();
+        vuforia.start();
     }
 
     /**
@@ -471,6 +475,7 @@ public class Navigation{
         telemetry.addData("CubePos",cubePos);
         telemetry.update();
     }
+
     public void stopVuforia(){
         vuforia.stop();
     }

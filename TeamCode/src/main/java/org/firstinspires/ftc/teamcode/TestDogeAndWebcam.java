@@ -72,7 +72,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Vuforia Webcam Testing", group="DogeCV")
+@TeleOp(name="Vuforia Webcam  k Testing", group="DogeCV")
 
 public class TestDogeAndWebcam extends OpMode
 {
