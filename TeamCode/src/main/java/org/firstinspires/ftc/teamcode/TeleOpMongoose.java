@@ -24,7 +24,8 @@ public class TeleOpMongoose extends OpMode {
     private DcMotor liftyJr;
 
     //Servos//
-    private Servo liftyLock;
+    private Servo flicky;
+//    private Servo liftyLock;
     private CRServo collecty;
     private CRServo trappy;
     private Servo droppy;
@@ -37,7 +38,6 @@ public class TeleOpMongoose extends OpMode {
     private double calibToggle;
     private int driveSpeed, driveMode;
     private double trappyJo;
-    private int bvariable;
     private int trappyJoJo;
     //Objects//
     public ElapsedTime runtime = new ElapsedTime();
@@ -57,15 +57,15 @@ public class TeleOpMongoose extends OpMode {
         extendy = hardwareMap.dcMotor.get("extendy");
         lifty = hardwareMap.dcMotor.get("lifty");
         liftyJr = hardwareMap.dcMotor.get("liftyJr");
+
         lifty.setDirection(DcMotor.Direction.REVERSE);
 
         trappyJo = 0;
         trappyJoJo = 0;
-        //bvariable = 0;
 
         //Servos//
-        liftyLock = hardwareMap.servo.get("liftyLock");
-
+        flicky = hardwareMap.servo.get("flicky");
+//        liftyLock = hardwareMap.servo.get("liftyLock");
         trappy = hardwareMap.crservo.get("trappy");
         collecty = hardwareMap.crservo.get("collecty");
         droppy = hardwareMap.servo.get("droppy");
@@ -79,8 +79,8 @@ public class TeleOpMongoose extends OpMode {
         driveMode = 0;
 
         //Speed Offsets//
-        coarseDiff = .6;
-        fineDiff = .3;
+        coarseDiff = .8;
+        fineDiff = .4;
     }
 
 
@@ -101,7 +101,6 @@ public class TeleOpMongoose extends OpMode {
             driveMode = 2;
         }
 
-        bvariable = 1;
         // DIFFERENT DRIVE MODES //
         if (driveMode == 0) {
             // ARCADE DRIVE //
@@ -219,31 +218,28 @@ public class TeleOpMongoose extends OpMode {
         telemetry.addData("Lift",lifty.getCurrentPosition() + "/" + liftyJr.getCurrentPosition());
 
         //Lift Lock// - DPadUp= Lock Lift | DPadDown= Unlock Lift
-        if (gamepad2.dpad_up) {
-            liftyLock.setPosition(0.7);
-        } else if (gamepad2.dpad_down) {
-            liftyLock.setPosition(0.2);
-        }
-
-//        //Team Marker Deployer// - DPadRight= Deploy | DPadLeft= Retract
-//        if (gamepad2.dpad_right) {
-//            flicky.setPosition(0.3);
-//        } else if (gamepad2.dpad_left) {
-//            flicky.setPosition(0.65);
+//        if (gamepad2.dpad_up) {
+//            liftyLock.setPosition(0.3);
+//        } else if (gamepad2.dpad_down) {
+//            liftyLock.setPosition(0.65);
 //        }
+
+        //Team Marker Deployer// - DPadRight= Deploy | DPadLeft= Retract
+        if (gamepad2.dpad_right) {
+            flicky.setPosition(0.7);
+        } else if (gamepad2.dpad_left) {
+            flicky.setPosition(0.2);
+        }
 
         //Collector// - A= Intake | B= Outtake //vexmotor
         if (gamepad2.right_bumper) { //
             collecty.setPower(0.5);
-
-            //collecty.setPosition(collecty.getPosition() + 0.1);
-        } else if (gamepad2.right_trigger >0.5) {
+        } else if (gamepad2.right_trigger > 0.5) {
             collecty.setPower(-0.5);
-            //collecty.setPosition(collecty.getPosition() - 0.1);
         }else{
             collecty.setPower(0);
         }
-        telemetry.addData("Collector power",collecty.getPower());
+        telemetry.addData("Collector Power", collecty.getPower());
 
         //Hopper Storage Gate// - X= Open | x= Close //vexmotor
         if (gamepad2.x && (runtime.seconds() > trappyJo)){
@@ -257,7 +253,7 @@ public class TeleOpMongoose extends OpMode {
         } else{
             trappy.setPower(0);
         }
-        telemetry.addData("Trapdoor",trappy.getPower());
+        telemetry.addData("Trapdoor", trappy.getPower());
 
         //Collection Extension motor// - LeftBumper= Deploy | LeftTrigger= Retract
         if (gamepad2.left_bumper) {
@@ -267,19 +263,9 @@ public class TeleOpMongoose extends OpMode {
         } else {
             extendy.setPower(0);
         }
-        telemetry.addData("Extension",extendy.getCurrentPosition());
+        telemetry.addData("Extension", extendy.getCurrentPosition());
 
         //Collector Dropper// - RightBumper= Drop Dropper | LeftBumper= Lift Dropper
-//        if (gamepad2.y) {
-//            droppy.setPosition(droppy.getPosition() + 0.05);
-//            droppyJr.setPosition(droppyJr.getPosition() + 0.05);
-//        } else if (gamepad2.a) {
-//            droppy.setPosition(droppy.getPosition() - 0.05);
-//            droppyJr.setPosition(droppyJr.getPosition() - 0.05);
-//        } else if (gamepad2.b){
-//            droppy.setPosition(droppy.getPosition() - 0.05);
-//            droppyJr.setPosition(droppyJr.getPosition() - 0.05);
-//        }
         if (gamepad2.y) {
             droppy.setPosition(0.0);
             droppyJr.setPosition(0.0);
