@@ -21,14 +21,23 @@ public class AutoGeneric extends LinearOpMode{
         //collector height
 
         //nav.setLiftLock(Navigation.LiftLock.LOCK);
-        nav.setCollectorHeight(Navigation.CollectorHeight.PARK);
+        nav.setCollectorHeight(Navigation.CollectorHeight.DUMP);
 
         waitForStart();
 
-        //detaching from hook
-        nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
-        nav.setCollectorHeight(Navigation.CollectorHeight.LOWER);
+        //detaching from hook w evan method
+        //nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
+        //nav.setCollectorHeight(Navigation.CollectorHeight.LOWER);
+        //nav.setLiftHeight(Navigation.LiftHeight.HOOK);
+
+        //detaching from hook w nick method
+        nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT);
         nav.setLiftHeight(Navigation.LiftHeight.HOOK);
+        nav.pointTurnRelative(45f,45f,5f);
+        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
+        nav.pointTurnRelative(-45f,45f,5f);
+
+
 
         nav.updateCubePos();
 

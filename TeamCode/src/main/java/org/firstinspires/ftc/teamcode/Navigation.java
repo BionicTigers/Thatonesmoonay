@@ -53,7 +53,7 @@ public class Navigation{
     //-----enums-----//
     public enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
     private CubePosition cubePos = CubePosition.UNKNOWN;
-    public enum CollectorHeight {LOWER, DUMP, PARK}
+    public enum CollectorHeight {COLLECT, DUMP}
     public enum LiftHeight {LOWER, HOOK, SCORE}
     public enum CollectorExtension {PARK, DUMP, OUT}
     public enum LiftLock {LOCK,UNLOCK}
@@ -379,14 +379,11 @@ public class Navigation{
 
     public void setCollectorHeight(CollectorHeight position) {
         switch(position) {
-            case LOWER:
+            case COLLECT:
                 setCollectorHeight(0f);
                 break;
             case DUMP:
                 setCollectorHeight(0.8f);
-                break;
-            case PARK:
-                setCollectorHeight(0.9f);
                 break;
         }
     }
@@ -459,7 +456,7 @@ public class Navigation{
         String motorString = "FL-" + frontLeft.getCurrentPosition() + " BL-" + backLeft.getCurrentPosition() + " FR-" + frontRight.getCurrentPosition() + " BR-" + backRight.getCurrentPosition();
         telemetry.addData("Drive", motorString);
         telemetry.addData("Lift",lifty.getCurrentPosition()+" " +liftyJr.getCurrentPosition());
-        telemetry.addData("Collector L/E/Sw",lifty.getCurrentPosition()+" "+extendy.getCurrentPosition()+" "+collecty.getPower());
+        telemetry.addData("Collector L/E/C",lifty.getCurrentPosition()+" "+extendy.getCurrentPosition()+" "+collecty.getPower());
         telemetry.addData("Pos",pos);
         telemetry.addData("CubePos",cubePos);
         telemetry.update();
