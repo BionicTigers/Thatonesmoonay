@@ -36,6 +36,7 @@ public class Navigation{
     public static enum CollectorExtension {PARK, DUMP, OUT}
     public static enum LiftLock {LOCK,UNLOCK}
     public static enum CollectorSweeper {INTAKE,OUTTAKE}
+    public static enum TeamMarker {DUMP, HOLD}
 
     //-----robot hardware, position, and dimensions-----//
     private com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter;
@@ -61,6 +62,7 @@ public class Navigation{
     private CRServo trappy;  //collector trapdoor
     private Servo droppy;  //lift motor a
     private Servo droppyJr; //lift motor b
+    private Servo teamMarker;
 
     //-----internal values-----//
     /*
@@ -98,10 +100,12 @@ public class Navigation{
         extendy.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         extendy.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lifty = hardwareGetter.hardwareMap.dcMotor.get("lifty");
-        lifty.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lifty.setDirection(DcMotor.Direction.REVERSE);
+        lifty.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lifty.setPower(liftPower);
         liftyJr = hardwareGetter.hardwareMap.dcMotor.get("liftyJr");
-        liftyJr.setDirection(DcMotor.Direction.REVERSE);
-        liftyJr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftyJr.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftyJr.setPower(liftPower);
 
         //Servos//
         liftyLock = hardwareGetter.hardwareMap.servo.get("liftyLock");
@@ -110,6 +114,7 @@ public class Navigation{
         droppy = hardwareGetter.hardwareMap.servo.get("droppy");
         droppyJr = hardwareGetter.hardwareMap.servo.get("droppyJr");
         droppyJr.setDirection(Servo.Direction.REVERSE);
+        teamMarker = hardwareGetter.hardwareMap.servo.get("teamMarker");
 
         //DOGE CV
         detector = new SamplingOrderDetector();
@@ -245,12 +250,8 @@ public class Navigation{
      * @param position Encoder ticks for lift motor
      */
     public void setLiftHeight(int position) {
-        lifty.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftyJr.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lifty.setTargetPosition(position);
         liftyJr.setTargetPosition(position);
-        lifty.setPower(liftPower);
-        liftyJr.setPower(liftPower);
     }
 
     public void setLiftHeight(LiftHeight position) {
@@ -330,6 +331,19 @@ public class Navigation{
                 break;
             case UNLOCK:
                 setLiftLock(0.2f);
+                break;
+        }
+    }
+
+    public void setTeamMarker(float position) {teamMarker.setPosition(position);}
+
+    public void setTeamMarker(TeamMarker position) {
+        switch (position) {
+            case DUMP:
+                setTeamMarker(0.8f);
+                break;
+            case HOLD:
+                setTeamMarker(0.2f);
                 break;
         }
     }

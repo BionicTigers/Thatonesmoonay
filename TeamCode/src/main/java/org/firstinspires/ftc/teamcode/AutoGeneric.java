@@ -4,7 +4,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.internal.webserver.RobotControllerWebHandlers;
 
-public class AutoGeneric extends LinearOpMode {
+public class AutoGeneric extends LinearOpMode{
+
+    public static enum StartPos {DEPOT, CRATER};
+    private StartPos startZone;
+
+    public AutoGeneric(StartPos startZone) {
+        this.startZone = startZone;
+    }
 
     public void runOpMode() {
         Navigation nav = new Navigation(this, telemetry,true);
@@ -52,13 +59,18 @@ public class AutoGeneric extends LinearOpMode {
         }
 
         nav.goDistance(45f,20f);
-        nav.pointTurnRelative(60f,30f,5f);
+
+        if(startZone == StartPos.CRATER) {
+            nav.pointTurnRelative(60f,30f,5f);
+        }
+        else {
+            nav.pointTurnRelative(-120f,30f,5f);
+        }
+
+
         nav.goDistance(-55f,20f);
-
-        //TODO team marker
-
-        nav.goDistance(100f,10f);
-
+        nav.goDistance(90f,10f);
+        nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
 
     }
 }
