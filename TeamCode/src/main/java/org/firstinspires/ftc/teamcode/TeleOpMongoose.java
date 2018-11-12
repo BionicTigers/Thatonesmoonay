@@ -24,7 +24,7 @@ public class TeleOpMongoose extends OpMode {
     private DcMotor liftyJr;
 
     //Servos//
-    private Servo flicky;
+    private Servo teamMarker;
 //    private Servo liftyLock;
     private CRServo collecty;
     private CRServo trappy;
@@ -64,7 +64,7 @@ public class TeleOpMongoose extends OpMode {
         trappyJoJo = 0;
 
         //Servos//
-        flicky = hardwareMap.servo.get("flicky");
+        teamMarker = hardwareMap.servo.get("teamMarker");
 //        liftyLock = hardwareMap.servo.get("liftyLock");
         trappy = hardwareMap.crservo.get("trappy");
         collecty = hardwareMap.crservo.get("collecty");
@@ -226,9 +226,9 @@ public class TeleOpMongoose extends OpMode {
 
         //Team Marker Deployer// - DPadRight= Deploy | DPadLeft= Retract
         if (gamepad2.dpad_right) {
-            flicky.setPosition(0.7);
+            teamMarker.setPosition(0.7);
         } else if (gamepad2.dpad_left) {
-            flicky.setPosition(0.2);
+            teamMarker.setPosition(0.2);
         }
 
         //Collector// - A= Intake | B= Outtake //vexmotor
