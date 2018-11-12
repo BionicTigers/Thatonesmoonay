@@ -25,9 +25,8 @@ public class TeleOpMongoose extends OpMode {
 
     //Servos//
     private Servo teamMarker;
-//    private Servo liftyLock;
+    private Servo liftyLock;
     private CRServo collecty;
-    private CRServo trappy;
     private Servo droppy;
     private Servo droppyJr;
 
@@ -37,8 +36,6 @@ public class TeleOpMongoose extends OpMode {
     private double coarseDiff, fineDiff;
     private double calibToggle;
     private int driveSpeed, driveMode;
-    private double trappyJo;
-    private int trappyJoJo;
     //Objects//
     public ElapsedTime runtime = new ElapsedTime();
 
@@ -60,13 +57,9 @@ public class TeleOpMongoose extends OpMode {
 
         lifty.setDirection(DcMotor.Direction.REVERSE);
 
-        trappyJo = 0;
-        trappyJoJo = 0;
-
         //Servos//
         teamMarker = hardwareMap.servo.get("teamMarker");
 //        liftyLock = hardwareMap.servo.get("liftyLock");
-        trappy = hardwareMap.crservo.get("trappy");
         collecty = hardwareMap.crservo.get("collecty");
         droppy = hardwareMap.servo.get("droppy");
         droppyJr = hardwareMap.servo.get("droppyJr");
@@ -240,20 +233,6 @@ public class TeleOpMongoose extends OpMode {
             collecty.setPower(0);
         }
         telemetry.addData("Collector Power", collecty.getPower());
-
-        //Hopper Storage Gate// - X= Open | x= Close //vexmotor
-        if (gamepad2.x && (runtime.seconds() > trappyJo)){
-            trappy.setPower(-0.5);
-            trappyJo = runtime.seconds();
-            trappyJoJo = 0;
-        } else if (gamepad2.x && (runtime.seconds() > trappyJo)){
-            trappy.setPower(0.5);
-            trappyJo = runtime.seconds()+ 1;
-            trappyJoJo = 1;
-        } else{
-            trappy.setPower(0);
-        }
-        telemetry.addData("Trapdoor", trappy.getPower());
 
         //Collection Extension motor// - LeftBumper= Deploy | LeftTrigger= Retract
         if (gamepad2.left_bumper) {

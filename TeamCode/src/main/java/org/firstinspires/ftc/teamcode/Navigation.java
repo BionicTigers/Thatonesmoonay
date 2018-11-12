@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
-import java.util.Timer;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
@@ -55,7 +54,7 @@ public class Navigation{
     public enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
     private CubePosition cubePos = CubePosition.UNKNOWN;
     public enum CollectorHeight {LOWER, DUMP, PARK}
-    public enum LiftHeight {LOWER, PARK, SCORE}
+    public enum LiftHeight {LOWER, HOOK, SCORE}
     public enum CollectorExtension {PARK, DUMP, OUT}
     public enum LiftLock {LOCK,UNLOCK}
     public enum CollectorSweeper {INTAKE,OUTTAKE}
@@ -79,11 +78,10 @@ public class Navigation{
     private DcMotor liftyJr; //collector lift b
 
     //Servos//
-    private Servo liftyLock;
-    private CRServo collecty;  //collection sweeper
-    private CRServo trappy;  //collector trapdoor
     private Servo droppy;  //lift motor a
     private Servo droppyJr; //lift motor b
+    private CRServo collecty;  //collection sweeper
+    private Servo liftyLock; //lift lock
 
     // Setup variables
     private ElapsedTime runtime = new ElapsedTime();
@@ -193,7 +191,6 @@ public class Navigation{
         //Servos//
         liftyLock = hardwareGetter.hardwareMap.servo.get("liftyLock");
         collecty = hardwareGetter.hardwareMap.crservo.get("collecty");
-        trappy = hardwareGetter.hardwareMap.crservo.get("trappy");
         droppy = hardwareGetter.hardwareMap.servo.get("droppy");
         droppyJr = hardwareGetter.hardwareMap.servo.get("droppyJr");
         droppyJr.setDirection(Servo.Direction.REVERSE);
@@ -351,7 +348,7 @@ public class Navigation{
             case LOWER:
                 setLiftHeight(0);
                 break;
-            case PARK:
+            case HOOK:
                 setLiftHeight(0);
                 break;
             case SCORE:
@@ -462,9 +459,13 @@ public class Navigation{
         String motorString = "FL-" + frontLeft.getCurrentPosition() + " BL-" + backLeft.getCurrentPosition() + " FR-" + frontRight.getCurrentPosition() + " BR-" + backRight.getCurrentPosition();
         telemetry.addData("Drive", motorString);
         telemetry.addData("Lift",lifty.getCurrentPosition()+" " +liftyJr.getCurrentPosition());
-        telemetry.addData("Collector L/E/Sw/T",lifty.getCurrentPosition()+" "+extendy.getCurrentPosition()+" "+collecty.getPower()+" "+trappy.getPower());
+        telemetry.addData("Collector L/E/Sw",lifty.getCurrentPosition()+" "+extendy.getCurrentPosition()+" "+collecty.getPower());
         telemetry.addData("Pos",pos);
         telemetry.addData("CubePos",cubePos);
         telemetry.update();
+    }
+
+    public void stopVuforia() {
+        vuforia.stop();
     }
 }
