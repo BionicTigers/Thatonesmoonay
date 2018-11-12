@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.Locale;
 
 
-@TeleOp(name="TeleOp Mercury", group="TeleOp")
+@TeleOp(name="Mercury Kids Code", group="TeleOp")
 
 
 public class TeleOpMercury extends OpMode {

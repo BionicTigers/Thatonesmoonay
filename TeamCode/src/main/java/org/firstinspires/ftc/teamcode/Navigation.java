@@ -7,33 +7,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
-
-import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
-import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
-import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
-import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
-import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
-import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
 
 /**
  * A class for all movement methods for Rover Ruckus.
  */
 public class Navigation{
-    public static final String TAG = "Vuforia Navigation Sample";
 
+    //-----tweak values-----//
     private float maximumMotorPower = 1f;           //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
     private float minimumMotorPower = 0.2f;
     private float liftPower = 0.3f;                 //power the lift will run at
@@ -79,106 +61,25 @@ public class Navigation{
     private CRServo trappy;  //collector trapdoor
     private Servo droppy;  //lift motor a
     private Servo droppyJr; //lift motor b
-    // Setup variables
-    private ElapsedTime runtime = new ElapsedTime();
-    private static final float mmPerInch        = 25.4f;
-    private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
-    private static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
 
-    // Select which camera you want use.  The FRONT camera is the one on the same side as the screen.
-    // Valid choices are:  BACK or FRONT
-    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
-    private Location camLocation = new Location(0f,6f,6f,0f);
-    //private Location pos = new Location();
-
-
-    // Vuforia variables
-    private OpenGLMatrix lastLocation = null;
-    boolean targetVisible;
-    private Dogeforia vuforia;
-    private WebcamName webcamName;
-    private SamplingOrderDetector detector;
-
-    //    private VuforiaLocalizer vuforia;
+    //-----internal values-----//
+    /*
+    private VuforiaLocalizer vuforia;
     private VuforiaTrackables vumarks;
-    private List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
     private Location[] vumarkLocations = new Location[4];
+    private boolean useAnyCV;
+    private WebcamName webcamName;
+    private int captureCounter = 0;
+    private File captureDirectory= AppUtil.ROBOT_DATA_DIR;
+    private Location camLocation = new Location(0f,6f,6f,0f);
+    */
 
-    //private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+    SamplingOrderDetector detector;
+
     public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean useTelemetry) {
         this.hardwareGetter = hardwareGetter;
         this.telemetry = telemetry;
         this.useTelemetry = useTelemetry;
-        // VUFORIA INIT FOR DOGE//
-        webcamName = hardwareGetter.hardwareMap.get(WebcamName.class, "Webcam 1");
-
-        // Set up parameters for Vuforia
-        int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        // Vuforia licence key
-        parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
-        parameters.fillCameraMonitorViewParent = true;
-
-        // Set camera name for Vuforia config
-        parameters.cameraName = webcamName;
-
-        // Create Dogeforia object
-        vuforia = new Dogeforia(parameters);
-        vuforia.enableConvertFrameToBitmap();
-
-
-        //Setup trackables
-        VuforiaTrackables targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
-        VuforiaTrackable blueRover = targetsRoverRuckus.get(0);
-        blueRover.setName("Blue-Rover");
-        VuforiaTrackable redFootprint = targetsRoverRuckus.get(1);
-        redFootprint.setName("Red-Footprint");
-        VuforiaTrackable frontCraters = targetsRoverRuckus.get(2);
-        frontCraters.setName("Front-Craters");
-        VuforiaTrackable backSpace = targetsRoverRuckus.get(3);
-        backSpace.setName("Back-Space");
-
-        // For convenience, gather together all the trackable objects in one easily-iterable collection */
-        allTrackables.addAll(targetsRoverRuckus);
-
-        OpenGLMatrix blueRoverLocationOnField = OpenGLMatrix
-                .translation(0, mmFTCFieldWidth, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0));
-        blueRover.setLocation(blueRoverLocationOnField);
-
-        OpenGLMatrix redFootprintLocationOnField = OpenGLMatrix
-                .translation(0, -mmFTCFieldWidth, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180));
-        redFootprint.setLocation(redFootprintLocationOnField);
-
-        OpenGLMatrix frontCratersLocationOnField = OpenGLMatrix
-                .translation(-mmFTCFieldWidth, 0, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90));
-        frontCraters.setLocation(frontCratersLocationOnField);
-
-        OpenGLMatrix backSpaceLocationOnField = OpenGLMatrix
-                .translation(mmFTCFieldWidth, 0, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90));
-        backSpace.setLocation(backSpaceLocationOnField);
-
-
-        final int CAMERA_FORWARD_DISPLACEMENT  = 110;   // eg: Camera is 110 mm in front of robot center
-        final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // eg: Camera is 200 mm above ground
-        final int CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
-
-        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES,
-                        CAMERA_CHOICE == FRONT ? 90 : -90, 0, 0));
-
-        for (VuforiaTrackable trackable : allTrackables)
-        {
-            ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-        }
-
-        // Activate the targets
-        targetsRoverRuckus.activate();
 
 
         //Drivetrain Motors//
@@ -203,8 +104,7 @@ public class Navigation{
         liftyJr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //Servos//
-        //flicky = hardwareGetter.hardwareMap.servo.get("flicky");
-        //liftyLock = hardwareGetter.hardwareMap.servo.get("liftyLock");
+        liftyLock = hardwareGetter.hardwareMap.servo.get("liftyLock");
         collecty = hardwareGetter.hardwareMap.crservo.get("collecty");
         trappy = hardwareGetter.hardwareMap.crservo.get("trappy");
         droppy = hardwareGetter.hardwareMap.servo.get("droppy");
@@ -213,17 +113,15 @@ public class Navigation{
 
         //DOGE CV
         detector = new SamplingOrderDetector();
-        detector.init(hardwareGetter.hardwareMap.appContext,CameraViewDisplay.getInstance(), 0, true);
+        detector.init(hardwareGetter.hardwareMap.appContext,CameraViewDisplay.getInstance(),0,false);
         detector.useDefaults();
+        detector.downscale = 0.4; // How much to downscale the input frames
         detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
         //detector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
-        detector.downscale = 0.8;
-
-        // Set the detector
-        vuforia.setDogeCVDetector(detector);
-        vuforia.enableDogeCV();
-        vuforia.showDebug();
-        vuforia.start();
+        detector.maxAreaScorer.weight = 0.001;
+        detector.ratioScorer.weight = 15;
+        detector.ratioScorer.perfectRatio = 1.0;
+        detector.enable();
     }
 
     /**
@@ -474,9 +372,5 @@ public class Navigation{
         telemetry.addData("Pos",pos);
         telemetry.addData("CubePos",cubePos);
         telemetry.update();
-    }
-
-    public void stopVuforia(){
-        vuforia.stop();
     }
 }
