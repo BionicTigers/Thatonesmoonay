@@ -92,14 +92,14 @@ public class TeleOpSelene extends OpMode {
     public void loop() {
         //////////////////////////////////////// GAMEPAD 1 /////////////////////////////////////////
         // TOGGLE BUTTONS //
-        if (gamepad1.a && (runtime.seconds() > calibToggle)) {
+        if (gamepad1.y && (runtime.seconds() > calibToggle)) {
             calibToggle = runtime.seconds() + 1;
             ++driveSpeed;
         }
-        if (gamepad1.x) {
+        if (gamepad1.a) {
             driveMode = 0;
         }
-        if (gamepad1.y) {
+        if (gamepad1.x) {
             driveMode = 1;
         }
         if (gamepad1.b) {
