@@ -107,10 +107,8 @@ public class Navigation{
     private List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
     private Location[] vumarkLocations = new Location[4];
     private boolean useAnyCV;
-    private WebcamName webcamName;
     private int captureCounter = 0;
     private File captureDirectory= AppUtil.ROBOT_DATA_DIR;
-    private List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
 
 
     //private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
