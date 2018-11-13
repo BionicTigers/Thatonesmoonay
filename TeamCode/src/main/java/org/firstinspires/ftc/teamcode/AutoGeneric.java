@@ -8,6 +8,7 @@ public class AutoGeneric extends LinearOpMode{
 
     public static enum StartPos {DEPOT, CRATER};
     private StartPos startZone;
+    Navigation.CubePosition initvalue;
 
     public AutoGeneric(StartPos startZone) {
         this.startZone = startZone;
@@ -22,6 +23,9 @@ public class AutoGeneric extends LinearOpMode{
 
         //nav.setLiftLock(Navigation.LiftLock.LOCK);
         nav.setCollectorHeight(Navigation.CollectorHeight.DUMP);
+      while (!opModeIsActive()){
+        nav.updateCubePos();
+        initvalue = nav.getCubePos();
 
         //Sampling on intit
         nav.updateCubePos();
@@ -47,7 +51,7 @@ public class AutoGeneric extends LinearOpMode{
         nav.goDistance(20f,5f);
         nav.setCollectionSweeper(Navigation.CollectorSweeper.INTAKE);
 
-        switch(nav.getCubePos()) {
+        switch(initvalue) {
             case LEFT:
                 nav.pointTurnRelative(45f,45f,5f);
                 nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
@@ -85,4 +89,5 @@ public class AutoGeneric extends LinearOpMode{
         nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
 
     }
+ }
 }
