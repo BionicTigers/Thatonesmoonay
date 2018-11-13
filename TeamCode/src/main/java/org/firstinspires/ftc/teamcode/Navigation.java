@@ -40,7 +40,6 @@ public class Navigation{
     //-----tweak values-----//
     private float maximumMotorPower = 1f;           //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
     private float minimumMotorPower = 0.2f;
-    private float liftPower = 0.3f;                 //power the lift will run at
     private float encoderCountsPerRev = 537.6f;     //encoder ticks per one revolution
     private boolean useTelemetry;
 
@@ -116,6 +115,39 @@ public class Navigation{
         this.hardwareGetter = hardwareGetter;
         this.telemetry = telemetry;
         this.useTelemetry = useTelemetry;
+
+        //Drivetrain Motors//
+        frontLeft = hardwareGetter.hardwareMap.dcMotor.get("frontLeft");
+        frontRight = hardwareGetter.hardwareMap.dcMotor.get("frontRight");
+        backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
+        backRight = hardwareGetter.hardwareMap.dcMotor.get("backRight");
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        //Other Motors//
+        extendy = hardwareGetter.hardwareMap.dcMotor.get("extendy");
+        extendy.setDirection(DcMotorSimple.Direction.REVERSE);
+        extendy.setPower(1f);
+        extendy.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extendy.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lifty = hardwareGetter.hardwareMap.dcMotor.get("lifty");
+        lifty.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lifty.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lifty.setPower(1);
+        liftyJr = hardwareGetter.hardwareMap.dcMotor.get("liftyJr");
+        liftyJr.setDirection(DcMotor.Direction.REVERSE);
+        liftyJr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftyJr.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftyJr.setPower(1);
+
+        //Servos//
+        liftyLock = hardwareGetter.hardwareMap.servo.get("liftyLock");
+        collecty = hardwareGetter.hardwareMap.crservo.get("collecty");
+        droppy = hardwareGetter.hardwareMap.servo.get("droppy");
+        droppyJr = hardwareGetter.hardwareMap.servo.get("droppyJr");
+        droppyJr.setDirection(Servo.Direction.REVERSE);
+
         // VUFORIA INIT FOR DOGE//
         webcamName = hardwareGetter.hardwareMap.get(WebcamName.class, "Webcam 1");
 
@@ -186,35 +218,6 @@ public class Navigation{
 
         // Activate the targets
         targetsRoverRuckus.activate();
-
-
-        //Drivetrain Motors//
-        frontLeft = hardwareGetter.hardwareMap.dcMotor.get("frontLeft");
-        frontRight = hardwareGetter.hardwareMap.dcMotor.get("frontRight");
-        backLeft = hardwareGetter.hardwareMap.dcMotor.get("backLeft");
-        backRight = hardwareGetter.hardwareMap.dcMotor.get("backRight");
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        //Other Motors//
-        extendy = hardwareGetter.hardwareMap.dcMotor.get("extendy");
-        extendy.setDirection(DcMotorSimple.Direction.REVERSE);
-        extendy.setPower(0.5f);
-        extendy.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extendy.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        lifty = hardwareGetter.hardwareMap.dcMotor.get("lifty");
-        lifty.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        liftyJr = hardwareGetter.hardwareMap.dcMotor.get("liftyJr");
-        liftyJr.setDirection(DcMotor.Direction.REVERSE);
-        liftyJr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        //Servos//
-        liftyLock = hardwareGetter.hardwareMap.servo.get("liftyLock");
-        collecty = hardwareGetter.hardwareMap.crservo.get("collecty");
-        droppy = hardwareGetter.hardwareMap.servo.get("droppy");
-        droppyJr = hardwareGetter.hardwareMap.servo.get("droppyJr");
-        droppyJr.setDirection(Servo.Direction.REVERSE);
 
         //DOGE CV
         detector = new SamplingOrderDetector();
@@ -351,12 +354,11 @@ public class Navigation{
      * @param position Encoder ticks for lift motor
      */
     public void setLiftHeight(int position) {
-        lifty.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftyJr.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lifty.setTargetPosition(position);
         liftyJr.setTargetPosition(position);
-        lifty.setPower(liftPower);
-        liftyJr.setPower(liftPower);
+        while(lifty.isBusy()) {
+            if(useTelemetry) telemetryMethod();
+        }
     }
 
     public void setLiftHeight(LiftHeight position) {
@@ -365,10 +367,10 @@ public class Navigation{
                 setLiftHeight(0);
                 break;
             case HOOK:
-                setLiftHeight(0);
+                setLiftHeight(7000);
                 break;
             case SCORE:
-                setLiftHeight(-9000);
+                setLiftHeight(8200);
                 break;
         }
     }
@@ -406,6 +408,9 @@ public class Navigation{
 
     public void setCollectorExtension(int position) {
         extendy.setTargetPosition(position);
+        while(extendy.isBusy()) {
+            if(useTelemetry) telemetryMethod();
+        }
     }
 
     public void setCollectorExtension(CollectorExtension position) {
@@ -414,10 +419,10 @@ public class Navigation{
                 setCollectorExtension(0);
                 break;
             case DUMP:
-                setCollectorExtension(-500);
+                setCollectorExtension(500);
                 break;
             case OUT:
-                setCollectorExtension(-1600);
+                setCollectorExtension(1600);
                 break;
         }
     }

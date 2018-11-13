@@ -23,6 +23,9 @@ public class AutoGeneric extends LinearOpMode{
         //nav.setLiftLock(Navigation.LiftLock.LOCK);
         nav.setCollectorHeight(Navigation.CollectorHeight.DUMP);
 
+        //Sampling on intit
+        nav.updateCubePos();
+
         waitForStart();
 
         //detaching from hook w evan method
@@ -39,7 +42,7 @@ public class AutoGeneric extends LinearOpMode{
 
 
 
-        nav.updateCubePos();
+
 
         nav.goDistance(20f,5f);
         nav.setCollectionSweeper(Navigation.CollectorSweeper.INTAKE);
