@@ -35,7 +35,7 @@ public abstract class DogeCVDetector extends OpenCVPipeline{
     public double maxDiffrence = 10;
 
     public DogeCV.DetectionSpeed speed = DogeCV.DetectionSpeed.BALANCED;
-    public double downscale = 0.5;
+    public double downscale;
     public Size   downscaleResolution = new Size(640, 480);
     public boolean useFixedDownscale = true;
     protected String detectorName = "DogeCV Detector";

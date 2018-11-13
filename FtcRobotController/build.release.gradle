@@ -6,6 +6,10 @@ dependencies {
     implementation (name:'FtcCommon-release', ext: 'aar')
     implementation (name:'WirelessP2p-release', ext:'aar')
 }
-repositories{
+repositories {
+    flatDir {
+        dirs rootProject.file('libs')
+    }
     google()
+    jcenter()
 }
