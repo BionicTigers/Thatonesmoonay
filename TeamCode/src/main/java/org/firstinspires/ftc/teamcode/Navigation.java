@@ -38,7 +38,7 @@ import java.io.File;
 public class Navigation{
 
     //-----tweak values-----//
-    private float maximumMotorPower = 1f;           //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
+    private float maximumMotorPower = 0.5f;           //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
     private float minimumMotorPower = 0.2f;
     private float encoderCountsPerRev = 537.6f;     //encoder ticks per one revolution
     private boolean useTelemetry;
@@ -205,7 +205,7 @@ public class Navigation{
      * @param slowdown Distance to start linearly slowing down before target position.
      */
     public void goDistance(float distance, float slowdown) {
-        driveMethodComplex(distance, slowdown, 0f, frontLeft, 1f, 1f, false, minimumMotorPower, maximumMotorPower);
+        driveMethodComplex(-distance, slowdown, 0f, frontLeft, 1f, 1f, false, minimumMotorPower, maximumMotorPower);
         pos.translateLocal(distance);
     }
 
@@ -223,7 +223,9 @@ public class Navigation{
         float distance = (float)(Math.toRadians(optimalRotation) * wheelDistance); //arc length of turn (radians * radius)
         slowdown = (float)(Math.toRadians(slowdown) * wheelDistance);
 
-        driveMethodComplex(distance, slowdown, precision, frontLeft, 1f, -1f, true, 0.05f, maximumMotorPower);
+        driveMethodComplex(distance, slowdown, precision, frontLeft, 1f, -1f, true, 0.05f, 0.25f);
+        //driveMethodSimple(distance, -distance, 0.25f, 0.25f);
+
 
         pos.setRotation(rot);
     }
@@ -261,7 +263,7 @@ public class Navigation{
                 setLiftHeight(0);
                 break;
             case HOOK:
-                setLiftHeight(7000);
+                setLiftHeight(2300);
                 break;
             case SCORE:
                 setLiftHeight(8200);
@@ -323,12 +325,20 @@ public class Navigation{
 
     public void setLiftLock(float position) {
         liftyLock.setPosition(position);
+        try
+        {
+            Thread.sleep(1000);
+        }
+        catch(InterruptedException ex)
+        {
+            Thread.currentThread().interrupt();
+        }
     }
 
     public void setLiftLock(LiftLock position) {
         switch(position) {
             case LOCK:
-                setLiftLock(0.7f);
+                setLiftLock(0.9f);
                 break;
             case UNLOCK:
                 setLiftLock(0.2f);

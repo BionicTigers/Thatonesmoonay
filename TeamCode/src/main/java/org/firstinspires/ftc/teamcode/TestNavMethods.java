@@ -14,9 +14,9 @@ public class TestNavMethods extends LinearOpMode {
 //        nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
 //        nav.setCollectorExtension(Navigation.CollectorExtension.PARK);
 //
-        nav.setLiftHeight(Navigation.LiftHeight.SCORE);
-        nav.setLiftHeight(Navigation.LiftHeight.HOOK);
-        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
+//        nav.setLiftHeight(Navigation.LiftHeight.SCORE);
+//        nav.setLiftHeight(Navigation.LiftHeight.HOOK);
+//        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
 //
 //        nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT);
 //        nav.setCollectorHeight(Navigation.CollectorHeight.DUMP);
@@ -24,8 +24,7 @@ public class TestNavMethods extends LinearOpMode {
 //        nav.setCollectionSweeper(Navigation.CollectorSweeper.INTAKE);
 //        nav.setCollectionSweeper(Navigation.CollectorSweeper.OUTTAKE);
 //
-//        nav.setLiftLock(Navigation.LiftLock.LOCK);
-//        nav.setLiftLock(Navigation.LiftLock.UNLOCK);
+        nav.pointTurnRelative(45f,15f,5f);
     }
 
 }
