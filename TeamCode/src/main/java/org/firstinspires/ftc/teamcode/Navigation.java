@@ -67,6 +67,15 @@ public class Navigation{
     private DcMotor extendy; //collector extension
     private DcMotor lifty;  //lift motor a
     private DcMotor liftyJr; //lift motor b
+    // Vuforia Fields
+    private OpenGLMatrix lastLocation = null;
+    boolean targetVisible;
+    private Dogeforia vuforia;
+    private WebcamName webcamName;
+    private SamplingOrderDetector detector;
+    private VuforiaTrackables vumarks;
+    private List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
 
     //-----servos-----//
     private Servo droppy;  //collection lift a
@@ -74,13 +83,18 @@ public class Navigation{
     private CRServo collecty;  //collection sweeper
     private Servo liftyLock; //lift lock
 
-    //-----internal values-----//
-    SamplingOrderDetector detector;
-
     public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean useTelemetry) {
         this.hardwareGetter = hardwareGetter;
         this.telemetry = telemetry;
         this.useTelemetry = useTelemetry;
+        //----Vuforia Params---///
+        int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+        parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
+        parameters.fillCameraMonitorViewParent = true;
+        parameters.cameraName = webcamName;
+        parameters.useExtendedTracking = true;
+
 
         //-----motors-----//
         frontLeft = hardwareGetter.hardwareMap.dcMotor.get("frontLeft");
@@ -115,17 +129,25 @@ public class Navigation{
         droppyJr = hardwareGetter.hardwareMap.servo.get("droppyJr");
         droppyJr.setDirection(Servo.Direction.REVERSE);
 
+        //---DOGEFORIA CONSTRUCTION----//
+        vuforia = new Dogeforia(parameters);
+        vuforia.enableConvertFrameToBitmap();
         //-----doge cv-----//
         detector = new SamplingOrderDetector();
         detector.init(hardwareGetter.hardwareMap.appContext,CameraViewDisplay.getInstance(),0,false);
         detector.useDefaults();
         detector.downscale = 0.4; // How much to downscale the input frames
         detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
-        //detector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
         detector.maxAreaScorer.weight = 0.001;
         detector.ratioScorer.weight = 15;
         detector.ratioScorer.perfectRatio = 1.0;
-        detector.enable();
+        // ----- SET DETECTOR TO DOGE AND START VUFORIA---//
+        vuforia.setDogeCVDetector(detector);
+        vuforia.enableDogeCV();
+        vuforia.showDebug();
+        vuforia.start();
+
+
     }
 
     /**
