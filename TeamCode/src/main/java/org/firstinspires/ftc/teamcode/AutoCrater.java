@@ -6,7 +6,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 @Autonomous(name="Auto Crater", group="Auto")
 public class AutoCrater extends LinearOpMode {
     public void runOpMode() {
-        AutoGeneric autoGeneric = new AutoGeneric(AutoGeneric.StartPos.CRATER);
+        AutoGeneric autoGeneric = new AutoGeneric(AutoGeneric.StartPos.CRATER, this, telemetry);
+
+        waitForStart();
+
         autoGeneric.runOpMode();
     }
 }
