@@ -227,7 +227,8 @@ public class Navigation{
      * @param slowdown Distance to start linearly slowing down before target position.
      */
     public void goDistance(float distance, float slowdown) {
-        driveMethodComplex(-distance, slowdown, 0f, frontLeft, 1f, 1f, false, minimumMotorPower, maximumMotorPower);
+        //driveMethodComplex(-distance, slowdown, 0f, frontLeft, 1f, 1f, false, minimumMotorPower, maximumMotorPower);
+        driveMethodSimple(-distance, -distance, maximumMotorPower, maximumMotorPower);
         pos.translateLocal(distance);
     }
 
@@ -245,8 +246,8 @@ public class Navigation{
         float distance = (float)(Math.toRadians(optimalRotation) * wheelDistance); //arc length of turn (radians * radius)
         slowdown = (float)(Math.toRadians(slowdown) * wheelDistance);
 
-        driveMethodComplex(distance, slowdown, precision, frontLeft, 1f, -1f, true, 0.05f, 0.25f);
-        //driveMethodSimple(distance, -distance, 0.25f, 0.25f);
+        //driveMethodComplex(distance, slowdown, precision, frontLeft, 1f, -1f, true, 0.05f, 0.25f);
+        driveMethodSimple(distance, -distance, 0.25f, 0.25f);
 
 
         pos.setRotation(rot);
@@ -274,9 +275,6 @@ public class Navigation{
     public void setLiftHeight(int position) {
         lifty.setTargetPosition(position);
         liftyJr.setTargetPosition(position);
-        while(lifty.isBusy()) {
-            if(useTelemetry) telemetryMethod();
-        }
     }
 
     public void setLiftHeight(LiftHeight position) {
@@ -326,9 +324,6 @@ public class Navigation{
 
     public void setCollectorExtension(int position) {
         extendy.setTargetPosition(position);
-        while(extendy.isBusy()) {
-            if(useTelemetry) telemetryMethod();
-        }
     }
 
     public void setCollectorExtension(CollectorExtension position) {
@@ -347,14 +342,6 @@ public class Navigation{
 
     public void setLiftLock(float position) {
         liftyLock.setPosition(position);
-        try
-        {
-            Thread.sleep(1000);
-        }
-        catch(InterruptedException ex)
-        {
-            Thread.currentThread().interrupt();
-        }
     }
 
     public void setLiftLock(LiftLock position) {
@@ -368,6 +355,7 @@ public class Navigation{
         }
     }
 
+    /*
     private void driveMethodComplex(float distance, float slowdown, float precision, DcMotor encoderMotor, float lModifier, float rModifier, boolean doubleBack, float minPower, float maxPower) {
         distance *= lModifier;
 
@@ -384,6 +372,7 @@ public class Navigation{
         }
         driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
+    */
 
     public void driveMethodSimple(float distanceL, float distanceR, float LPower, float RPower) {
         driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -391,7 +380,23 @@ public class Navigation{
         int r = (int)(distanceR / (wheelDiameter * Math.PI) * encoderCountsPerRev);
         drivePosition(l,r);
         drivePower(LPower,RPower);
-        while(frontLeft.isBusy()) {
+        driveMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public void holdForDrive() {
+        while(frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) {
+            if(useTelemetry) telemetryMethod();
+        }
+    }
+
+    public void holdForLift() {
+        while(lifty.isBusy() || liftyJr.isBusy()) {
+            if(useTelemetry) telemetryMethod();
+        }
+    }
+
+    public void holdForExtension() {
+        while(extendy.isBusy()) {
             if(useTelemetry) telemetryMethod();
         }
     }
