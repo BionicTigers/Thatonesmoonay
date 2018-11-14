@@ -25,9 +25,13 @@ public class TestNavMethods extends LinearOpMode {
 //        nav.setCollectionSweeper(Navigation.CollectorSweeper.OUTTAKE);
 //
         nav.goDistance(20f,20f);
+        nav.holdForDrive();
         nav.pointTurnRelative(180f,20f,2f);
+        nav.holdForDrive();
         nav.goDistance(20f,20f);
+        nav.holdForDrive();
         nav.pointTurnRelative(180f,20f,2f);
+        nav.holdForDrive();
     }
 
 }
