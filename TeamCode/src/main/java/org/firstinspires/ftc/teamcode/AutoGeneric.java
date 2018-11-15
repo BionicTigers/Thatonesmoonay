@@ -59,9 +59,9 @@ public class AutoGeneric{
 //        nav.holdForDrive();
 
 
-
-
+        //THIS IS WHERE SAMPLING TAKES PLACE MAKE SURE IT IS POINTING AT THE CUBES FOR SAMPLING AND NOthiNG ELSE
         nav.updateCubePos();
+        position = nav.getCubePos();
         nav.goDistance(20f,30f);
         nav.setCollectionSweeper(Navigation.CollectorSweeper.INTAKE);
         nav.holdForDrive();
