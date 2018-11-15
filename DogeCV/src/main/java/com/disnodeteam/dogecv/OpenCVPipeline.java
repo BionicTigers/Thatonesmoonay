@@ -70,7 +70,13 @@ public abstract class OpenCVPipeline implements CameraBridgeViewBase.CvCameraVie
     public void init(Context context, ViewDisplay viewDisplay) {
         init(context, viewDisplay, 0, false, rowRange, colRange);
     }
+    public void init(Context context, ViewDisplay viewDisplay,boolean isVuforia) {
+        init(context, viewDisplay, 0, isVuforia, rowRange, colRange);
+    }
 
+    public void init(Context context, ViewDisplay viewDisplay, int camIindex, boolean isVuforia) {
+        init(context, viewDisplay, camIindex, isVuforia, rowRange, colRange);
+    }
     /**
      * Initializes the OpenCVPipeline.
      * @param context the application context, usually hardwareMap.appContext
