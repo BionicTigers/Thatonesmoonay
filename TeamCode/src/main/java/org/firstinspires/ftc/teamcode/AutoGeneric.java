@@ -14,6 +14,7 @@ public class AutoGeneric{
     private OpMode opMode;
     private Telemetry telemetry;
     private Navigation nav;
+    private Navigation.CubePosition position = Navigation.CubePosition.UNKNOWN;
 
     public AutoGeneric(StartPos startZone, com.qualcomm.robotcore.eventloop.opmode.OpMode opMode, org.firstinspires.ftc.robotcore.external.Telemetry telemetry) {
         this.startZone = startZone;
@@ -65,7 +66,7 @@ public class AutoGeneric{
         nav.setCollectionSweeper(Navigation.CollectorSweeper.INTAKE);
         nav.holdForDrive();
 
-        switch(nav.getCubePos()) {
+        switch(position) {
             case LEFT:
                 nav.pointTurnRelative(45f,45f,2f);
                 nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
@@ -110,5 +111,11 @@ public class AutoGeneric{
         nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
         nav.holdForExtension();
 
+    }
+    public boolean sampling()
+    {
+    Boolean holder = nav.updateCubePos();
+    position = nav.getCubePos();
+    return holder;
     }
 }
