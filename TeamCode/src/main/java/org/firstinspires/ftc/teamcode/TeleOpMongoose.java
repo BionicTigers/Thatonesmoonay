@@ -34,7 +34,7 @@ public class TeleOpMongoose extends OpMode {
     private double leftPower, rightPower;
     private double leftStick, rightStick, gasPedal;
     private double coarseDiff, fineDiff;
-    private double calibToggle;
+    private double calibToggle, driveToggle;
     private int driveSpeed, driveMode;
     //Objects//
     public ElapsedTime runtime = new ElapsedTime();
@@ -68,30 +68,32 @@ public class TeleOpMongoose extends OpMode {
 
         //Variables//
         calibToggle = 0;
+        driveToggle = 0;
         driveSpeed = 0;
         driveMode = 0;
 
         //Speed Offsets//
-        coarseDiff = .8;
-        fineDiff = .4;
+        coarseDiff = .7;
+        fineDiff = .35;
     }
 
 
     public void loop() {
         //////////////////////////////////////// GAMEPAD 1 /////////////////////////////////////////
         // TOGGLE BUTTONS //
-        if (gamepad1.y && (runtime.seconds() > calibToggle)) {
-            calibToggle = runtime.seconds() + 1;
+        if (gamepad1.x && (runtime.seconds() > calibToggle)) {
+            calibToggle = runtime.seconds() + 0.5;
             ++driveSpeed;
         }
-        if (gamepad1.a) {
-            driveMode = 0;
-        }
-        if (gamepad1.x) {
-            driveMode = 1;
-        }
-        if (gamepad1.b) {
-            driveMode = 2;
+        if (gamepad1.y && (runtime.seconds() > driveToggle)) {
+            driveToggle = runtime.seconds() + 0.5;
+            if (driveMode == 0) {
+                driveMode = 1;
+            } else if(driveMode == 1) {
+                driveMode = 2;
+            } else if(driveMode == 2) {
+                driveMode = 0;
+            }
         }
 
         // DIFFERENT DRIVE MODES //

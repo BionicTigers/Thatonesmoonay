@@ -30,38 +30,38 @@ public class AutoGeneric{
         //lift - down
         //collector height
 
+
         nav.setLiftLock(Navigation.LiftLock.LOCK);
         nav.setCollectorHeight(Navigation.CollectorHeight.DUMP);
-
-        //Sampling on intit
-        nav.updateCubePos();
         nav.setLiftLock(Navigation.LiftLock.LOCK);
-
+        nav.updateCubePos();
 
 
         //detaching from hook w evan method
-        //nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
-        //nav.setCollectorHeight(Navigation.CollectorHeight.LOWER);
-        //nav.setLiftHeight(Navigation.LiftHeight.HOOK);
-
-        //detaching from hook w nick method
         nav.setLiftHeight(Navigation.LiftHeight.LOWER);
         nav.setLiftLock(Navigation.LiftLock.UNLOCK);
-        nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT);
         nav.holdForLift();
+        nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
+        nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT);
         nav.setLiftHeight(Navigation.LiftHeight.HOOK);
+        nav.holdForLift();
+
+        //detaching from hook w nick method
+//        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
+//        nav.setLiftLock(Navigation.LiftLock.UNLOCK);
+//        nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT);
+//        nav.holdForLift();
+//        nav.setLiftHeight(Navigation.LiftHeight.HOOK);
+//        nav.pointTurnRelative(45f,45f,2f);
+//        nav.holdForDrive();
+//        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
+//        nav.pointTurnRelative(-45f,45f,2f);
+//        nav.holdForDrive();
 
 
-        nav.pointTurnRelative(45f,45f,2f);
-        nav.holdForDrive();
-        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
-        nav.pointTurnRelative(-45f,45f,2f);
-        nav.holdForDrive();
 
 
-
-
-
+        nav.updateCubePos();
         nav.goDistance(20f,30f);
         nav.setCollectionSweeper(Navigation.CollectorSweeper.INTAKE);
         nav.holdForDrive();
