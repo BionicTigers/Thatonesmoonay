@@ -9,6 +9,7 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Range;
 
 /**
  * Created by guinea on 6/19/17.
@@ -58,7 +59,8 @@ public abstract class OpenCVPipeline implements CameraBridgeViewBase.CvCameraVie
     private boolean initStarted = false;
     private boolean inited = false;
     private boolean isVuforia = false;
-
+    Range rowRange = new Range(0,1080);
+    Range colRange = new Range(0,1920);
     /**
      * Initializes the OpenCVPipeline, but implicitly uses the rear camera.
      * @param context the application context, usually hardwareMap.appContext
@@ -66,9 +68,15 @@ public abstract class OpenCVPipeline implements CameraBridgeViewBase.CvCameraVie
      *                    in most cases, using CameraViewDisplay.getInstance() as the argument is just fine.
      */
     public void init(Context context, ViewDisplay viewDisplay) {
-        init(context, viewDisplay, 0, false);
+        init(context, viewDisplay, 0, false, rowRange, colRange);
+    }
+    public void init(Context context, ViewDisplay viewDisplay,boolean isVuforia) {
+        init(context, viewDisplay, 0, isVuforia, rowRange, colRange);
     }
 
+    public void init(Context context, ViewDisplay viewDisplay, int camIindex, boolean isVuforia) {
+        init(context, viewDisplay, camIindex, isVuforia, rowRange, colRange);
+    }
     /**
      * Initializes the OpenCVPipeline.
      * @param context the application context, usually hardwareMap.appContext
@@ -76,11 +84,13 @@ public abstract class OpenCVPipeline implements CameraBridgeViewBase.CvCameraVie
      *                    in most cases, using CameraViewDisplay.getInstance() as the argument is just fine.
      * @param cameraIndex The index of the camera to use. On every FTC-legal phone (afaik) 0 is the back camera, and 1 is the front camera.
      */
-    public void init(Context context, ViewDisplay viewDisplay, final int cameraIndex, final boolean isVuforia) {
+    public void init(Context context, ViewDisplay viewDisplay, final int cameraIndex, final boolean isVuforia, Range rowRange, Range colRange) {
         this.initStarted = true;
         this.viewDisplay = viewDisplay;
         this.context = context;
         this.isVuforia = isVuforia;
+        this.rowRange = rowRange;
+        this.colRange = colRange;
         final Activity activity = (Activity) context;
         final Context finalContext = context;
         final CameraBridgeViewBase.CvCameraViewListener2 self = this;
@@ -187,6 +197,8 @@ public abstract class OpenCVPipeline implements CameraBridgeViewBase.CvCameraVie
             case Surface.ROTATION_90:
                 rgba = inputFrame.rgba();
                 gray = inputFrame.gray();
+                rgba = rgba.submat(rowRange,colRange);
+                gray = gray.submat(rowRange,colRange);
                 break;
             case Surface.ROTATION_270:
                 Core.rotate(inputFrame.rgba(), rgba, Core.ROTATE_180);
@@ -194,6 +206,12 @@ public abstract class OpenCVPipeline implements CameraBridgeViewBase.CvCameraVie
                 break;
         }
         return processFrame(rgba, gray);
+    }
+    public Mat cropCameraFrame(Mat inMat){
+        Range rowRange = new Range(200,300);
+        Range colRange = new Range(200,300);
+
+        return inMat.submat(rowRange,colRange);
     }
 
     /**

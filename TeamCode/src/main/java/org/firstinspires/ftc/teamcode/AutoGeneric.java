@@ -14,6 +14,7 @@ public class AutoGeneric{
     private OpMode opMode;
     private Telemetry telemetry;
     private Navigation nav;
+    private Navigation.CubePosition position = Navigation.CubePosition.UNKNOWN;
 
     public AutoGeneric(StartPos startZone, com.qualcomm.robotcore.eventloop.opmode.OpMode opMode, org.firstinspires.ftc.robotcore.external.Telemetry telemetry) {
         this.startZone = startZone;
@@ -29,43 +30,43 @@ public class AutoGeneric{
         //lift - down
         //collector height
 
+
         nav.setLiftLock(Navigation.LiftLock.LOCK);
         nav.setCollectorHeight(Navigation.CollectorHeight.DUMP);
-
-        //Sampling on intit
-        nav.updateCubePos();
         nav.setLiftLock(Navigation.LiftLock.LOCK);
-
+        nav.updateCubePos();
 
 
         //detaching from hook w evan method
-        //nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
-        //nav.setCollectorHeight(Navigation.CollectorHeight.LOWER);
-        //nav.setLiftHeight(Navigation.LiftHeight.HOOK);
-
-        //detaching from hook w nick method
         nav.setLiftHeight(Navigation.LiftHeight.LOWER);
         nav.setLiftLock(Navigation.LiftLock.UNLOCK);
-        nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT);
         nav.holdForLift();
+        nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
+        nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT);
         nav.setLiftHeight(Navigation.LiftHeight.HOOK);
+        nav.holdForLift();
+
+        //detaching from hook w nick method
+//        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
+//        nav.setLiftLock(Navigation.LiftLock.UNLOCK);
+//        nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT);
+//        nav.holdForLift();
+//        nav.setLiftHeight(Navigation.LiftHeight.HOOK);
+//        nav.pointTurnRelative(45f,45f,2f);
+//        nav.holdForDrive();
+//        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
+//        nav.pointTurnRelative(-45f,45f,2f);
+//        nav.holdForDrive();
 
 
-        nav.pointTurnRelative(45f,45f,2f);
-        nav.holdForDrive();
-        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
-        nav.pointTurnRelative(-45f,45f,2f);
-        nav.holdForDrive();
-
-
-
-
-
+        //THIS IS WHERE SAMPLING TAKES PLACE MAKE SURE IT IS POINTING AT THE CUBES FOR SAMPLING AND NOthiNG ELSE
+        nav.updateCubePos();
+        position = nav.getCubePos();
         nav.goDistance(20f,30f);
         nav.setCollectionSweeper(Navigation.CollectorSweeper.INTAKE);
         nav.holdForDrive();
 
-        switch(nav.getCubePos()) {
+        switch(position) {
             case LEFT:
                 nav.pointTurnRelative(45f,45f,2f);
                 nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
@@ -110,5 +111,11 @@ public class AutoGeneric{
         nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
         nav.holdForExtension();
 
+    }
+    public boolean sampling()
+    {
+    Boolean holder = nav.updateCubePos();
+    position = nav.getCubePos();
+    return holder;
     }
 }
