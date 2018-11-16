@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 
-@TeleOp(name="Stop...Acker Time!", group="TeleOp")
+@TeleOp(name="TeleOp Mercury-Ackerman", group="TeleOp")
 
 
-public class StopAckerTime extends OpMode {
+public class TeleOpMercuryAckerman extends OpMode {
 
     //DRIVETRAIN\\
     private DcMotor frontRight;

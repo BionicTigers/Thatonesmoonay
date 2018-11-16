@@ -62,52 +62,52 @@ public class AutoGeneric{
         //THIS IS WHERE SAMPLING TAKES PLACE MAKE SURE IT IS POINTING AT THE CUBES FOR SAMPLING AND NOthiNG ELSE
         nav.updateCubePos();
         position = nav.getCubePos();
-        nav.goDistance(20f,30f);
+        nav.goDistance(20f);
        // nav.setCollectionSweeper(Navigation.CollectorSweeper.INTAKE);
         nav.holdForDrive();
 
         switch(position) {
             case LEFT:
-                nav.pointTurnRelative(45f,45f,2f);
+                nav.pointTurnRelative(45f);
                 nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
                 nav.holdForExtension();
                 nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
                 nav.holdForExtension();
-                nav.pointTurnRelative(45f,30f,2f);
+                nav.pointTurnRelative(45f);
                 break;
             case MIDDLE:
                 nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
                 nav.holdForExtension();
                 nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
                 nav.holdForExtension();
-                nav.pointTurnRelative(90f,30f,2f);
+                nav.pointTurnRelative(90f);
                 break;
             default:
-                nav.pointTurnRelative(-45f,45f,2f);
+                nav.pointTurnRelative(-45f);
                 nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
                 nav.holdForExtension();
                 nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
                 nav.holdForExtension();
-                nav.pointTurnRelative(135f,30f,2f);
+                nav.pointTurnRelative(135f);
                 break;
         }
 
         nav.holdForDrive();
-        nav.goDistance(40f,20f);
+        nav.goDistance(40f);
         nav.holdForDrive();
 
         if(startZone == StartPos.CRATER) {
-            nav.pointTurnRelative(-135f,30f,2f);
+            nav.pointTurnRelative(-135f);
             nav.holdForDrive();
-            nav.goDistance(-30f,20f);
+            nav.goDistance(-30f);
         }
         else {
-            nav.pointTurnRelative(45f,30f,2f);
+            nav.pointTurnRelative(45f);
             nav.holdForDrive();
-            nav.goDistance(-65f,20f);
+            nav.goDistance(-65f);
         }
         nav.holdForDrive();
-        nav.goDistance(90f,10f);
+        nav.goDistance(90f);
         nav.holdForDrive();
         nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
         nav.holdForExtension();

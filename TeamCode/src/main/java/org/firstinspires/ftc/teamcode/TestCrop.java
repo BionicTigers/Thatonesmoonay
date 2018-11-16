@@ -40,9 +40,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 
-@TeleOp(name="Sampling Order Example", group="DogeCV")
+@TeleOp(name="Test Cropping", group="Test")
 
-public class cropTest extends OpMode {
+public class TestCrop extends OpMode {
     // Detector object
     private SamplingOrderDetector detector;
     private org.opencv.core.Range rowRange = new org.opencv.core.Range(1900,1920);

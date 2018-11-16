@@ -303,9 +303,8 @@ public class Navigation{
     /**
      * Pseudo PID to drive the given distance. Will slow down from maximumMotorPower to minimumMotorPower starting at [slowdown] behind target.
      * @param distance Distance to drive forward in inches.
-     * @param slowdown Distance to start linearly slowing down before target position.
      */
-    public void goDistance(float distance, float slowdown) {
+    public void goDistance(float distance) {
         //driveMethodComplex(-distance, slowdown, 0f, frontLeft, 1f, 1f, false, minimumMotorPower, maximumMotorPower);
         driveMethodSimple(-distance, distance, maximumMotorPower, maximumMotorPower);
         pos.translateLocal(distance);
@@ -315,15 +314,12 @@ public class Navigation{
      * Pseudo PID to rotate the given rotation. Will slow down from maximumMotorPower to minimumMotorPower starting at [slowdown] behind target azimuth.
      * Precision will stop making adjustments once it is within given degrees of target azimuth.
      * @param rot Target azimuth in degrees
-     * @param slowdown Degrees behind target rotation to slow down
-     * @param precision Degrees of imprecision in rotation value
      */
-    public void pointTurn(float rot, float slowdown, float precision) {
+    public void pointTurn(float rot) {
         float rota = (rot - pos.getLocation(3)) % 360f;
         float rotb = -(360f - rota);
         float optimalRotation = (Math.abs(rota) < Math.abs(rotb) ? rota : rotb); //selects shorter rotation
         float distance = (float)(Math.toRadians(optimalRotation) * wheelDistance); //arc length of turn (radians * radius)
-        slowdown = (float)(Math.toRadians(slowdown) * wheelDistance);
 
         //driveMethodComplex(distance, slowdown, precision, frontLeft, 1f, -1f, true, 0.05f, 0.25f);
         driveMethodSimple(distance, distance, 0.3f, 0.3f);
@@ -336,15 +332,13 @@ public class Navigation{
      * Pseudo PID to rotate to face the given Location. Will slow down from maximumMotorPower to minimumMotorPower starting at [slowdown] behind target azimuth.
      * Precision will stop making adjustments once it is within given degrees of target azimuth.
      * @param loc Target Location object
-     * @param slowdown Degrees behind target rotation to slow down
-     * @param precision Degrees of imprecision in rotation value
      */
-    public void pointTurn(Location loc, float slowdown, float precision) {
-        pointTurn((float) Math.toDegrees(Math.atan2(loc.getLocation(2) - pos.getLocation(2), loc.getLocation(0) - pos.getLocation(0))), slowdown, precision);
+    public void pointTurn(Location loc) {
+        pointTurn((float) Math.toDegrees(Math.atan2(loc.getLocation(2) - pos.getLocation(2), loc.getLocation(0) - pos.getLocation(0))));
     }
 
-    public void pointTurnRelative(float rot, float slowdown, float precision) {
-        pointTurn(pos.getLocation(3)+rot,slowdown,precision);
+    public void pointTurnRelative(float rot) {
+        pointTurn(pos.getLocation(3)+rot);
     }
 
     /**

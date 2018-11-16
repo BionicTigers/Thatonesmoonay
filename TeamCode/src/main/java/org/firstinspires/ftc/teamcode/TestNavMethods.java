@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Test Motors Auto", group="Test")
+@Autonomous(name="Test Nav Methods", group="Test")
 public class TestNavMethods extends LinearOpMode {
     public void runOpMode() {
         Navigation nav = new Navigation(this, telemetry, true);
@@ -24,13 +24,13 @@ public class TestNavMethods extends LinearOpMode {
 //        nav.setCollectionSweeper(Navigation.CollectorSweeper.INTAKE);
 //        nav.setCollectionSweeper(Navigation.CollectorSweeper.OUTTAKE);
 
-        nav.goDistance(20f,20f);
+        nav.goDistance(20f);
         nav.holdForDrive();
-        nav.pointTurnRelative(180f,20f,2f);
+        nav.pointTurnRelative(180f);
         nav.holdForDrive();
-        nav.goDistance(20f,20f);
+        nav.goDistance(20f);
         nav.holdForDrive();
-        nav.pointTurnRelative(180f,20f,2f);
+        nav.pointTurnRelative(180f);
         nav.holdForDrive();
     }
 
