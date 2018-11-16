@@ -31,20 +31,20 @@ public class AutoGeneric{
         //collector height
 
 
-        nav.setLiftLock(Navigation.LiftLock.LOCK);
-        nav.setCollectorHeight(Navigation.CollectorHeight.DUMP);
-        nav.setLiftLock(Navigation.LiftLock.LOCK);
-        nav.updateCubePos();
+//        nav.setLiftLock(Navigation.LiftLock.LOCK);
+//        nav.setCollectorHeight(Navigation.CollectorHeight.DUMP);
+//        nav.setLiftLock(Navigation.LiftLock.LOCK);
+//        nav.updateCubePos();
 
 
-        //detaching from hook w evan method
-        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
-        nav.setLiftLock(Navigation.LiftLock.UNLOCK);
-        nav.holdForLift();
-        nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
-        nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT);
-        nav.setLiftHeight(Navigation.LiftHeight.HOOK);
-        nav.holdForLift();
+//        //detaching from hook w evan method
+//        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
+//        nav.setLiftLock(Navigation.LiftLock.UNLOCK);
+//        nav.holdForLift();
+//        nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
+//        nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT);
+//        nav.setLiftHeight(Navigation.LiftHeight.HOOK);
+//        nav.holdForLift();
 
         //detaching from hook w nick method
 //        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
@@ -63,7 +63,7 @@ public class AutoGeneric{
         nav.updateCubePos();
         position = nav.getCubePos();
         nav.goDistance(20f,30f);
-        nav.setCollectionSweeper(Navigation.CollectorSweeper.INTAKE);
+       // nav.setCollectionSweeper(Navigation.CollectorSweeper.INTAKE);
         nav.holdForDrive();
 
         switch(position) {
@@ -73,14 +73,14 @@ public class AutoGeneric{
                 nav.holdForExtension();
                 nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
                 nav.holdForExtension();
-                nav.pointTurnRelative(30f,30f,2f);
+                nav.pointTurnRelative(45f,30f,2f);
                 break;
             case MIDDLE:
                 nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
                 nav.holdForExtension();
                 nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
                 nav.holdForExtension();
-                nav.pointTurnRelative(75f,30f,2f);
+                nav.pointTurnRelative(90f,30f,2f);
                 break;
             default:
                 nav.pointTurnRelative(-45f,45f,2f);
@@ -88,23 +88,24 @@ public class AutoGeneric{
                 nav.holdForExtension();
                 nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
                 nav.holdForExtension();
-                nav.pointTurnRelative(120f,30f,2f);
+                nav.pointTurnRelative(135f,30f,2f);
                 break;
         }
 
         nav.holdForDrive();
-        nav.goDistance(45f,20f);
+        nav.goDistance(40f,20f);
         nav.holdForDrive();
 
         if(startZone == StartPos.CRATER) {
-            nav.pointTurnRelative(60f,30f,2f);
+            nav.pointTurnRelative(-135f,30f,2f);
+            nav.holdForDrive();
+            nav.goDistance(-30f,20f);
         }
         else {
-            nav.pointTurnRelative(-120f,30f,2f);
+            nav.pointTurnRelative(45f,30f,2f);
+            nav.holdForDrive();
+            nav.goDistance(-65f,20f);
         }
-
-        nav.holdForDrive();
-        nav.goDistance(-55f,20f);
         nav.holdForDrive();
         nav.goDistance(90f,10f);
         nav.holdForDrive();
@@ -117,5 +118,6 @@ public class AutoGeneric{
     Boolean holder = nav.updateCubePos();
     position = nav.getCubePos();
     return holder;
+
     }
 }

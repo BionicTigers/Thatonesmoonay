@@ -41,6 +41,7 @@ public class GoldAlignDetector extends DogeCVDetector {
     private boolean found = false;
     private boolean aligned = false;
     private double goldYPos = 0;
+    private double goldXPos = 0;
 
 
     public boolean debugAlignment = true;
@@ -101,6 +102,7 @@ public class GoldAlignDetector extends DogeCVDetector {
         double alignYMin = alignY - (alignSize / 2);
         double alignYMax = alignY +(alignSize / 2);
         double yPos = 0;
+        double xPos = 0;
 
 
 
@@ -109,7 +111,9 @@ public class GoldAlignDetector extends DogeCVDetector {
             Imgproc.putText(workingMat, "Chosen", bestRect.tl(),0,1,new Scalar(255,255,255));
 
             yPos = bestRect.y + (bestRect.width / 2);
+            xPos = bestRect.x + (bestRect.height / 2);
             goldYPos = yPos;
+            goldXPos = xPos;
             Imgproc.circle(workingMat, new Point(bestRect.x + (bestRect.width/2), yPos), 5, new Scalar(0,255,0),2);
             if(yPos < alignYMax && yPos > alignYMin){
                 aligned = true;
@@ -162,7 +166,7 @@ public class GoldAlignDetector extends DogeCVDetector {
     }
 
     public double getXPosition(){
-        return goldYPos;
+        return goldXPos;
     }
 
 
