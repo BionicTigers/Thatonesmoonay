@@ -55,7 +55,7 @@ public class TeleOpMongoose extends OpMode {
         lifty = hardwareMap.dcMotor.get("lifty");
         liftyJr = hardwareMap.dcMotor.get("liftyJr");
 
-        lifty.setDirection(DcMotor.Direction.REVERSE);
+        liftyJr.setDirection(DcMotor.Direction.REVERSE);
 
         //Servos//
         teamMarker = hardwareMap.servo.get("teamMarker");
@@ -207,7 +207,7 @@ public class TeleOpMongoose extends OpMode {
 
         //////////////////////////////////////// GAMEPAD 2 /////////////////////////////////////////
         //Lift// - LeftStickUp= Lift Up | LeftStickDown= Lift Down
-        lifty.setPower(gamepad2.left_stick_y / 2);
+        lifty.setPower(gamepad2.right_stick_y / 2);
         liftyJr.setPower(gamepad2.left_stick_y / 2);
         telemetry.addData("Lift",lifty.getCurrentPosition() + "/" + liftyJr.getCurrentPosition());
 
@@ -246,13 +246,13 @@ public class TeleOpMongoose extends OpMode {
         telemetry.addData("Extension", extendy.getCurrentPosition());
 
         //Collector Dropper// - RightBumper= Drop Dropper | LeftBumper= Lift Dropper
-        if (gamepad2.y) {
-            droppy.setPosition(0.0);
-            droppyJr.setPosition(0.0);
-        } else if (gamepad2.b) {
-            droppy.setPosition(0.8);
-            droppyJr.setPosition(0.55);
-        } else if (gamepad2.a) {
+        if (gamepad2.y) { //top
+            droppy.setPosition(0.2);
+            droppyJr.setPosition(0.2);
+        } else if (gamepad2.b) { //middle
+            droppy.setPosition(0.5);
+            droppyJr.setPosition(0.5);
+        } else if (gamepad2.a) { //bottom
             droppy.setPosition(0.9);
             droppyJr.setPosition(0.9);
         }

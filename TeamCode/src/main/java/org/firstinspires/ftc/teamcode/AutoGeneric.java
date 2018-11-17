@@ -108,7 +108,9 @@ public class AutoGeneric{
             nav.holdForDrive();
             nav.goDistance(-65f);
         }
+        nav.setTeamMarker(0.3);
         nav.holdForDrive();
+        nav.setTeamMarker(0.8);
         nav.goDistance(90f);
         nav.holdForDrive();
         nav.setCollectorExtension(Navigation.CollectorExtension.OUT);

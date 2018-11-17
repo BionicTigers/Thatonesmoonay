@@ -111,6 +111,7 @@ public class Navigation{
     private Servo droppyJr; //collection lift b
     private CRServo collecty;  //collection sweeper
     private Servo liftyLock; //lift lock
+    private Servo teamMarker;
 
     public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean useTelemetry) {
         this.hardwareGetter = hardwareGetter;
@@ -144,6 +145,7 @@ public class Navigation{
         setLiftHeight(0);
 
         //-----servos-----//
+        teamMarker = hardwareGetter.hardwareMap.servo.get("teamMarker");
         liftyLock = hardwareGetter.hardwareMap.servo.get("liftyLock");
         collecty = hardwareGetter.hardwareMap.crservo.get("collecty");
         droppy = hardwareGetter.hardwareMap.servo.get("droppy");
@@ -433,6 +435,11 @@ public class Navigation{
                 break;
         }
     }
+
+    public void setTeamMarker(double position) {
+        teamMarker.setPosition(position);
+    }
+
 
     /*
     private void driveMethodComplex(float distance, float slowdown, float precision, DcMotor encoderMotor, float lModifier, float rModifier, boolean doubleBack, float minPower, float maxPower) {
