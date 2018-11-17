@@ -59,11 +59,11 @@ public class Navigation{
     //-----enums-----//
     public enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
     private CubePosition cubePos = CubePosition.UNKNOWN;
-    public enum CollectorHeight {COLLECT, DUMP}
+    public enum CollectorHeight {COLLECT, HOLD, DUMP}
     public enum LiftHeight {LOWER, HOOK, SCORE}
     public enum CollectorExtension {PARK, DUMP, OUT}
     public enum LiftLock {LOCK,UNLOCK}
-    public enum CollectorSweeper {INTAKE,OUTTAKE}
+    public enum CollectorSweeper {INTAKE,OUTTAKE, OFF}
 
     //-----robot hardware, position, and dimensions-----//
     private com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter;
@@ -376,6 +376,9 @@ public class Navigation{
             case OUTTAKE:
                 setCollectionSweeper(-0.5f);
                 break;
+            case OFF:
+                setCollectionSweeper(0f);
+                break;
         }
     }
 
@@ -387,10 +390,13 @@ public class Navigation{
     public void setCollectorHeight(CollectorHeight position) {
         switch(position) {
             case COLLECT:
-                setCollectorHeight(0f);
+                setCollectorHeight(0.8f);
+                break;
+            case HOLD:
+                setCollectorHeight(0.5f);
                 break;
             case DUMP:
-                setCollectorHeight(0.8f);
+                setCollectorHeight(0.25f);
                 break;
         }
     }
@@ -470,6 +476,13 @@ public class Navigation{
 
     public void holdForExtension() {
         while(extendy.isBusy()) {
+            if(useTelemetry) telemetryMethod();
+        }
+    }
+
+    public void hold(float seconds) {
+        long stopTime = System.currentTimeMillis() + (long)(seconds*1000);
+        while(System.currentTimeMillis() < stopTime) {
             if(useTelemetry) telemetryMethod();
         }
     }

@@ -32,12 +32,12 @@ public class AutoGeneric{
 
 
 //        nav.setLiftLock(Navigation.LiftLock.LOCK);
-//        nav.setCollectorHeight(Navigation.CollectorHeight.DUMP);
+        nav.setCollectorHeight(Navigation.CollectorHeight.DUMP);
 //        nav.setLiftLock(Navigation.LiftLock.LOCK);
-//        nav.updateCubePos();
+        nav.updateCubePos();
 
 
-//        //detaching from hook w evan method
+        //detaching from hook w evan method
 //        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
 //        nav.setLiftLock(Navigation.LiftLock.UNLOCK);
 //        nav.holdForLift();
@@ -63,7 +63,7 @@ public class AutoGeneric{
         nav.updateCubePos();
         position = nav.getCubePos();
         nav.goDistance(20f);
-       // nav.setCollectionSweeper(Navigation.CollectorSweeper.INTAKE);
+        nav.setCollectionSweeper(Navigation.CollectorSweeper.INTAKE);
         nav.holdForDrive();
 
         switch(position) {
@@ -92,6 +92,8 @@ public class AutoGeneric{
                 break;
         }
 
+        nav.setCollectionSweeper(Navigation.CollectorSweeper.OFF);
+        nav.setCollectorHeight(Navigation.CollectorHeight.HOLD);
         nav.holdForDrive();
         nav.goDistance(40f);
         nav.holdForDrive();
