@@ -166,7 +166,6 @@ public class TeleOpMongoose extends OpMode {
         } else if (driveMode == 2) {
             /// ACKERMAN DRIVE ///
             leftStick = (-gamepad1.left_stick_x);
-
             gasPedal = (gamepad1.left_trigger - gamepad1.right_trigger);
 
             //Left Side
@@ -186,7 +185,7 @@ public class TeleOpMongoose extends OpMode {
             if (driveSpeed % 2 == 0) {
                 telemetry.addData("Mode: ", "ACKERMAN");
                 telemetry.addData("Speed: ", "NORMAL");
-                telemetry.addData("Stick: ", "X = " + round(leftStick) + ", G: " + round(gasPedal));
+                telemetry.addData("Stick: ", "X = " + round(leftStick) + ", G = " + round(gasPedal));
                 telemetry.addData("Power: ", "L = " + round(leftPower) + ", R = " + round(rightPower));
 
                 backLeft.setPower(leftPower * coarseDiff);
@@ -196,7 +195,7 @@ public class TeleOpMongoose extends OpMode {
             } else {
                 telemetry.addData("Mode: ", "ACKERMAN");
                 telemetry.addData("Speed: ", "SLOW");
-                telemetry.addData("Stick: ", "L = " + round(leftStick) + ", G: " + round(gasPedal));
+                telemetry.addData("Stick: ", "X = " + round(leftStick) + ", G = " + round(gasPedal));
                 telemetry.addData("Power: ", "L = " + round(leftPower) + ", R = " + round(rightPower));
 
                 backLeft.setPower(leftPower * fineDiff);
