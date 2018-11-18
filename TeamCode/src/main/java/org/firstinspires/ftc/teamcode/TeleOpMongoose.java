@@ -25,7 +25,7 @@ public class TeleOpMongoose extends OpMode {
 
     //Servos//
     private Servo teamMarker;
-    private Servo liftyLock;
+//    private Servo liftyLock;
     private CRServo collecty;
     private Servo droppy;
     private Servo droppyJr;
@@ -33,7 +33,8 @@ public class TeleOpMongoose extends OpMode {
     //Variables//
     private double leftPower, rightPower;
     private double leftStick, rightStick, gasPedal;
-    private double coarseDiff, fineDiff;
+    private double normalSpeed, slowSpeed;
+    private double liftySpeed, liftyJrSpeed;
     private double calibToggle, driveToggle;
     private int driveSpeed, driveMode;
     //Objects//
@@ -73,8 +74,10 @@ public class TeleOpMongoose extends OpMode {
         driveMode = 0;
 
         //Speed Offsets//
-        coarseDiff = .7;
-        fineDiff = .35;
+        normalSpeed = .7;
+        slowSpeed = .35;
+        liftySpeed = 0.5;
+        liftyJrSpeed = 1;
     }
 
 
@@ -122,20 +125,20 @@ public class TeleOpMongoose extends OpMode {
                 telemetry.addData("Stick: ", "X = " + round(rightStick) + ", Y = " + round(leftStick));
                 telemetry.addData("Power: ", "L = " + round(leftPower) + ", R = " + round(rightPower));
 
-                backLeft.setPower(leftPower * coarseDiff);
-                backRight.setPower(rightPower * coarseDiff);
-                frontLeft.setPower(leftPower * coarseDiff);
-                frontRight.setPower(rightPower * coarseDiff);
+                backLeft.setPower(leftPower * normalSpeed);
+                backRight.setPower(rightPower * normalSpeed);
+                frontLeft.setPower(leftPower * normalSpeed);
+                frontRight.setPower(rightPower * normalSpeed);
             } else {
                 telemetry.addData("Mode: ", "ARCADE");
                 telemetry.addData("Speed: ", "SLOW");
                 telemetry.addData("Stick: ", "X = " + round(rightStick) + ", Y = " + round(leftStick));
                 telemetry.addData("Power: ", "L = " + round(leftPower) + ", R = " + round(rightPower));
 
-                backLeft.setPower(leftPower * fineDiff);
-                backRight.setPower(rightPower * fineDiff);
-                frontLeft.setPower(leftPower * fineDiff);
-                frontRight.setPower(rightPower * fineDiff);
+                backLeft.setPower(leftPower * slowSpeed);
+                backRight.setPower(rightPower * slowSpeed);
+                frontLeft.setPower(leftPower * slowSpeed);
+                frontRight.setPower(rightPower * slowSpeed);
             }
         } else if (driveMode == 1) {
             /// TANK DRIVE ///
@@ -148,20 +151,20 @@ public class TeleOpMongoose extends OpMode {
                 telemetry.addData("Stick: ", "X = " + round(rightStick) + ", Y = " + round(leftStick));
                 telemetry.addData("Power: ", "L = " + round(leftPower) + ", R = " + round(rightPower));
 
-                backLeft.setPower(leftPower * coarseDiff);
-                backRight.setPower(rightPower * coarseDiff);
-                frontLeft.setPower(leftPower * coarseDiff);
-                frontRight.setPower(rightPower * coarseDiff);
+                backLeft.setPower(leftPower * normalSpeed);
+                backRight.setPower(rightPower * normalSpeed);
+                frontLeft.setPower(leftPower * normalSpeed);
+                frontRight.setPower(rightPower * normalSpeed);
             } else {
                 telemetry.addData("Mode: ", "TANK");
                 telemetry.addData("Speed: ", "SLOW");
                 telemetry.addData("Stick: ", "X = " + round(rightStick) + ", Y = " + round(leftStick));
                 telemetry.addData("Power: ", "L = " + round(leftPower) + ", R = " + round(rightPower));
 
-                backLeft.setPower(leftPower * fineDiff);
-                backRight.setPower(rightPower * fineDiff);
-                frontLeft.setPower(leftPower * fineDiff);
-                frontRight.setPower(rightPower * fineDiff);
+                backLeft.setPower(leftPower * slowSpeed);
+                backRight.setPower(rightPower * slowSpeed);
+                frontLeft.setPower(leftPower * slowSpeed);
+                frontRight.setPower(rightPower * slowSpeed);
             }
         } else if (driveMode == 2) {
             /// ACKERMAN DRIVE ///
@@ -188,27 +191,27 @@ public class TeleOpMongoose extends OpMode {
                 telemetry.addData("Stick: ", "X = " + round(leftStick) + ", G = " + round(gasPedal));
                 telemetry.addData("Power: ", "L = " + round(leftPower) + ", R = " + round(rightPower));
 
-                backLeft.setPower(leftPower * coarseDiff);
-                backRight.setPower(rightPower * coarseDiff);
-                frontLeft.setPower(leftPower * coarseDiff);
-                frontRight.setPower(rightPower * coarseDiff);
+                backLeft.setPower(leftPower * normalSpeed);
+                backRight.setPower(rightPower * normalSpeed);
+                frontLeft.setPower(leftPower * normalSpeed);
+                frontRight.setPower(rightPower * normalSpeed);
             } else {
                 telemetry.addData("Mode: ", "ACKERMAN");
                 telemetry.addData("Speed: ", "SLOW");
                 telemetry.addData("Stick: ", "X = " + round(leftStick) + ", G = " + round(gasPedal));
                 telemetry.addData("Power: ", "L = " + round(leftPower) + ", R = " + round(rightPower));
 
-                backLeft.setPower(leftPower * fineDiff);
-                backRight.setPower(rightPower * fineDiff);
-                frontLeft.setPower(leftPower * fineDiff);
-                frontRight.setPower(rightPower * fineDiff);
+                backLeft.setPower(leftPower * slowSpeed);
+                backRight.setPower(rightPower * slowSpeed);
+                frontLeft.setPower(leftPower * slowSpeed);
+                frontRight.setPower(rightPower * slowSpeed);
             }
         }
 
         //////////////////////////////////////// GAMEPAD 2 /////////////////////////////////////////
         //Lift// - LeftStickUp= Lift Up | LeftStickDown= Lift Down
-        lifty.setPower(gamepad2.right_stick_y / 2);
-        liftyJr.setPower(gamepad2.left_stick_y / 2);
+        lifty.setPower(gamepad2.right_stick_y * liftySpeed); //Phone mount side
+        liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed); //Camera mount side
         telemetry.addData("Lift",lifty.getCurrentPosition() + "/" + liftyJr.getCurrentPosition());
 
         //Lift Lock// - DPadUp= Lock Lift | DPadDown= Unlock Lift
@@ -225,7 +228,7 @@ public class TeleOpMongoose extends OpMode {
             teamMarker.setPosition(0.2);
         }
 
-        //Collector// - A= Intake | B= Outtake //vexmotor
+        //Collector// - A= Intake | B= Outtake //This is a VEX Motor, 0.5 is the maximum power
         if (gamepad2.right_bumper) { //
             collecty.setPower(0.5);
         } else if (gamepad2.right_trigger > 0.5) {
@@ -238,14 +241,14 @@ public class TeleOpMongoose extends OpMode {
         //Collection Extension motor// - LeftBumper= Deploy | LeftTrigger= Retract
         if (gamepad2.left_bumper) {
             extendy.setPower(-1);
-        } else if (gamepad2.left_trigger > 0.05) {
+        } else if (gamepad2.left_trigger > 0.5) {
             extendy.setPower(1);
         } else {
             extendy.setPower(0);
         }
         telemetry.addData("Extension", extendy.getCurrentPosition());
 
-        //Collector Dropper// - RightBumper= Drop Dropper | LeftBumper= Lift Dropper
+        //Collector Dropper// - A= Bottom | B= Middle | Y= Top
         if (gamepad2.y) { //top
             droppy.setPosition(0.2);
             droppyJr.setPosition(0.2);
@@ -253,8 +256,8 @@ public class TeleOpMongoose extends OpMode {
             droppy.setPosition(0.5);
             droppyJr.setPosition(0.5);
         } else if (gamepad2.a) { //bottom
-            droppy.setPosition(0.9);
-            droppyJr.setPosition(0.9);
+            droppy.setPosition(0.715);
+            droppyJr.setPosition(0.15);
         }
         telemetry.addData("Collector Drop",droppy.getPosition() + "/" + droppyJr.getPosition());
 
