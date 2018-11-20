@@ -95,6 +95,8 @@ public class Navigation{
     private boolean useAnyCV;
     private int captureCounter = 0;
     private File captureDirectory= AppUtil.ROBOT_DATA_DIR;
+    private long prevTime = System.currentTimeMillis();
+    private int prevEncoder = 0;
 
 
     //-----motors-----//
@@ -242,10 +244,10 @@ public class Navigation{
     public boolean updateCubePos() {
 
         Double pos = detector.getXPosition();
-        if (pos <= 200){
+        if (pos <= 120){
             cubePos = CubePosition.LEFT;
         }
-        else if (pos <= 420){
+        else if (pos <= 280){
             cubePos = CubePosition.MIDDLE;
         }  else {
             cubePos = CubePosition.RIGHT;

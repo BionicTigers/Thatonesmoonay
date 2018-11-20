@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+
 @TeleOp(name="TeleOp Mongoose", group="TeleOp")
 public class TeleOpMongoose extends OpMode {
 
@@ -257,7 +258,7 @@ public class TeleOpMongoose extends OpMode {
             droppyJr.setPosition(0.5);
         } else if (gamepad2.a) { //bottom
             droppy.setPosition(0.715);
-            droppyJr.setPosition(0.15);
+            droppyJr.setPosition(0.715);
         }
         telemetry.addData("Collector Drop",droppy.getPosition() + "/" + droppyJr.getPosition());
 
