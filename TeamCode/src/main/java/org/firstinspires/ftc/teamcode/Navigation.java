@@ -55,6 +55,8 @@ public class Navigation{
     private float minimumMotorPower = 0.2f;
     private float encoderCountsPerRev = 537.6f;     //encoder ticks per one revolution
     private boolean useTelemetry;
+    private float minVelocityCutoff = 0f;
+    private DcMotor velocityMotor;
 
     //-----enums-----//
     public enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
@@ -80,6 +82,9 @@ public class Navigation{
     private static final float mmPerInch        = 25.4f;
     private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
     private static final float mmTargetHeight   = (6) * mmPerInch;
+    private long prevTime = System.currentTimeMillis();
+    private int prevEncoder;
+    private float velocity = 0f;
 
     // Vuforia variables
     private OpenGLMatrix lastLocation = null;
@@ -235,6 +240,8 @@ public class Navigation{
         vuforia.showDebug();
         vuforia.start();
 
+        velocityMotor = frontLeft;
+        prevEncoder = velocityMotor.getCurrentPosition();
     }
 
     /**
@@ -472,7 +479,11 @@ public class Navigation{
     }
 
     public void holdForDrive() {
-        while(frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) {
+        velocity = Math.abs((velocityMotor.getCurrentPosition() - prevEncoder) / (System.currentTimeMillis() - prevTime));
+        prevEncoder = velocityMotor.getCurrentPosition();
+        prevTime = System.currentTimeMillis();
+
+        while(velocity > minVelocityCutoff) {
             if(useTelemetry) telemetryMethod();
         }
     }
@@ -506,6 +517,7 @@ public class Navigation{
         telemetry.addData("Collector L/E/C",lifty.getCurrentPosition()+" "+extendy.getCurrentPosition()+" "+collecty.getPower());
         telemetry.addData("Pos",pos);
         telemetry.addData("CubePos",cubePos);
+        telemetry.addData("Velocity",velocity);
         telemetry.addData("", detector.getXPosition());
         telemetry.update();
     }
