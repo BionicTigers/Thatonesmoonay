@@ -11,8 +11,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 
-@TeleOp(name="TeleOp Mongoose", group="TeleOp")
-public class TeleOpMongoose extends OpMode {
+@TeleOp(name="Yukon TeleOp", group="Competition")
+public class TeleOpYukon extends OpMode {
 
     //Drivetrain Motors//
     private DcMotor frontLeft;
@@ -40,6 +40,7 @@ public class TeleOpMongoose extends OpMode {
     private double calibToggle, driveToggle;
     private int driveSpeed, driveMode;
     private DigitalChannel limitSwitch;
+
     //Objects//
     public ElapsedTime runtime = new ElapsedTime();
 
@@ -75,6 +76,9 @@ public class TeleOpMongoose extends OpMode {
         driveToggle = 0;
         driveSpeed = 0;
         driveMode = 0;
+        limitSwitch = hardwareMap.get(DigitalChannel.class, "limitSwitch");
+
+        limitSwitch.setMode(DigitalChannel.Mode.INPUT);
 
         //Speed Offsets//
         normalSpeed = .7;
@@ -87,7 +91,7 @@ public class TeleOpMongoose extends OpMode {
     public void loop() {
         //////////////////////////////////////// GAMEPAD 1 /////////////////////////////////////////
         // TOGGLE BUTTONS //
-        if (gamepad1.x && (runtime.seconds() > calibToggle)) {
+        if (gamepad1.left_stick_button && (runtime.seconds() > calibToggle)) {
             calibToggle = runtime.seconds() + 0.5;
             ++driveSpeed;
         }
@@ -213,8 +217,15 @@ public class TeleOpMongoose extends OpMode {
 
         //////////////////////////////////////// GAMEPAD 2 /////////////////////////////////////////
         //Lift// - LeftStickUp= Lift Up | LeftStickDown= Lift Down
-        lifty.setPower(gamepad2.right_stick_y * liftySpeed); //Phone mount side
-        liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed); //Camera mount side
+//        lifty.setPower(gamepad2.right_stick_y * liftySpeed); //Phone mount side
+//        liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed); //Camera mount side
+        if (gamepad2.right_stick_y > 0) {
+            lifty.setPower(gamepad2.right_stick_y * liftySpeed);
+            liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed);
+        } else if (gamepad2.right_stick_y < 0 && limitSwitch.getState()) {
+            lifty.setPower(gamepad2.right_stick_y * liftySpeed);
+            liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed);
+        }
         telemetry.addData("Lift",lifty.getCurrentPosition() + "/" + liftyJr.getCurrentPosition());
 
         //Lift Lock// - DPadUp= Lock Lift | DPadDown= Unlock Lift
@@ -262,11 +273,11 @@ public class TeleOpMongoose extends OpMode {
             droppy.setPosition(0.715);
             droppyJr.setPosition(0.715);
         }
-        telemetry.addData("Collector Drop",droppy.getPosition() + "/" + droppyJr.getPosition());
+        telemetry.addData("Collector Drop", droppy.getPosition() + "/" + droppyJr.getPosition());
 
         telemetry.update();
     }
-//
+
 
     private static double round(double value) { //Allows telemetry to display nicely
         BigDecimal bd = new BigDecimal(value);
