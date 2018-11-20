@@ -37,8 +37,8 @@ public class TeleOpYukon extends OpMode {
     private double leftStick, rightStick, gasPedal;
     private double normalSpeed, slowSpeed;
     private double liftySpeed, liftyJrSpeed;
-    private double calibToggle, driveToggle;
-    private int driveSpeed, driveMode;
+    private double calibToggle, driveToggle, liftToggle, teamMarkerToggle;
+    private int driveSpeed, driveMode, liftMode, teamMarkerHeight;
     private DigitalChannel limitSwitch;
 
     //Objects//
@@ -74,8 +74,12 @@ public class TeleOpYukon extends OpMode {
         //Variables//
         calibToggle = 0;
         driveToggle = 0;
+        liftToggle = 0;
+        teamMarkerToggle = 0;
         driveSpeed = 0;
         driveMode = 0;
+        liftMode = 0;
+        teamMarkerHeight = 0;
         limitSwitch = hardwareMap.get(DigitalChannel.class, "limitSwitch");
 
         limitSwitch.setMode(DigitalChannel.Mode.INPUT);
@@ -216,15 +220,24 @@ public class TeleOpYukon extends OpMode {
         }
 
         //////////////////////////////////////// GAMEPAD 2 /////////////////////////////////////////
+        //Lift Mode Toggle// - DPadRight= Stick/DPad
+        if (gamepad2.dpad_right && runtime.seconds() > liftToggle) {
+            liftToggle = runtime.seconds() + 0.5;
+            ++liftMode;
+        }
+
         //Lift// - LeftStickUp= Lift Up | LeftStickDown= Lift Down
-//        lifty.setPower(gamepad2.right_stick_y * liftySpeed); //Phone mount side
-//        liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed); //Camera mount side
-        if (gamepad2.right_stick_y > 0) {
-            lifty.setPower(gamepad2.right_stick_y * liftySpeed);
-            liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed);
-        } else if (gamepad2.right_stick_y < 0 && limitSwitch.getState()) {
-            lifty.setPower(gamepad2.right_stick_y * liftySpeed);
-            liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed);
+        if (liftMode % 2 == 0) {
+            lifty.setPower(gamepad2.right_stick_y * liftySpeed); //Phone mount side
+            liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed); //Camera mount side
+        } else {
+            if (gamepad2.right_stick_y > 0) {
+                lifty.setPower(gamepad2.right_stick_y * liftySpeed);
+                liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed);
+            } else if (gamepad2.right_stick_y < 0 && limitSwitch.getState()) {
+                lifty.setPower(gamepad2.right_stick_y * liftySpeed);
+                liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed);
+            }
         }
         telemetry.addData("Lift",lifty.getCurrentPosition() + "/" + liftyJr.getCurrentPosition());
 
@@ -235,14 +248,20 @@ public class TeleOpYukon extends OpMode {
 //            liftyLock.setPosition(0.65);
 //        }
 
+        //Team Marker Toggle// - X= Up/Down
+        if (gamepad2.x && runtime.seconds() > teamMarkerToggle) {
+            teamMarkerToggle = runtime.seconds() + 0.5;
+            ++teamMarkerHeight;
+        }
+
         //Team Marker Deployer// - DPadRight= Deploy | DPadLeft= Retract
-        if (gamepad2.dpad_right) {
+        if (teamMarkerHeight % 2 == 0) {
             teamMarker.setPosition(0.7);
-        } else if (gamepad2.dpad_left) {
+        } else {
             teamMarker.setPosition(0.2);
         }
 
-        //Collector// - A= Intake | B= Outtake //This is a VEX Motor, 0.5 is the maximum power
+        //Collector// - RightBumper= Intake | RightTrigger= Outtake //This is a VEX Motor, 0.5 is the maximum power
         if (gamepad2.right_bumper) { //
             collecty.setPower(0.5);
         } else if (gamepad2.right_trigger > 0.5) {
