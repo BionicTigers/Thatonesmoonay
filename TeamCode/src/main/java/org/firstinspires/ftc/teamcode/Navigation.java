@@ -100,10 +100,10 @@ public class Navigation{
     private boolean useAnyCV;
     private int captureCounter = 0;
     private File captureDirectory= AppUtil.ROBOT_DATA_DIR;
-    private long prevTime = System.currentTimeMillis();
-    private int prevEncoder = 0;
+//    private long prevTime = System.currentTimeMillis();
+//    private int prevEncoder = 0;
 
-
+//
     //-----motors-----//
     private DcMotor frontLeft;
     private DcMotor frontRight;

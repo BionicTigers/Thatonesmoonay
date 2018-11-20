@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -38,6 +39,7 @@ public class TeleOpMongoose extends OpMode {
     private double liftySpeed, liftyJrSpeed;
     private double calibToggle, driveToggle;
     private int driveSpeed, driveMode;
+    private DigitalChannel limitSwitch;
     //Objects//
     public ElapsedTime runtime = new ElapsedTime();
 
