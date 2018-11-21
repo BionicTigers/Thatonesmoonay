@@ -45,6 +45,7 @@ public class TeleOpLucy extends OpMode {
 
     //Objects//
     public ElapsedTime runtime = new ElapsedTime();
+    private boolean canRaise;
 
 
     public void init() {
@@ -217,7 +218,12 @@ public class TeleOpLucy extends OpMode {
 
         //////////////////////////////////////// GAMEPAD 2 /////////////////////////////////////////
         //Lift// - LeftStickUp= Lift Up | LeftStickDown= Lift Down
-        lifty.setPower(gamepad2.right_stick_y * liftySpeed); //Phone mount side
+        if (gamepad2.right_stick_y > 0 && canRaise) {
+            lifty.setPower(gamepad2.right_stick_y * liftySpeed);
+        } else if (gamepad2.right_stick_y < 0) {
+            lifty.setPower(gamepad2.right_stick_y * liftySpeed);
+        }
+    //Phone mount side
         liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed); //Camera mount side
         telemetry.addData("Lift", lifty.getCurrentPosition() + "/" + liftyJr.getCurrentPosition());
 
@@ -259,12 +265,15 @@ public class TeleOpLucy extends OpMode {
         if (gamepad2.y) { //top
             droppy.setPosition(0.2);
             droppyJr.setPosition(0.2);
+            canRaise = false;
         } else if (gamepad2.b) { //middle
             droppy.setPosition(0.5);
             droppyJr.setPosition(0.5);
+            canRaise = true;
         } else if (gamepad2.a) { //bottom
             droppy.setPosition(0.715);
             droppyJr.setPosition(0.715);
+            canRaise = true;
         }
 
         telemetry.addData("limitswitch", limitSwitch.isPressed());
