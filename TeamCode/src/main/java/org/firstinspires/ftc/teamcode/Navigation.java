@@ -21,6 +21,8 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.SerialNumber;
 
@@ -83,7 +85,7 @@ public class Navigation{
     private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
     private static final float mmTargetHeight   = (6) * mmPerInch;
     private long prevTime = System.currentTimeMillis();
-    private int prevEncoder;
+    private int prevEncoder = 0;
     private float velocity = 0f;
 
     // Vuforia variables
@@ -100,8 +102,6 @@ public class Navigation{
     private boolean useAnyCV;
     private int captureCounter = 0;
     private File captureDirectory= AppUtil.ROBOT_DATA_DIR;
-    private long prevTime = System.currentTimeMillis();
-    private int prevEncoder = 0;
 
 
     //-----motors-----//
@@ -119,6 +119,8 @@ public class Navigation{
     private CRServo collecty;  //collection sweeper
     private Servo liftyLock; //lift lock
     private Servo teamMarker;
+
+    private TouchSensor limitSwitch;
 
     public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean useTelemetry) {
         this.hardwareGetter = hardwareGetter;
@@ -159,6 +161,8 @@ public class Navigation{
         droppyJr = hardwareGetter.hardwareMap.servo.get("droppyJr");
         droppyJr.setDirection(Servo.Direction.REVERSE);
         webcamName = hardwareGetter.hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        limitSwitch = hardwareGetter.hardwareMap.touchSensor.get("limitSwitch");
 
         //----Vuforia Params---///
         int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
@@ -517,8 +521,9 @@ public class Navigation{
         telemetry.addData("Collector L/E/C",lifty.getCurrentPosition()+" "+extendy.getCurrentPosition()+" "+collecty.getPower());
         telemetry.addData("Pos",pos);
         telemetry.addData("CubePos",cubePos);
+        telemetry.addData("CubeX", detector.getXPosition());
         telemetry.addData("Velocity",velocity);
-        telemetry.addData("", detector.getXPosition());
+        telemetry.addData("limitSwitch", limitSwitch.isPressed());
         telemetry.update();
     }
 }
