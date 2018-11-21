@@ -12,8 +12,8 @@ import java.math.RoundingMode;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 
-@TeleOp(name="TeleOp Yukon", group="TeleOp")
-public class TeleOpYukon extends OpMode {
+@TeleOp(name="TeleOp Lucy", group="TeleOp")
+public class TeleOpLucy extends OpMode {
 
     //Drivetrain Motors//
     private DcMotor frontLeft;
