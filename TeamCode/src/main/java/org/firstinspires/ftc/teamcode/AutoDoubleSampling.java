@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name="Auto Depot", group="Auto")
+@Autonomous(name="Auto Double Sampling", group="Auto")
 public class AutoDoubleSampling extends LinearOpMode {
     public void runOpMode() {
         AutoGeneric autoGeneric = new AutoGeneric(AutoGeneric.StartPos.DOUBLESAMPLING, this, telemetry);
