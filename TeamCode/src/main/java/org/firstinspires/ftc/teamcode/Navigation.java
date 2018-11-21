@@ -76,7 +76,6 @@ public class Navigation{
     private float wheelDiameter = 4;                //diameter of wheel (inches)
     private Location pos = new Location();           //location of robot as [x,y,z,rot] (inches / degrees)
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
-    private Location camLocation = new Location(0f,6f,6f,0f);
 
     //-----internal values-----//
     // Setup variables
