@@ -57,7 +57,7 @@ public class Navigation{
     private float minimumMotorPower = 0.2f;
     private float encoderCountsPerRev = 537.6f;     //encoder ticks per one revolution
     private boolean useTelemetry;
-    private float minVelocityCutoff = 0f;
+    private float minVelocityCutoff = 0.05f;
     private DcMotor velocityMotor;
 
     //-----enums-----//
@@ -509,7 +509,7 @@ public class Navigation{
     }
 
     public void updateVelocity() {
-        velocity = Math.abs((velocityMotor.getCurrentPosition() - prevEncoder) / (System.currentTimeMillis() - prevTime));
+        velocity = Math.abs((float)(velocityMotor.getCurrentPosition() - prevEncoder) / (System.currentTimeMillis() - prevTime));
         prevEncoder = velocityMotor.getCurrentPosition();
         prevTime = System.currentTimeMillis();
     }
