@@ -8,7 +8,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.webserver.RobotControllerWebHandlers;
 
 public class AutoGeneric{
-
+    //RAWRHHHH
     public static enum StartPos {DEPOT, CRATER, DOUBLESAMPLING, DEPOTSCORING};
     private StartPos startZone;
     private OpMode opMode;

@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 
-@TeleOp(name="TeleOp Mercury-Ackerman", group="TeleOp")
+@TeleOp(name="Mercury Ackerman TeleOp", group="Outreach")
 
 
 public class TeleOpMercuryAckerman extends OpMode {
