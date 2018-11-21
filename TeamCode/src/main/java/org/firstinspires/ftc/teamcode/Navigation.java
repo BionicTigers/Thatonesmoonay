@@ -483,12 +483,9 @@ public class Navigation{
     }
 
     public void holdForDrive() {
-        velocity = Math.abs((velocityMotor.getCurrentPosition() - prevEncoder) / (System.currentTimeMillis() - prevTime));
-        prevEncoder = velocityMotor.getCurrentPosition();
-        prevTime = System.currentTimeMillis();
-
         while(velocity > minVelocityCutoff) {
             if(useTelemetry) telemetryMethod();
+            updateVelocity();
         }
     }
 
@@ -511,10 +508,17 @@ public class Navigation{
         }
     }
 
+    public void updateVelocity() {
+        velocity = Math.abs((velocityMotor.getCurrentPosition() - prevEncoder) / (System.currentTimeMillis() - prevTime));
+        prevEncoder = velocityMotor.getCurrentPosition();
+        prevTime = System.currentTimeMillis();
+    }
+
     /**
      * A simple method to output the status of all motors and other variables to telemetry.
      */
     public void telemetryMethod() {
+        updateVelocity();
         String motorString = "FL-" + frontLeft.getCurrentPosition() + " BL-" + backLeft.getCurrentPosition() + " FR-" + frontRight.getCurrentPosition() + " BR-" + backRight.getCurrentPosition();
         telemetry.addData("Drive", motorString);
         telemetry.addData("Lift",lifty.getCurrentPosition()+" " +liftyJr.getCurrentPosition());
