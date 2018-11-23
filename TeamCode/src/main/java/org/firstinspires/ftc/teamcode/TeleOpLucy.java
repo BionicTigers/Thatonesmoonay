@@ -222,8 +222,8 @@ public class TeleOpLucy extends OpMode {
 
         //////////////////////////////////////// GAMEPAD 2 /////////////////////////////////////////
         //Lift// - LeftStick= Hopper Lift Power | RightStick= Robot Lift Power
-        lifty.setPower(gamepad2.right_stick_y * liftySpeed); //Camera mount side
-        if (gamepad2.left_stick_y > 0 && canMoveLiftyJr) { //Phone mount side
+        lifty.setPower(gamepad2.right_stick_y * liftySpeed); //Phone mount side
+        if (gamepad2.left_stick_y > 0 && canMoveLiftyJr) { //Camera mount side
             liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed);
         }
         telemetry.addData("Lift: ", liftyJr.getCurrentPosition() + "/" + lifty.getCurrentPosition());
