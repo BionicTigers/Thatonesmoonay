@@ -1,15 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.webserver.RobotControllerWebHandlers;
 
 public class AutoGeneric{
-    //RAWRHHHH
-    public static enum StartPos {DEPOT, CRATER, DOUBLESAMPLING, DEPOTSCORING};
+
+    public static enum StartPos {DEPOT, CRATER, DOUBLESAMPLING};
     private StartPos startZone;
     private OpMode opMode;
     private Telemetry telemetry;
@@ -30,38 +28,13 @@ public class AutoGeneric{
         //lift - down
         //collector height
 
-
-//        nav.setLiftLock(Navigation.LiftLock.LOCK);
- //       nav.setCollectorHeight(Navigation.CollectorHeight.DUMP);
-//        nav.setLiftLock(Navigation.LiftLock.LOCK);
         nav.updateCubePos();
-
-
-        //detaching from hook w evan method
-//        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
-//        nav.setLiftLock(Navigation.LiftLock.UNLOCK);
-//        nav.holdForLift();
-//        nav.setCollectorExtension(Navigation.CollectorExtension.DUMP);
-//        nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT);
-//        nav.setLiftHeight(Navigation.LiftHeight.HOOK);
-//        nav.holdForLift();
-
-        //detaching from hook w nick method
-//        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
-//        nav.setLiftLock(Navigation.LiftLock.UNLOCK);
-//        nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT);
-//        nav.holdForLift();
-//        nav.setLiftHeight(Navigation.LiftHeight.HOOK);
-//        nav.pointTurnRelative(45f,45f,2f);
-//        nav.holdForDrive();
-//        nav.setLiftHeight(Navigation.LiftHeight.LOWER);
-//        nav.pointTurnRelative(-45f,45f,2f);
-//        nav.holdForDrive();
-
 
         //THIS IS WHERE SAMPLING TAKES PLACE MAKE SURE IT IS POINTING AT THE CUBES FOR SAMPLING AND NOthiNG ELSE
         nav.updateCubePos();
         position = nav.getCubePos();
+        nav.pointTurnRelative(-90f);
+        nav.hold(1);
         nav.goDistance(15f);
         nav.holdForDrive();
 
@@ -72,105 +45,103 @@ public class AutoGeneric{
                 nav.goDistance(-15f);
                 nav.holdForDrive();
                 nav.pointTurnRelative(90f);
-                nav.hold(2);
-                nav.goDistance(44f);
+                nav.hold(1);
+                nav.goDistance(45f);
                 break;
             case RIGHT:
-                nav.pointTurnRelative(-40f);
-                nav.hold(2);
+                nav.pointTurnRelative(-50f);
+                nav.hold(1);
                 nav.goDistance(20f);
                 nav.holdForDrive();
-                nav.goDistance(-20f);
+                nav.goDistance(-19f);
                 nav.holdForDrive();
-                nav.pointTurnRelative(130f);
-                nav.hold(2);
+                nav.pointTurnRelative(140f);
+                nav.hold(1);
                 nav.goDistance(45f);
                 break;
             default: //left
                 nav.pointTurnRelative(45f);
                 nav.hold(2);
-                nav.goDistance(25f);
+                nav.goDistance(20f);
                 nav.holdForDrive();
-                nav.goDistance(-25f);
+                nav.goDistance(-17f);
                 nav.holdForDrive();
                 nav.pointTurnRelative(45f);
-                nav.hold(2);
+                nav.hold(1);
                 nav.goDistance(48f);
                 break;
         }
 
-       // nav.setCollectionSweeper(Navigation.CollectorSweeper.OFF);
-      //  nav.setCollectorHeight(Navigation.CollectorHeight.HOLD);
         nav.holdForDrive();
 
         if(startZone == StartPos.CRATER) {
             nav.pointTurnRelative(-135f);
-            nav.hold(2);
+            nav.hold(1);
             nav.goDistance(-40f);
             nav.holdForDrive();
-            nav.pointTurnRelative(90f);
-            nav.hold(2);
             nav.setTeamMarker(0.8);
             nav.hold(1);
-            nav.pointTurnRelative(-90f);
-            nav.hold(1);
             nav.goDistance(70f);
-            nav.holdForDrive();
-        }
-        if(startZone == StartPos.DOUBLESAMPLING || startZone == StartPos.CRATER) {
+            nav.hold(3);
+        } else if(startZone == StartPos.DOUBLESAMPLING) {
             nav.pointTurnRelative(-135f);
-            nav.hold(2);
+            nav.hold(1);
             nav.goDistance(-40f);
             nav.holdForDrive();
             nav.setTeamMarker(0.8); //assuming marker is on the back @Brayden
             nav.hold(1);
             switch (position) {
                 case MIDDLE:
-                    nav.pointTurnRelative(-75f);
+                    nav.pointTurnRelative(-70f);
                     nav.hold(1);
-                    nav.goDistance(15f);
+                    nav.goDistance(20f);
                     nav.hold(1);
-                    nav.goDistance(-15f);
+                    nav.goDistance(-20f);
                     nav.hold(1);
-                    nav.pointTurnRelative(75);
+                    nav.pointTurnRelative(70);
                     break;
                 case RIGHT:
-                    nav.pointTurnRelative(-45f);
+                    nav.pointTurnRelative(-37f);
                     nav.hold(1);
-                    nav.goDistance(15f);
+                    nav.goDistance(20f);
                     nav.hold(1);
-                    nav.goDistance(-15f);
+                    nav.goDistance(-20f);
                     nav.hold(1);
-                    nav.pointTurnRelative(45f);
+                    nav.pointTurnRelative(30f);
                     break;
                 default: //left
                     nav.pointTurnRelative(-90f);
                     nav.hold(1);
-                    nav.goDistance(15f);
+                    nav.goDistance(25f);
                     nav.hold(1);
-                    nav.goDistance(-15f);
+                    nav.goDistance(-25f);
                     nav.hold(1);
-                    nav.pointTurnRelative(90f);
+                    nav.pointTurnRelative(85f);
                     break;
             }
             nav.hold(1);
-            nav.goDistance(-70f);
+            nav.goDistance(70f);
+            nav.holdForDrive();
         }
         else { //Depot
             nav.pointTurnRelative(45f);
-            nav.hold(2);
+            nav.hold(1);
             nav.goDistance(-55f);
             nav.holdForDrive();
-            nav.pointTurnRelative(90f);
-            nav.hold(2);
             nav.setTeamMarker(0.8);
             nav.hold(1);
-            nav.pointTurnRelative(-90f);
-            nav.hold(2);
             nav.goDistance(70f);
             nav.holdForDrive();
         }
 
 
     }
+    public boolean sampling()
+    {
+        Boolean holder = nav.updateCubePos();
+        position = nav.getCubePos();
+        return holder;
+
+    }
 }
+
