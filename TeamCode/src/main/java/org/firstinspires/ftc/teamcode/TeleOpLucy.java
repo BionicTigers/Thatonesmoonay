@@ -2,17 +2,17 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 
 
-@TeleOp(name="TeleOp Lucy", group="TeleOp")
+@TeleOp(name="Lucy TeleOp", group="Competition")
 public class TeleOpLucy extends OpMode {
 
     //Drivetrain Motors//
@@ -28,24 +28,21 @@ public class TeleOpLucy extends OpMode {
 
     //Servos//
     private Servo teamMarker;
-//    private Servo liftyLock;
     private CRServo collecty;
     private Servo droppy;
     private Servo droppyJr;
     private TouchSensor limitSwitch;
 
     //Variables//
-    private double leftPower, rightPower;
-    private double leftStick, rightStick, gasPedal;
     private double normalSpeed, slowSpeed;
     private double liftySpeed, liftyJrSpeed;
     private double calibToggle, driveToggle;
     private int driveSpeed, driveMode;
+    private boolean canMoveLiftyJr;
 
 
     //Objects//
-    public ElapsedTime runtime = new ElapsedTime();
-    private boolean canRaise;
+    private ElapsedTime runtime = new ElapsedTime();
 
 
     public void init() {
@@ -67,19 +64,18 @@ public class TeleOpLucy extends OpMode {
 
         //Servos//
         teamMarker = hardwareMap.servo.get("teamMarker");
-//        liftyLock = hardwareMap.servo.get("liftyLock");
         collecty = hardwareMap.crservo.get("collecty");
         droppy = hardwareMap.servo.get("droppy");
         droppyJr = hardwareMap.servo.get("droppyJr");
 
         droppyJr.setDirection(Servo.Direction.REVERSE);
 
-
         //Variables//
         calibToggle = 0;
         driveToggle = 0;
         driveSpeed = 0;
         driveMode = 0;
+        canMoveLiftyJr = true;
 
         //Speed Offsets//
         normalSpeed = .7;
@@ -110,8 +106,9 @@ public class TeleOpLucy extends OpMode {
         // DIFFERENT DRIVE MODES //
         if (driveMode == 0) {
             // ARCADE DRIVE //
-            leftStick = gamepad1.left_stick_y;
-            rightStick = -gamepad1.right_stick_x;
+            double leftStick = gamepad1.left_stick_y;
+            double rightStick = -gamepad1.right_stick_x;
+            double leftPower, rightPower;
 
             //Left Side
             if (Math.abs(rightStick) > 0.5) {
@@ -150,8 +147,14 @@ public class TeleOpLucy extends OpMode {
             }
         } else if (driveMode == 1) {
             /// TANK DRIVE ///
-            leftPower = gamepad1.left_stick_y;
-            rightPower = gamepad1.right_stick_y;
+            double leftStick = gamepad1.left_stick_y;
+            double rightStick = -gamepad1.right_stick_x;
+
+            //Left Side
+            double leftPower = gamepad1.left_stick_y;
+            
+            //Right Side
+            double rightPower = gamepad1.right_stick_y;
 
             if (driveSpeed % 2 == 0) {
                 telemetry.addData("Mode: ", "TANK");
@@ -176,21 +179,22 @@ public class TeleOpLucy extends OpMode {
             }
         } else if (driveMode == 2) {
             /// ACKERMAN DRIVE ///
-            leftStick = (-gamepad1.left_stick_x);
-            gasPedal = (gamepad1.left_trigger - gamepad1.right_trigger);
+            double leftStick = (-gamepad1.left_stick_x);
+            double gasPedal = (gamepad1.left_trigger - gamepad1.right_trigger);
+            double leftPower, rightPower;
 
             //Left Side
-            if (Math.abs(rightStick) > 0.5) {
-                leftPower = gasPedal / 2 + rightStick / 2;
+            if (Math.abs(leftStick) > 0.5) {
+                leftPower = gasPedal / 2 + leftStick / 2;
             } else {
-                leftPower = gasPedal + rightStick / 2;
+                leftPower = gasPedal + leftStick / 2;
             }
 
             //Right Side
-            if (Math.abs(rightStick) > 0.5) {
-                rightPower = gasPedal / 2 - rightStick / 2;
+            if (Math.abs(leftStick) > 0.5) {
+                rightPower = gasPedal / 2 - leftStick / 2;
             } else {
-                rightPower = gasPedal - rightStick / 2;
+                rightPower = gasPedal - leftStick / 2;
             }
 
             if (driveSpeed % 2 == 0) {
@@ -218,21 +222,16 @@ public class TeleOpLucy extends OpMode {
 
         //////////////////////////////////////// GAMEPAD 2 /////////////////////////////////////////
         //Lift// - LeftStickUp= Lift Up | LeftStickDown= Lift Down
-        if (gamepad2.right_stick_y > 0 && canRaise) {
-            lifty.setPower(gamepad2.right_stick_y * liftySpeed);
-        } else if (gamepad2.right_stick_y < 0) {
+        if (gamepad2.right_stick_y > 0 && canMoveLiftyJr) { //Phone mount side
             lifty.setPower(gamepad2.right_stick_y * liftySpeed);
         }
-    //Phone mount side
         liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed); //Camera mount side
-        telemetry.addData("Lift", lifty.getCurrentPosition() + "/" + liftyJr.getCurrentPosition());
+        telemetry.addData("Lift: ", liftyJr.getCurrentPosition() + "/" + lifty.getCurrentPosition());
 
-        //Lift Lock// - DPadUp= Lock Lift | DPadDown= Unlock Lift
-//        if (gamepad2.dpad_up) {
-//            liftyLock.setPosition(0.3);
-//        } else if (gamepad2.dpad_down) {
-//            liftyLock.setPosition(0.65);
-//        }
+        if(gamepad2.left_stick_y > 0 && limitSwitch.isPressed()){
+            liftyJr.setPower(0);
+        }
+        telemetry.addData("Limit: ", limitSwitch.isPressed());
 
         //Team Marker Deployer// - DPadRight= Deploy | DPadLeft= Retract
         if (gamepad2.dpad_right) {
@@ -241,7 +240,7 @@ public class TeleOpLucy extends OpMode {
             teamMarker.setPosition(0.2);
         }
 
-        //Collector// - A= Intake | B= Outtake //This is a VEX Motor, 0.5 is the maximum power
+        //Collector// - RightBumper= Intake | RightTrigger= Outtake //This is a VEX Motor, 0.5 is the maximum power
         if (gamepad2.right_bumper) { //
             collecty.setPower(0.5);
         } else if (gamepad2.right_trigger > 0.5) {
@@ -249,7 +248,7 @@ public class TeleOpLucy extends OpMode {
         } else {
             collecty.setPower(0);
         }
-        telemetry.addData("Collector Power", collecty.getPower());
+        telemetry.addData("Collector: ", collecty.getPower());
 
         //Collection Extension motor// - LeftBumper= Deploy | LeftTrigger= Retract
         if (gamepad2.left_bumper) {
@@ -259,31 +258,27 @@ public class TeleOpLucy extends OpMode {
         } else {
             extendy.setPower(0);
         }
-        telemetry.addData("Extension", extendy.getCurrentPosition());
+        telemetry.addData("Extension: ", extendy.getCurrentPosition());
 
-        //Collector Dropper// - A= Bottom | B= Middle | Y= Top
+        //Collector Dropper// - Y= Top | B= Middle | A= Bottom
         if (gamepad2.y) { //top
             droppy.setPosition(0.2);
             droppyJr.setPosition(0.2);
-            canRaise = false;
+            canMoveLiftyJr = false;
         } else if (gamepad2.b) { //middle
             droppy.setPosition(0.5);
             droppyJr.setPosition(0.5);
-            canRaise = true;
+            canMoveLiftyJr = true;
         } else if (gamepad2.a) { //bottom
             droppy.setPosition(0.715);
             droppyJr.setPosition(0.715);
-            canRaise = true;
+            canMoveLiftyJr = true;
         }
 
-        telemetry.addData("limitswitch", limitSwitch.isPressed());
         telemetry.update();
-
-        if(gamepad2.left_stick_y /2 > 0 && limitSwitch.isPressed()){
-            liftyJr.setPower(0);
-        }
-//
     }
+
+
     private static double round(double value) { //Allows telemetry to display nicely
         BigDecimal bd = new BigDecimal(value);
         bd = bd.setScale(3, RoundingMode.HALF_UP);
