@@ -51,17 +51,17 @@ import java.io.File;
 public class Navigation{
 
     //-----tweak values-----//
-    private float maximumMotorPower = 0.5f;           //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
+    private float maximumMotorPower = 0.5f;             //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
     private float minimumMotorPower = 0.2f;
-    private float encoderCountsPerRev = 537.6f;     //encoder ticks per one revolution
-    private boolean useTelemetry;
-    private float minVelocityCutoff = 0.05f;
+    private float encoderCountsPerRev = 537.6f;         //encoder ticks per one revolution
+    private boolean useTelemetry;                       //whether to execute the telemetry method while holding
+    private float minVelocityCutoff = 0.05f;            //velocity with which to continue program execution during a hold (encoder ticks per millisecond)
 
     //-----enums-----//
     public enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
     private CubePosition cubePos = CubePosition.UNKNOWN;
     public enum CollectorHeight {COLLECT, HOLD, DUMP}
-    public enum LiftHeight {LOWER, HOOK, SCORE}
+    public enum LiftHeight {LOWER, SCORE}
     public enum CollectorExtension {PARK, DUMP, OUT}
     public enum LiftLock {LOCK,UNLOCK}
     public enum CollectorSweeper {INTAKE,OUTTAKE, OFF}
@@ -75,31 +75,18 @@ public class Navigation{
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
 
     //-----internal values-----//
-    // Setup variables
     private ElapsedTime runtime = new ElapsedTime();
     private static final float mmPerInch        = 25.4f;
     private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
     private static final float mmTargetHeight   = (6) * mmPerInch;
-    private DcMotor velocityMotor;
-
-    // Vuforia variables
-    private OpenGLMatrix lastLocation = null;
-    boolean targetVisible;
     private Dogeforia vuforia;
-    private WebcamName webcamName;
     private GoldAlignDetector detector;
 
-    //    private VuforiaLocalizer vuforia;
-    private VuforiaTrackables vumarks;
-    private List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
-    private Location[] vumarkLocations = new Location[4];
-    private boolean useAnyCV;
-    private int captureCounter = 0;
-    private File captureDirectory= AppUtil.ROBOT_DATA_DIR;
-    private long prevTime = System.currentTimeMillis();
-    private int prevEncoder = 0;
-
+    private DcMotor velocityMotor;
+    private long prevTime;
+    private int prevEncoder;
     private float velocity = 0f;
+
     //-----motors-----//
     private DcMotor frontLeft;
     private DcMotor frontRight;
@@ -116,6 +103,12 @@ public class Navigation{
     private Servo liftyLock; //lift lock
     private Servo teamMarker;
 
+    /**
+     * The constructor class for Navigation
+     * @param hardwareGetter - The OpMode required to access motors. Often, 'this' will suffice.
+     * @param telemetry - Telemetry of the current OpMode, used to output data to the screen.
+     * @param useTelemetry - Whether or not to output information about stored variables and motors during hold periods.
+     */
     public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean useTelemetry) {
         this.hardwareGetter = hardwareGetter;
         this.telemetry = telemetry;
@@ -154,91 +147,31 @@ public class Navigation{
         droppy = hardwareGetter.hardwareMap.servo.get("droppy");
         droppyJr = hardwareGetter.hardwareMap.servo.get("droppyJr");
         droppyJr.setDirection(Servo.Direction.REVERSE);
-        webcamName = hardwareGetter.hardwareMap.get(WebcamName.class, "Webcam 1");
 
         //----Vuforia Params---///
-        int cameraMonitorViewId = hardwareGetter.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareGetter.hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        // Vuforia licence key
         parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
         parameters.fillCameraMonitorViewParent = true;
+        parameters.cameraName = hardwareGetter.hardwareMap.get(WebcamName.class, "Webcam 1");
 
-        // Set camera name for Vuforia config
-        parameters.cameraName = webcamName;
-
-        // Create Dogeforia object
         vuforia = new Dogeforia(parameters);
         vuforia.enableConvertFrameToBitmap();
 
-
-        //Setup trackables
-        VuforiaTrackables targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
-        VuforiaTrackable blueRover = targetsRoverRuckus.get(0);
-        blueRover.setName("Blue-Rover");
-        VuforiaTrackable redFootprint = targetsRoverRuckus.get(1);
-        redFootprint.setName("Red-Footprint");
-        VuforiaTrackable frontCraters = targetsRoverRuckus.get(2);
-        frontCraters.setName("Front-Craters");
-        VuforiaTrackable backSpace = targetsRoverRuckus.get(3);
-        backSpace.setName("Back-Space");
-
-        // For convenience, gather together all the trackable objects in one easily-iterable collection */
-        allTrackables.addAll(targetsRoverRuckus);
-
-        OpenGLMatrix blueRoverLocationOnField = OpenGLMatrix
-                .translation(0, mmFTCFieldWidth, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0));
-        blueRover.setLocation(blueRoverLocationOnField);
-
-        OpenGLMatrix redFootprintLocationOnField = OpenGLMatrix
-                .translation(0, -mmFTCFieldWidth, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180));
-        redFootprint.setLocation(redFootprintLocationOnField);
-
-        OpenGLMatrix frontCratersLocationOnField = OpenGLMatrix
-                .translation(-mmFTCFieldWidth, 0, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90));
-        frontCraters.setLocation(frontCratersLocationOnField);
-
-        OpenGLMatrix backSpaceLocationOnField = OpenGLMatrix
-                .translation(mmFTCFieldWidth, 0, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90));
-        backSpace.setLocation(backSpaceLocationOnField);
-
-
-        final int CAMERA_FORWARD_DISPLACEMENT  = 110;   // eg: Camera is 110 mm in front of robot center
-        final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // eg: Camera is 200 mm above ground
-        final int CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
-
-        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES,
-                        CAMERA_CHOICE == FRONT ? 90 : -90, 0, 0));
-
-        for (VuforiaTrackable trackable : allTrackables)
-        {
-            ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-        }
-
-        // Activate the targets
-        targetsRoverRuckus.activate();
         detector = new GoldAlignDetector();
         detector.init(hardwareGetter.hardwareMap.appContext,CameraViewDisplay.getInstance(), 0, true);
         detector.useDefaults();
         detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
-        //detector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
         detector.downscale = 0.8;
 
-        // Set the detector
         vuforia.setDogeCVDetector(detector);
         vuforia.enableDogeCV();
         vuforia.showDebug();
         vuforia.start();
 
+        //-----velocity control-----//
         velocityMotor = frontLeft;
+        prevTime = System.currentTimeMillis();
         prevEncoder = velocityMotor.getCurrentPosition();
-
     }
 
     /**
@@ -260,6 +193,10 @@ public class Navigation{
         return true;
     }
 
+    /**
+     * Returns the current stored cube position.
+     * @return CubePosition enumerator. Locations self-explanatory.
+     */
     public CubePosition getCubePos() {return cubePos;}
 
 
@@ -275,12 +212,6 @@ public class Navigation{
         backLeft.setPower(left);
     }
 
-//        public void holdForDrive() {
-//        while(velocity > minVelocityCutoff) {
-//            if(useTelemetry) telemetryMethod();
-//            updateVelocity();
-//        }
-
     /**
      * Sets drive motor target encoder to given values.
      * @param left encoder set for left motors.
@@ -292,7 +223,7 @@ public class Navigation{
         backRight.setTargetPosition(right);
         backLeft.setTargetPosition(left);
     }
-//a
+
     /**
      * Sets all drive motor run modes to given mode.
      * @param r DcMotor mode to given value.
@@ -304,7 +235,6 @@ public class Navigation{
         backLeft.setMode(r);
     }
 
-
     /**
      * Stops all drive motors and resets encoders.
      */
@@ -314,7 +244,7 @@ public class Navigation{
     }
 
     /**
-     * Pseudo PID to drive the given distance. Will slow down from maximumMotorPower to minimumMotorPower starting at [slowdown] behind target.
+     * Pseudo PID to drive the given distance.
      * @param distance Distance to drive forward in inches.
      */
     public void goDistance(float distance) {
@@ -324,8 +254,7 @@ public class Navigation{
     }
 
     /**
-     * Pseudo PID to rotate the given rotation. Will slow down from maximumMotorPower to minimumMotorPower starting at [slowdown] behind target azimuth.
-     * Precision will stop making adjustments once it is within given degrees of target azimuth.
+     * Executes a point turn to face the given world rotation.
      * @param rot Target azimuth in degrees
      */
     public void pointTurn(float rot) {
@@ -342,34 +271,38 @@ public class Navigation{
     }
 
     /**
-     * Pseudo PID to rotate to face the given Location. Will slow down from maximumMotorPower to minimumMotorPower starting at [slowdown] behind target azimuth.
-     * Precision will stop making adjustments once it is within given degrees of target azimuth.
+     * Executes a point turn to face the given Location.
      * @param loc Target Location object
      */
     public void pointTurn(Location loc) {
         pointTurn((float) Math.toDegrees(Math.atan2(loc.getLocation(2) - pos.getLocation(2), loc.getLocation(0) - pos.getLocation(0))));
     }
 
+    /**
+     * Executes a point turn relative to the current location. Positive is counterclockwise.
+     * @param rot the amount to rotate the robot in degrees. Positive is counterclockwise.
+     */
     public void pointTurnRelative(float rot) {
         pointTurn(pos.getLocation(3)+rot);
     }
 
     /**
      * Sets lift motor to given encoder position
-     * @param position Encoder ticks for lift motor
+     * @param position Encoder ticks for lift motor. ~0(bottom) to ~8200(top)
      */
     public void setLiftHeight(int position) {
         lifty.setTargetPosition(position);
         liftyJr.setTargetPosition(position);
     }
 
+    /**
+     * Sets the lift height to a pre-programmed position.
+     * @param position LiftHeight enumerator. Options are LOWER, HOOK, or SCORE.
+     */
     public void setLiftHeight(LiftHeight position) {
         switch(position) {
             case LOWER:
                 setLiftHeight(0);
-                break;
-            case HOOK:
-                setLiftHeight(2300);
                 break;
             case SCORE:
                 setLiftHeight(8200);
@@ -377,10 +310,18 @@ public class Navigation{
         }
     }
 
+    /**
+     * Sets the collection sweeper to a given power value.
+     * @param power float. Percentage power at which to run collector. 1.0f (intake) - -1.0f(outtake) inclusive.
+     */
     public void setCollectionSweeper(float power) {
         collecty.setPower(power);
     }
 
+    /**
+     * Sets the collection sweeper power using pre-programmed values.
+     * @param power CollectorSweeper emumerator. Options are INTAKE, OUTTAKE, or OFF.
+     */
     public void setCollectionSweeper(CollectorSweeper power) {
         switch(power) {
             case INTAKE:
@@ -395,29 +336,45 @@ public class Navigation{
         }
     }
 
+    /**
+     * Set the height of the collector arm.
+     * @param position float. ~0.8f (bottom) to ~0.18f (top).
+     */
     public void setCollectorHeight(float position) {
         droppy.setPosition(position);
         droppyJr.setPosition(position);
     }
 
+    /**
+     * Sets the height of the collector arm.
+     * @param position CollectorHeight enumerator. Options are COLLECT, HOLD, or DUMP.
+     */
     public void setCollectorHeight(CollectorHeight position) {
         switch(position) {
             case COLLECT:
-                setCollectorHeight(0.8f);
+                setCollectorHeight(0.715f);
                 break;
             case HOLD:
                 setCollectorHeight(0.5f);
                 break;
             case DUMP:
-                setCollectorHeight(0.25f);
+                setCollectorHeight(0.18f);
                 break;
         }
     }
 
+    /**
+     * Sets the extension of the collector arm.
+     * @param position int. 0(in) to 1600(out).
+     */
     public void setCollectorExtension(int position) {
         extendy.setTargetPosition(position);
     }
 
+    /**
+     * Sets the extension of the collectior arm.
+     * @param position CollectorExtension enumerator. Options are PARK, DUMP, or OUT.
+     */
     public void setCollectorExtension(CollectorExtension position) {
         switch (position){
             case PARK:
@@ -432,46 +389,22 @@ public class Navigation{
         }
     }
 
-    public void setLiftLock(float position) {
-        liftyLock.setPosition(position);
-    }
-
-    public void setLiftLock(LiftLock position) {
-        switch(position) {
-            case LOCK:
-                setLiftLock(0.9f);
-                break;
-            case UNLOCK:
-                setLiftLock(0.2f);
-                break;
-        }
-    }
-
-    public void setTeamMarker(double position) {
+    /**
+     * Sets the position of the teamMarker servo.
+     * @param position float. 0.0f(locked) to 0.8f(dropping).
+     */
+    public void setTeamMarker(float position) {
         teamMarker.setPosition(position);
     }
 
-
-    /*
-    private void driveMethodComplex(float distance, float slowdown, float precision, DcMotor encoderMotor, float lModifier, float rModifier, boolean doubleBack, float minPower, float maxPower) {
-        distance *= lModifier;
-
-        int initEncoder = encoderMotor.getCurrentPosition();
-        int targetEncoder = (int)(distance / (wheelDiameter * Math.PI) * encoderCountsPerRev) + initEncoder;
-        int slowdownEncoder = (int)(slowdown / (wheelDiameter * Math.PI) * encoderCountsPerRev);
-        int premodifier = (targetEncoder > 0) ? 1 : -1;
-        driveMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        while ((!doubleBack && (targetEncoder - encoderMotor.getCurrentPosition())*premodifier > precision) || (doubleBack && Math.abs(targetEncoder - encoderMotor.getCurrentPosition()) > precision)) {
-            float uncappedPower = (targetEncoder - encoderMotor.getCurrentPosition()) / (float)slowdownEncoder;
-            float power = (uncappedPower < 0 ? -1:1) * Math.min(maxPower, Math.max(minPower, Math.abs(uncappedPower)));
-            drivePower(power*lModifier, power*rModifier);
-            if(useTelemetry) telemetryMethod();
-        }
-        driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
-    */
-
-    public void driveMethodSimple(float distanceL, float distanceR, float LPower, float RPower) {
+    /**
+     * Drive method that independantly controls the position and power of the left and right drive motors.
+     * @param distanceL float. Distance in inches for left motors to traverse.
+     * @param distanceR float. Distance in inches for right motors to traverse.
+     * @param LPower float. Power percentage for left motors (0.0-1.0).
+     * @param RPower float. Power percentage for right motors (0.0-1.0).
+     */
+    private void driveMethodSimple(float distanceL, float distanceR, float LPower, float RPower) {
         driveMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         int l = (int)(distanceL / (wheelDiameter * Math.PI) * encoderCountsPerRev);
         int r = (int)(distanceR / (wheelDiameter * Math.PI) * encoderCountsPerRev);
@@ -480,6 +413,10 @@ public class Navigation{
         driveMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
+    /**
+     * Holds program execution until drive motor velocities are below the minimum cutoff.
+     * Will output telemetry if class initialized with useTelemetry true.
+     */
     public void holdForDrive() {
         hold(0.2f);
         while(updateVelocity() > minVelocityCutoff) {
@@ -487,18 +424,10 @@ public class Navigation{
         }
     }
 
-    public void holdForLift() {
-        while(lifty.isBusy() || liftyJr.isBusy()) {
-            if(useTelemetry) telemetryMethod();
-        }
-    }
-
-    public void holdForExtension() {
-        while(extendy.isBusy()) {
-            if(useTelemetry) telemetryMethod();
-        }
-    }
-
+    /**
+     * Hold program for given number of seconds.
+     * @param seconds float. Number of seconds to wait.
+     */
     public void hold(float seconds) {
         long stopTime = System.currentTimeMillis() + (long) (seconds * 1000);
         while (System.currentTimeMillis() < stopTime) {
@@ -506,7 +435,11 @@ public class Navigation{
         }
     }
 
-    public float updateVelocity(){
+    /**
+     * Updates the stored velocity of the robot to reflect reality.
+     * @return float. New velocity in encoder ticks per millisecond.
+     */
+    private float updateVelocity(){
         velocity = Math.abs((float)(velocityMotor.getCurrentPosition() - prevEncoder) / (System.currentTimeMillis() - prevTime));
         prevEncoder = velocityMotor.getCurrentPosition();
         prevTime = System.currentTimeMillis();
