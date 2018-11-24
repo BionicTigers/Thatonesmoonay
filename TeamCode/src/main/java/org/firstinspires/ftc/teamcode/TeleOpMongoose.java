@@ -67,6 +67,7 @@ public class TeleOpMongoose extends OpMode {
         collecty = hardwareMap.crservo.get("collecty");
         droppy = hardwareMap.servo.get("droppy");
         droppyJr = hardwareMap.servo.get("droppyJr");
+        limitSwitch = hardwareMap.touchSensor.get("limitSwitch");
 
         droppyJr.setDirection(Servo.Direction.REVERSE);
 
@@ -76,6 +77,7 @@ public class TeleOpMongoose extends OpMode {
         driveSpeed = 0;
         driveMode = 0;
         canMoveLiftyJr = true;
+        teamMarker.setPosition(0.3);
 
         //Speed Offsets//
         normalSpeed = .7;
@@ -227,9 +229,11 @@ public class TeleOpMongoose extends OpMode {
             liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed);
         }
         telemetry.addData("Lift: ", liftyJr.getCurrentPosition() + "/" + lifty.getCurrentPosition());
-        if(gamepad2.left_stick_y > 0 && limitSwitch.isPressed()) {
+        if(gamepad2.left_stick_y >0 && limitSwitch.isPressed()) {
             liftyJr.setPower(0);
-        }
+        }else{
+            liftyJr.setPower(gamepad2.left_stick_y);}
+
         telemetry.addData("Limit: ", limitSwitch.isPressed());
 
         //Team Marker Deployer// - DPadRight= Deploy | DPadLeft= Retract
@@ -241,9 +245,9 @@ public class TeleOpMongoose extends OpMode {
 
         //Collector// - RightBumper= Intake | RightTrigger= Outtake //This is a VEX Motor, 0.5 is the maximum power
         if (gamepad2.right_bumper) { //
-            collecty.setPower(0.5);
-        } else if (gamepad2.right_trigger > 0.5) {
             collecty.setPower(-0.5);
+        } else if (gamepad2.right_trigger > 0.5) {
+            collecty.setPower(0.5);
         } else {
             collecty.setPower(0);
         }
@@ -272,7 +276,12 @@ public class TeleOpMongoose extends OpMode {
             droppy.setPosition(0.715);
             droppyJr.setPosition(0.715);
             canMoveLiftyJr = true;
+        } else if (gamepad2.x) { //bottom
+            droppy.setPosition(0.76);
+            droppyJr.setPosition(0.76);
+            canMoveLiftyJr = true;
         }
+
 
         telemetry.update();
     }

@@ -248,20 +248,19 @@ public class Navigation{
     public boolean updateCubePos() {
 
         Double pos = detector.getXPosition();
-        if (pos <= 120){
-            cubePos = CubePosition.LEFT;
+        if (pos >= 200){
+            cubePos = CubePosition.RIGHT;
         }
-        else if (pos <= 280){
+        else if (pos <= 200){
             cubePos = CubePosition.MIDDLE;
         }  else {
-            cubePos = CubePosition.RIGHT;
+            cubePos = CubePosition.LEFT;
         }
 
         return true;
     }
 
-    public CubePosition getCubePos() {return cubePos;
-    }
+    public CubePosition getCubePos() {return cubePos;}
 
 
     /**
