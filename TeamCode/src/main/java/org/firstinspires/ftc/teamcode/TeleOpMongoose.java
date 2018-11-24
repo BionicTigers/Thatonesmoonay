@@ -265,8 +265,8 @@ public class TeleOpMongoose extends OpMode {
 
         //Collector Dropper// - Y= Top | B= Middle | A= Bottom
         if (gamepad2.y) { //top
-            droppy.setPosition(0.2);
-            droppyJr.setPosition(0.2);
+            droppy.setPosition(0.18);
+            droppyJr.setPosition(0.18);
             canMoveLiftyJr = false;
         } else if (gamepad2.b) { //middle
             droppy.setPosition(0.5);
