@@ -13,7 +13,7 @@ import java.math.RoundingMode;
 
 
 @TeleOp(name="Mongoose TeleOp", group="Competition")
-public class TeleOpLucy extends OpMode {
+public class TeleOpMongoose extends OpMode {
 
     //Drivetrain Motors//
     private DcMotor frontLeft;
