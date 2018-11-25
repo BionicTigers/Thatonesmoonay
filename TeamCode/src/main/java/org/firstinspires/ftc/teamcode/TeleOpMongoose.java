@@ -64,12 +64,15 @@ public class TeleOpMongoose extends OpMode {
 
         //Servos//
         teamMarker = hardwareMap.servo.get("teamMarker");
+        teamMarker.setPosition(0.2);
         collecty = hardwareMap.crservo.get("collecty");
         droppy = hardwareMap.servo.get("droppy");
         droppyJr = hardwareMap.servo.get("droppyJr");
-        limitSwitch = hardwareMap.touchSensor.get("limitSwitch");
 
         droppyJr.setDirection(Servo.Direction.REVERSE);
+
+        //Sensors//
+        limitSwitch = hardwareMap.touchSensor.get("limitSwitch");
 
         //Variables//
         calibToggle = 0;
@@ -77,7 +80,6 @@ public class TeleOpMongoose extends OpMode {
         driveSpeed = 0;
         driveMode = 0;
         canMoveLiftyJr = true;
-        teamMarker.setPosition(0.3);
 
         //Speed Offsets//
         normalSpeed = .7;
@@ -90,7 +92,7 @@ public class TeleOpMongoose extends OpMode {
     public void loop() {
         //////////////////////////////////////// GAMEPAD 1 /////////////////////////////////////////
         // TOGGLE BUTTONS //
-        if (gamepad1.x && (runtime.seconds() > calibToggle)) {
+        if (gamepad1.left_bumper && (runtime.seconds() > calibToggle)) {
             calibToggle = runtime.seconds() + 0.5;
             ++driveSpeed;
         }
@@ -225,18 +227,17 @@ public class TeleOpMongoose extends OpMode {
         //////////////////////////////////////// GAMEPAD 2 /////////////////////////////////////////
         //Lift// - LeftStick= Hopper Lift Power | RightStick= Robot Lift Power
         lifty.setPower(gamepad2.right_stick_y * liftySpeed); //Phone mount side
-        if (gamepad2.left_stick_y > 0 && canMoveLiftyJr) { //Camera mount side
-            liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed);
+        if (canMoveLiftyJr) { //Camera mount side
+            if (gamepad2.left_stick_y > 0 && limitSwitch.isPressed()) {
+                liftyJr.setPower(0);
+            } else {
+                liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed);
+            }
         }
         telemetry.addData("Lift: ", liftyJr.getCurrentPosition() + "/" + lifty.getCurrentPosition());
-        if(gamepad2.left_stick_y >0 && limitSwitch.isPressed()) {
-            liftyJr.setPower(0);
-        }else{
-            liftyJr.setPower(gamepad2.left_stick_y);}
-
         telemetry.addData("Limit: ", limitSwitch.isPressed());
 
-        //Team Marker Deployer// - DPadRight= Deploy | DPadLeft= Retract
+        //Team Marker Deployer// - DPadRight= Lift | DPadLeft= Lower
         if (gamepad2.dpad_right) {
             teamMarker.setPosition(0.7);
         } else if (gamepad2.dpad_left) {
@@ -245,9 +246,9 @@ public class TeleOpMongoose extends OpMode {
 
         //Collector// - RightBumper= Intake | RightTrigger= Outtake //This is a VEX Motor, 0.5 is the maximum power
         if (gamepad2.right_bumper) { //
-            collecty.setPower(-0.5);
-        } else if (gamepad2.right_trigger > 0.5) {
             collecty.setPower(0.5);
+        } else if (gamepad2.right_trigger > 0.5) {
+            collecty.setPower(-0.5);
         } else {
             collecty.setPower(0);
         }
@@ -265,8 +266,8 @@ public class TeleOpMongoose extends OpMode {
 
         //Collector Dropper// - Y= Top | B= Middle | A= Bottom
         if (gamepad2.y) { //top
-            droppy.setPosition(0.18);
-            droppyJr.setPosition(0.18);
+            droppy.setPosition(0.2);
+            droppyJr.setPosition(0.2);
             canMoveLiftyJr = false;
         } else if (gamepad2.b) { //middle
             droppy.setPosition(0.5);
@@ -276,12 +277,7 @@ public class TeleOpMongoose extends OpMode {
             droppy.setPosition(0.715);
             droppyJr.setPosition(0.715);
             canMoveLiftyJr = true;
-        } else if (gamepad2.x) { //bottom
-            droppy.setPosition(0.76);
-            droppyJr.setPosition(0.76);
-            canMoveLiftyJr = true;
         }
-
 
         telemetry.update();
     }
