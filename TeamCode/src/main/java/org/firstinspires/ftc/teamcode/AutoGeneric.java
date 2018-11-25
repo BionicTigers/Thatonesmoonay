@@ -33,13 +33,17 @@ public class AutoGeneric{
      * Run this to run Autonomous.
      */
     public void runOpMode() {
-        //-----unhooking-----//
-        nav.pointTurnRelative(-90f);
-        nav.holdForDrive();
+
 
         //-----sampling-----//
         nav.updateCubePos();
         Navigation.CubePosition position = nav.getCubePos();
+        //-----unhooking-----//
+        nav.pointTurnRelative(-90f);
+        nav.holdForDrive();
+
+
+
         nav.goDistance(13f);
         nav.holdForDrive();
         switch(position) {
@@ -50,14 +54,7 @@ public class AutoGeneric{
                 nav.holdForDrive();
                 nav.goDistance(-20f);
                 nav.holdForDrive();
-                nav.pointTurnRelative(45f);
-                break;
-            case MIDDLE:
-                nav.goDistance(15f);
-                nav.holdForDrive();
-                nav.goDistance(-15f);
-                nav.holdForDrive();
-                nav.pointTurnRelative(90f);
+                nav.pointTurnRelative(47f);
                 break;
             case RIGHT:
                 nav.pointTurnRelative(-45f);
@@ -66,7 +63,14 @@ public class AutoGeneric{
                 nav.holdForDrive();
                 nav.goDistance(-20f);
                 nav.holdForDrive();
-                nav.pointTurnRelative(130f);
+                nav.pointTurnRelative(132f);
+                break;
+            default:
+                nav.goDistance(15f);
+                nav.holdForDrive();
+                nav.goDistance(-15f);
+                nav.holdForDrive();
+                nav.pointTurnRelative(90f);
                 break;
         }
 

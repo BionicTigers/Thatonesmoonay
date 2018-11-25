@@ -52,10 +52,9 @@ public class Navigation{
 
     //-----tweak values-----//
     private float maximumMotorPower = 0.5f;             //when executing a goToLocation function, robot will never travel faster than this value (percentage 0=0%, 1=100%)
-    private float minimumMotorPower = 0.2f;
     private float encoderCountsPerRev = 537.6f;         //encoder ticks per one revolution
     private boolean useTelemetry;                       //whether to execute the telemetry method while holding
-    private float minVelocityCutoff = 0.05f;            //velocity with which to continue program execution during a hold (encoder ticks per millisecond)
+    private float minVelocityCutoff = 0.04f;            //velocity with which to continue program execution during a hold (encoder ticks per millisecond)
 
     //-----enums-----//
     public enum CubePosition {UNKNOWN, LEFT, MIDDLE, RIGHT}
@@ -80,7 +79,9 @@ public class Navigation{
     private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
     private static final float mmTargetHeight   = (6) * mmPerInch;
     private Dogeforia vuforia;
-    private SamplingOrderDetector detector;
+    private GoldAlignDetector detector;
+    private WebcamName webcamName;
+    private List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
 
     private DcMotor velocityMotor;
     private long prevTime;
@@ -149,19 +150,74 @@ public class Navigation{
         droppyJr.setDirection(Servo.Direction.REVERSE);
 
         //----Vuforia Params---///
+        webcamName = hardwareGetter.hardwareMap.get(WebcamName.class, "Webcam 1");
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        // Vuforia licence key
         parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
         parameters.fillCameraMonitorViewParent = true;
-        parameters.cameraName = hardwareGetter.hardwareMap.get(WebcamName.class, "Webcam 1");
 
+        // Set camera name for Vuforia config
+        parameters.cameraName = webcamName;
+
+        // Create Dogeforia object
         vuforia = new Dogeforia(parameters);
         vuforia.enableConvertFrameToBitmap();
 
-        detector = new SamplingOrderDetector();
+
+        //Setup trackables
+        VuforiaTrackables targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
+        VuforiaTrackable blueRover = targetsRoverRuckus.get(0);
+        blueRover.setName("Blue-Rover");
+        VuforiaTrackable redFootprint = targetsRoverRuckus.get(1);
+        redFootprint.setName("Red-Footprint");
+        VuforiaTrackable frontCraters = targetsRoverRuckus.get(2);
+        frontCraters.setName("Front-Craters");
+        VuforiaTrackable backSpace = targetsRoverRuckus.get(3);
+        backSpace.setName("Back-Space");
+
+        // For convenience, gather together all the trackable objects in one easily-iterable collection */
+        allTrackables.addAll(targetsRoverRuckus);
+
+        OpenGLMatrix blueRoverLocationOnField = OpenGLMatrix
+                .translation(0, mmFTCFieldWidth, mmTargetHeight)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0));
+        blueRover.setLocation(blueRoverLocationOnField);
+
+        OpenGLMatrix redFootprintLocationOnField = OpenGLMatrix
+                .translation(0, -mmFTCFieldWidth, mmTargetHeight)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180));
+        redFootprint.setLocation(redFootprintLocationOnField);
+
+        OpenGLMatrix frontCratersLocationOnField = OpenGLMatrix
+                .translation(-mmFTCFieldWidth, 0, mmTargetHeight)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90));
+        frontCraters.setLocation(frontCratersLocationOnField);
+
+        OpenGLMatrix backSpaceLocationOnField = OpenGLMatrix
+                .translation(mmFTCFieldWidth, 0, mmTargetHeight)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90));
+        backSpace.setLocation(backSpaceLocationOnField);
+
+
+        final int CAMERA_FORWARD_DISPLACEMENT  = 110;   // eg: Camera is 110 mm in front of robot center
+        final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // eg: Camera is 200 mm above ground
+        final int CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
+
+        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
+                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES,
+                        CAMERA_CHOICE == FRONT ? 90 : -90, 0, 0));
+
+        for (VuforiaTrackable trackable : allTrackables)
+        {
+            ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        }
+
+        detector = new GoldAlignDetector();
         detector.init(hardwareGetter.hardwareMap.appContext,CameraViewDisplay.getInstance(), 0, true);
         detector.useDefaults();
-        detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
-        detector.downscale = 0.8;
+        detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA;
 
         vuforia.setDogeCVDetector(detector);
         vuforia.enableDogeCV();
@@ -180,19 +236,25 @@ public class Navigation{
      */
     public boolean updateCubePos() {
 
-        switch(detector.getCurrentOrder()) {
-            case UNKNOWN:
-                return false;
-            case LEFT:
-                cubePos = CubePosition.LEFT;
-                break;
-            case CENTER:
-                cubePos = CubePosition.MIDDLE;
-                break;
-            case RIGHT:
-                cubePos = CubePosition.RIGHT;
-                break;
+        double cubeX = detector.getXPosition();
+        //unknown
+        if(cubeX == 0.0) {
+            return false;
         }
+        //left
+        else if(cubeX < 170) {
+            cubePos = CubePosition.LEFT;
+        }
+        //middle
+        else if(cubeX < 400) {
+            cubePos = CubePosition.MIDDLE;
+        }
+        //right
+        else {
+            cubePos = CubePosition.RIGHT;
+        }
+
+
         return true;
     }
 
@@ -461,6 +523,7 @@ public class Navigation{
         telemetry.addData("Pos",pos);
         telemetry.addData("CubePos",cubePos);
         telemetry.addData("Velocity",velocity);
+        telemetry.addData("CubeXPosition",detector.getXPosition());
         telemetry.update();
     }
 }
