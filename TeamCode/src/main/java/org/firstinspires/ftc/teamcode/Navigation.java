@@ -80,7 +80,7 @@ public class Navigation{
     private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
     private static final float mmTargetHeight   = (6) * mmPerInch;
     private Dogeforia vuforia;
-    private GoldAlignDetector detector;
+    private SamplingOrderDetector detector;
 
     private DcMotor velocityMotor;
     private long prevTime;
@@ -157,7 +157,7 @@ public class Navigation{
         vuforia = new Dogeforia(parameters);
         vuforia.enableConvertFrameToBitmap();
 
-        detector = new GoldAlignDetector();
+        detector = new SamplingOrderDetector();
         detector.init(hardwareGetter.hardwareMap.appContext,CameraViewDisplay.getInstance(), 0, true);
         detector.useDefaults();
         detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
@@ -180,16 +180,19 @@ public class Navigation{
      */
     public boolean updateCubePos() {
 
-        Double pos = detector.getXPosition();
-        if (pos >= 200){
-            cubePos = CubePosition.RIGHT;
+        switch(detector.getCurrentOrder()) {
+            case UNKNOWN:
+                return false;
+            case LEFT:
+                cubePos = CubePosition.LEFT;
+                break;
+            case CENTER:
+                cubePos = CubePosition.MIDDLE;
+                break;
+            case RIGHT:
+                cubePos = CubePosition.RIGHT;
+                break;
         }
-        else if (pos <= 200){
-            cubePos = CubePosition.MIDDLE;
-        }  else {
-            cubePos = CubePosition.LEFT;
-        }
-
         return true;
     }
 
@@ -458,7 +461,6 @@ public class Navigation{
         telemetry.addData("Pos",pos);
         telemetry.addData("CubePos",cubePos);
         telemetry.addData("Velocity",velocity);
-        telemetry.addData("", detector.getXPosition());
         telemetry.update();
     }
 }
