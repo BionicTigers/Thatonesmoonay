@@ -48,13 +48,16 @@ public class AutoGeneric{
         nav.holdForDrive();
         switch(position) {
             case LEFT:
-                nav.pointTurnRelative(45f);
+                nav.pointTurnRelative(50f);
                 nav.holdForDrive();
                 nav.goDistance(20f);
                 nav.holdForDrive();
                 nav.goDistance(-20f);
                 nav.holdForDrive();
-                nav.pointTurnRelative(47f);
+                nav.pointTurnRelative(42f);
+                nav.holdForDrive();
+                nav.goDistance(52f);
+                nav.holdForDrive();
                 break;
             case RIGHT:
                 nav.pointTurnRelative(-45f);
@@ -63,7 +66,10 @@ public class AutoGeneric{
                 nav.holdForDrive();
                 nav.goDistance(-20f);
                 nav.holdForDrive();
-                nav.pointTurnRelative(132f);
+                nav.pointTurnRelative(131f);
+                nav.holdForDrive();
+                nav.goDistance(49f);
+                nav.holdForDrive();
                 break;
             default:
                 nav.goDistance(15f);
@@ -71,13 +77,16 @@ public class AutoGeneric{
                 nav.goDistance(-15f);
                 nav.holdForDrive();
                 nav.pointTurnRelative(90f);
+                nav.holdForDrive();
+                nav.goDistance(49f);
+                nav.holdForDrive();
                 break;
         }
 
-        //-----driving to wall-----//
-        nav.holdForDrive();
-        nav.goDistance(48f);
-        nav.holdForDrive();
+//        //-----driving to wall-----//
+//        nav.holdForDrive();
+//        nav.goDistance(49f);
+//        nav.holdForDrive();
 
         //-----crater depot run-----//
         if(startZone == StartPos.CRATER) {
@@ -119,10 +128,11 @@ public class AutoGeneric{
                     nav.holdForDrive();
                     nav.goDistance(-25f);
                     nav.holdForDrive();
-                    nav.pointTurnRelative(85f);
+                    nav.pointTurnRelative(87f);
                     break;
             }
             nav.holdForDrive();
+            nav.
         }
 
         //-----depot depot run-----//
