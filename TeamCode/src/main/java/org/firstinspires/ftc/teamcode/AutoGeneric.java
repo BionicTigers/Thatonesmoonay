@@ -28,7 +28,7 @@ public class AutoGeneric{
         this.telemetry = telemetry;
         nav = new Navigation(opMode, telemetry,true);
         nav.hold(0.1f);
-        nav.setCollectorHeight(Navigation.CollectorHeight.DUMP);
+       // nav.setCollectorHeight(Navigation.CollectorHeight.DUMP);
     }
 
     /**
@@ -87,9 +87,9 @@ public class AutoGeneric{
             nav.hold(1);
             nav.goDistance(63f);
             nav.holdForDrive();
-            //nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
+          //  nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
             nav.hold(5);
-            //  nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT); //breaking crater plane
+           // nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT); //breaking crater plane
             nav.hold(2);
         }
 
@@ -108,11 +108,11 @@ public class AutoGeneric{
                     nav.holdForDrive();
                     nav.goDistance(20);
                     nav.holdForDrive();
-                    nav.goDistance(-20f);
+                    nav.goDistance(-17f);
                     nav.holdForDrive();
                     nav.pointTurnRelative(38f);
                     nav.holdForDrive();
-                    nav.goDistance(51f);
+                    nav.goDistance(52f);
                     nav.holdForDrive();
                     break;
                 case RIGHT:
@@ -120,11 +120,11 @@ public class AutoGeneric{
                     nav.holdForDrive();
                     nav.goDistance(20f);
                     nav.holdForDrive();
-                    nav.goDistance(-17f);
+                    nav.goDistance(-16f);
                     nav.holdForDrive();
                     nav.pointTurnRelative(137f);
                     nav.holdForDrive();
-                    nav.goDistance(49.5f);
+                    nav.goDistance(51f);
                     nav.holdForDrive();
                     break;
                 default:
@@ -132,9 +132,9 @@ public class AutoGeneric{
                     nav.holdForDrive();
                     nav.goDistance(-13f);
                     nav.holdForDrive();
-                    nav.pointTurnRelative(95f);
+                    nav.pointTurnRelative(96f);
                     nav.holdForDrive();
-                    nav.goDistance(51f);
+                    nav.goDistance(51.5f);
                     nav.holdForDrive();
                     break;
             }
@@ -162,13 +162,13 @@ public class AutoGeneric{
                     nav.pointTurnRelative(20f);
                     break;
                 default: //middle
-                    nav.pointTurnRelative(-55f);
+                    nav.pointTurnRelative(-50f);
                     nav.holdForDrive();
                     nav.goDistance(30f);
                     nav.holdForDrive();
                     nav.goDistance(-30f);
                     nav.holdForDrive();
-                    nav.pointTurnRelative(56f);
+                    nav.pointTurnRelative(49f);
                     break;
             }
             nav.holdForDrive();
@@ -176,9 +176,9 @@ public class AutoGeneric{
             nav.hold(1);
             nav.goDistance(63f);
             nav.holdForDrive();
-            //nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
+           // nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
             nav.hold(5);
-            //  nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT); //breaking crater plane
+            //nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT); //breaking crater plane
             nav.hold(2);
         }
 
@@ -201,7 +201,7 @@ public class AutoGeneric{
                     nav.holdForDrive();
                     nav.pointTurnRelative(42f);
                     nav.holdForDrive();
-                    nav.goDistance(52f);
+                    nav.goDistance(54f);
                     nav.holdForDrive();
                     break;
                 case RIGHT:
@@ -209,11 +209,11 @@ public class AutoGeneric{
                     nav.holdForDrive();
                     nav.goDistance(20f);
                     nav.holdForDrive();
-                    nav.goDistance(-20f);
+                    nav.goDistance(-18f);
                     nav.holdForDrive();
                     nav.pointTurnRelative(132f);
                     nav.holdForDrive();
-                    nav.goDistance(50f);
+                    nav.goDistance(5f);
                     nav.holdForDrive();
                     break;
                 default:
@@ -221,16 +221,16 @@ public class AutoGeneric{
                     nav.holdForDrive();
                     nav.goDistance(-15f);
                     nav.holdForDrive();
-                    nav.pointTurnRelative(89f);
+                    nav.pointTurnRelative(90f);
                     nav.holdForDrive();
-                    nav.goDistance(49f);
+                    nav.goDistance(50f);
                     nav.holdForDrive();
                     break;
             }
 
             nav.pointTurnRelative(45f);
             nav.holdForDrive();
-            nav.goDistance(-55f);
+            nav.goDistance(-58f);
             nav.holdForDrive();
             nav.pointTurnRelative(90f);
             nav.holdForDrive();
@@ -242,7 +242,7 @@ public class AutoGeneric{
             nav.holdForDrive();
             //nav.setCollectorExtension(Navigation.CollectorExtension.OUT);
             nav.hold(5);
-            //  nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT); //breaking crater plane
+            //nav.setCollectorHeight(Navigation.CollectorHeight.COLLECT); //breaking crater plane
             nav.hold(2);
         }
 
