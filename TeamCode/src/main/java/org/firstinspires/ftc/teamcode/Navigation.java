@@ -71,22 +71,25 @@ public class Navigation{
     private float wheelDistance = 6.66f;                //distance from center of robot to center of wheel (inches)
     private float wheelDiameter = 4;                //diameter of wheel (inches)
     private Location pos = new Location();           //location of robot as [x,y,z,rot] (inches / degrees)
-    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+
 
     //-----internal values-----//
     private ElapsedTime runtime = new ElapsedTime();
     private static final float mmPerInch        = 25.4f;
     private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
     private static final float mmTargetHeight   = (6) * mmPerInch;
-    private Dogeforia vuforia;
-    private GoldAlignDetector detector;
-    private WebcamName webcamName;
-    private List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
-
     private DcMotor velocityMotor;
     private long prevTime;
     private int prevEncoder;
     private float velocity = 0f;
+    //------vision objects-----///
+    private Dogeforia vuforia;
+    private GoldAlignDetector detector;
+    private WebcamName webcamName;
+    private List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+
+
 
     //-----motors-----//
     private DcMotor frontLeft;
@@ -110,10 +113,11 @@ public class Navigation{
      * @param telemetry - Telemetry of the current OpMode, used to output data to the screen.
      * @param useTelemetry - Whether or not to output information about stored variables and motors during hold periods.
      */
-    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry, boolean useTelemetry) {
+    public Navigation(com.qualcomm.robotcore.eventloop.opmode.OpMode hardwareGetter, org.firstinspires.ftc.robotcore.external.Telemetry telemetry,boolean testing, boolean useTelemetry) {
         this.hardwareGetter = hardwareGetter;
         this.telemetry = telemetry;
         this.useTelemetry = useTelemetry;
+        if (testing){
 
         //-----motors-----//
         frontLeft = hardwareGetter.hardwareMap.dcMotor.get("frontLeft");
@@ -147,18 +151,14 @@ public class Navigation{
         collecty = hardwareGetter.hardwareMap.crservo.get("collecty");
         droppy = hardwareGetter.hardwareMap.servo.get("droppy");
         droppyJr = hardwareGetter.hardwareMap.servo.get("droppyJr");
-        droppyJr.setDirection(Servo.Direction.REVERSE);
+        droppyJr.setDirection(Servo.Direction.REVERSE);}
 
         //----Vuforia Params---///
         webcamName = hardwareGetter.hardwareMap.get(WebcamName.class, "Webcam 1");
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
+        parameters.fillCameraMonitorViewParent = true;
         // Vuforia licence key
         parameters.vuforiaLicenseKey = " AYSaZfX/////AAABGZyGj0QLiEYhuyrGuO59xV2Jyg9I+WGlfjyEbBxExILR4A183M1WUKucNHp5CnSpDGX5nQ9OD3w5WCfsJuudFyJIJSKZghM+dOlhTWWcEEGk/YB0aOLEJXKK712HpyZqrvwpXOyKDUwIZc1mjWyLT3ZfCmNHQ+ouLKNzOp2U4hRqjbdWf1ZkSlTieiR76IbF6x7MX5ZtRjkWeLR5hWocakIaH/ZPDnqo2A2mIzAzCUa8GCjr80FJzgS9dD77lyoHkJZ/5rNe0k/3HfUZXA+BFSthRrtai1W2/3oRCFmTJekrueYBjM4wuuB5CRqCs4MG/64AzyKOdqmI05YhC1tVa2Vd6Bye1PaMBHmWNfD+5Leq ";
-        parameters.fillCameraMonitorViewParent = true;
-
-        // Set camera name for Vuforia config
-        parameters.cameraName = webcamName;
 
         // Create Dogeforia object
         vuforia = new Dogeforia(parameters);
@@ -213,7 +213,7 @@ public class Navigation{
         {
             ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
         }
-
+        //---Init the Dogeforia detector and start vuforia ----//
         detector = new GoldAlignDetector();
         detector.init(hardwareGetter.hardwareMap.appContext,CameraViewDisplay.getInstance(), 0, true);
         detector.useDefaults();
@@ -269,7 +269,9 @@ public class Navigation{
      * Sets drive motor powers.
      * @param left power of left two motors as percentage (0-1).
      * @param right power of right two motors as percentage (0-1).
+     *
      */
+
     public void drivePower(float left, float right) {
         frontLeft.setPower(left);
         frontRight.setPower(right);

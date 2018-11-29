@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 public class TestMotorPositions extends LinearOpMode {
 
     @Override public void runOpMode() {
-        Navigation nav = new Navigation(this,telemetry,true);
+        Navigation nav = new Navigation(this,telemetry,false, true);
 
         waitForStart();
 

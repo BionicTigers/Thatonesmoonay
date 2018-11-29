@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 @Autonomous(name="Test Nav Methods", group="Test")
 public class TestNavMethods extends LinearOpMode {
     public void runOpMode() {
-        Navigation nav = new Navigation(this, telemetry, true);
+        Navigation nav = new Navigation(this, telemetry, false,true);
 
         waitForStart();
 
