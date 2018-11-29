@@ -41,6 +41,7 @@ public class GoldDetector extends DogeCVDetector {
     private int results;
     private Rect foundRect;
     private boolean isFound = false;
+    private Rect bestRect;
 
     public GoldDetector() {
         super();
@@ -61,7 +62,7 @@ public class GoldDetector extends DogeCVDetector {
         Imgproc.drawContours(workingMat,contoursYellow,-1,new Scalar(230,70,70),2);
         results = 0;
 
-        Rect bestRect = null;
+        bestRect = null;
         double bestDiffrence = Double.MAX_VALUE;
 
         for(MatOfPoint cont : contoursYellow){
@@ -112,5 +113,8 @@ public class GoldDetector extends DogeCVDetector {
 
     public Rect getFoundRect() {
         return foundRect;
+    }
+    public int getXPosition (){
+        return bestRect.x + (bestRect.height / 2);
     }
 }

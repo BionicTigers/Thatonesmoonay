@@ -10,11 +10,13 @@ public class TestNavwVuf extends OpMode {
     public void init() {
         nav = new Navigation(this, telemetry, true, false);
 
+
     }
 
     @Override
     public void loop() {
-
+    nav.updatePos();
+    telemetry.addData("Position", nav.getPos());
     }
 }
 
