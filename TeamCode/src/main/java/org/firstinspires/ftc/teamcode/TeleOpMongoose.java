@@ -246,9 +246,9 @@ public class TeleOpMongoose extends OpMode {
 
         //Collector// - RightBumper= Intake | RightTrigger= Outtake //This is a VEX Motor, 0.5 is the maximum power
         if (gamepad2.right_bumper) { //
-            collecty.setPower(0.5);
-        } else if (gamepad2.right_trigger > 0.5) {
             collecty.setPower(-0.5);
+        } else if (gamepad2.right_trigger > 0.5) {
+            collecty.setPower(0.5);
         } else {
             collecty.setPower(0);
         }
