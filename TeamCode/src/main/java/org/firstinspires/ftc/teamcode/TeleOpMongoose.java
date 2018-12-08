@@ -35,9 +35,9 @@ public class TeleOpMongoose extends OpMode {
 
     //Variables//
     private double normalSpeed, slowSpeed;
-    private double liftySpeed, liftyJrSpeed;
-    private double calibToggle, driveToggle;
-    private int driveSpeed, driveMode;
+    private double liftNormalSpeed, liftSlowSpeed;
+    private double calibToggle, driveToggle, liftToggle;
+    private int driveSpeed, driveMode, liftSpeed, liftMode;
     private boolean canMoveLiftyJr;
 
 
@@ -59,8 +59,10 @@ public class TeleOpMongoose extends OpMode {
         extendy = hardwareMap.dcMotor.get("extendy");
         lifty = hardwareMap.dcMotor.get("lifty");
         liftyJr = hardwareMap.dcMotor.get("liftyJr");
+        lifty.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftyJr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        liftyJr.setDirection(DcMotor.Direction.REVERSE);
+        lifty.setDirection(DcMotor.Direction.REVERSE);
 
         //Servos//
         teamMarker = hardwareMap.servo.get("teamMarker");
@@ -71,21 +73,25 @@ public class TeleOpMongoose extends OpMode {
 
         droppyJr.setDirection(Servo.Direction.REVERSE);
 
+
         //Sensors//
         limitSwitch = hardwareMap.touchSensor.get("limitSwitch");
 
         //Variables//
         calibToggle = 0;
         driveToggle = 0;
+        liftToggle = 0;
         driveSpeed = 0;
         driveMode = 0;
+        liftSpeed = 0;
+        liftMode = 0;
         canMoveLiftyJr = true;
 
         //Speed Offsets//
         normalSpeed = .7;
         slowSpeed = .35;
-        liftySpeed = 0.5;
-        liftyJrSpeed = 1;
+        liftNormalSpeed = 1;
+        liftSlowSpeed = 0.5;
     }
 
 
@@ -96,6 +102,18 @@ public class TeleOpMongoose extends OpMode {
             calibToggle = runtime.seconds() + 0.5;
             ++driveSpeed;
         }
+
+        if (gamepad1.dpad_down && (runtime.seconds() > liftToggle)) {
+            liftToggle = runtime.seconds() + 0.5;
+            liftyJr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            ++liftMode;
+        }
+
+        if (gamepad1.dpad_right && (runtime.seconds() > liftToggle)) {
+            liftToggle = runtime.seconds() + 0.5;
+            ++liftSpeed;
+        }
+
         if (gamepad1.y && (runtime.seconds() > driveToggle)) {
             driveToggle = runtime.seconds() + 0.5;
             if (driveMode == 0) {
@@ -131,8 +149,6 @@ public class TeleOpMongoose extends OpMode {
             if (driveSpeed % 2 == 0) {
                 telemetry.addData("Mode: ", "ARCADE");
                 telemetry.addData("Speed: ", "NORMAL");
-                telemetry.addData("Stick: ", "X = " + round(rightStick) + ", Y = " + round(leftStick));
-                telemetry.addData("Power: ", "L = " + round(leftPower) + ", R = " + round(rightPower));
 
                 backLeft.setPower(leftPower * normalSpeed);
                 backRight.setPower(rightPower * normalSpeed);
@@ -141,8 +157,6 @@ public class TeleOpMongoose extends OpMode {
             } else {
                 telemetry.addData("Mode: ", "ARCADE");
                 telemetry.addData("Speed: ", "SLOW");
-                telemetry.addData("Stick: ", "X = " + round(rightStick) + ", Y = " + round(leftStick));
-                telemetry.addData("Power: ", "L = " + round(leftPower) + ", R = " + round(rightPower));
 
                 backLeft.setPower(leftPower * slowSpeed);
                 backRight.setPower(rightPower * slowSpeed);
@@ -152,19 +166,17 @@ public class TeleOpMongoose extends OpMode {
         } else if (driveMode == 1) {
             /// TANK DRIVE ///
             double leftStick = gamepad1.left_stick_y;
-            double rightStick = -gamepad1.right_stick_x;
+            double rightStick = gamepad1.right_stick_x;
 
             //Left Side
-            double leftPower = gamepad1.left_stick_y;
-            
+            double leftPower = leftStick;
+
             //Right Side
-            double rightPower = gamepad1.right_stick_y;
+            double rightPower = rightStick;
 
             if (driveSpeed % 2 == 0) {
                 telemetry.addData("Mode: ", "TANK");
                 telemetry.addData("Speed: ", "NORMAL");
-                telemetry.addData("Stick: ", "X = " + round(rightStick) + ", Y = " + round(leftStick));
-                telemetry.addData("Power: ", "L = " + round(leftPower) + ", R = " + round(rightPower));
 
                 backLeft.setPower(leftPower * normalSpeed);
                 backRight.setPower(rightPower * normalSpeed);
@@ -173,8 +185,6 @@ public class TeleOpMongoose extends OpMode {
             } else {
                 telemetry.addData("Mode: ", "TANK");
                 telemetry.addData("Speed: ", "SLOW");
-                telemetry.addData("Stick: ", "X = " + round(rightStick) + ", Y = " + round(leftStick));
-                telemetry.addData("Power: ", "L = " + round(leftPower) + ", R = " + round(rightPower));
 
                 backLeft.setPower(leftPower * slowSpeed);
                 backRight.setPower(rightPower * slowSpeed);
@@ -204,8 +214,6 @@ public class TeleOpMongoose extends OpMode {
             if (driveSpeed % 2 == 0) {
                 telemetry.addData("Mode: ", "ACKERMAN");
                 telemetry.addData("Speed: ", "NORMAL");
-                telemetry.addData("Stick: ", "X = " + round(leftStick) + ", G = " + round(gasPedal));
-                telemetry.addData("Power: ", "L = " + round(leftPower) + ", R = " + round(rightPower));
 
                 backLeft.setPower(leftPower * normalSpeed);
                 backRight.setPower(rightPower * normalSpeed);
@@ -214,8 +222,6 @@ public class TeleOpMongoose extends OpMode {
             } else {
                 telemetry.addData("Mode: ", "ACKERMAN");
                 telemetry.addData("Speed: ", "SLOW");
-                telemetry.addData("Stick: ", "X = " + round(leftStick) + ", G = " + round(gasPedal));
-                telemetry.addData("Power: ", "L = " + round(leftPower) + ", R = " + round(rightPower));
 
                 backLeft.setPower(leftPower * slowSpeed);
                 backRight.setPower(rightPower * slowSpeed);
@@ -225,17 +231,26 @@ public class TeleOpMongoose extends OpMode {
         }
 
         //////////////////////////////////////// GAMEPAD 2 /////////////////////////////////////////
+
         //Lift// - LeftStick= Hopper Lift Power | RightStick= Robot Lift Power
-        lifty.setPower(gamepad2.right_stick_y * liftySpeed); //Phone mount side
-        if (canMoveLiftyJr) { //Camera mount side
-            if (gamepad2.left_stick_y > 0 && limitSwitch.isPressed()) {
-                liftyJr.setPower(0);
-            } else {
-                liftyJr.setPower(gamepad2.left_stick_y * liftyJrSpeed);
-            }
-        }
-        telemetry.addData("Lift: ", liftyJr.getCurrentPosition() + "/" + lifty.getCurrentPosition());
+        lifty.setPower(gamepad2.right_stick_y); //Phone mount side
+
+        telemetry.addData("Lifts: " + round(liftyJr.getCurrentPosition()) + "/", round(lifty.getCurrentPosition()));
         telemetry.addData("Limit: ", limitSwitch.isPressed());
+
+        double liftPower = 0;
+
+        if (liftMode % 2 == 0)
+            if (canMoveLiftyJr && !(gamepad2.left_stick_y > 0 && limitSwitch.isPressed()) && !(gamepad2.left_stick_y < 0 && liftyJr.getCurrentPosition() > 10000))
+                liftPower = gamepad2.left_stick_y;
+            else
+            if (canMoveLiftyJr && !(gamepad2.left_stick_y > 0 && limitSwitch.isPressed()))
+                liftPower = gamepad2.left_stick_y;
+
+        if (liftSpeed % 2 == 0)
+            liftyJr.setPower(liftPower * liftNormalSpeed);
+        else
+            liftyJr.setPower(liftPower * liftSlowSpeed);
 
         //Team Marker Deployer// - DPadRight= Lift | DPadLeft= Lower
         if (gamepad2.dpad_right) {
@@ -274,12 +289,16 @@ public class TeleOpMongoose extends OpMode {
             droppyJr.setPosition(0.5);
             canMoveLiftyJr = true;
         } else if (gamepad2.a) { //bottom
-            droppy.setPosition(0.715);
-            droppyJr.setPosition(0.715);
+            droppy.setPosition(0.8 + 0.075);
+            droppyJr.setPosition(0.8);
+            canMoveLiftyJr = true;
+        } else if (gamepad2.x) { //bottom
+            droppy.setPosition(0.85 + 0.075);
+            droppyJr.setPosition(0.85);
             canMoveLiftyJr = true;
         }
 
-        telemetry.update();
+        //   telemetry.update();
     }
 
 
